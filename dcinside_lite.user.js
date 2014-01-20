@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 var R_VERSION = "14104";	// 실제 버전
-var VERSION = "13821";		// 설정 내용 버전
+var VERSION = "14104";		// 설정 내용 버전
 var P = {
 version : "",
 
