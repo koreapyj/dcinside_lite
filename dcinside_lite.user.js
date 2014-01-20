@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14103
-// @date           2014.01.16
+// @version        14104
+// @date           2014.01.17
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,7 +10,7 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14103";	// 실제 버전
+var R_VERSION = "14104";	// 실제 버전
 var VERSION = "13820";		// 설정 내용 버전
 var P = {
 version : "",
@@ -49,7 +49,6 @@ menuPos : "top",
 menuFix : 1,
 best : 1,
 gallTab : 0,
-link : 0,
 linkList : "",
 
 page : 0,
@@ -122,43 +121,17 @@ switch(location.pathnameN) {
 			$('singo_gallery').focus();
 		MODE = false;
 		break;
-	case "/error/adult":
-		$('login_chk').children[0].href='http://dcid.dcinside.com/join/login.php?s_url=http://gall.dcinside.com/board/lists/?id=' + parseQuery(location.search).id;
-		MODE = false;
-		break;
 	case "/list.php":
 		if(parseQuery(location.search).no)
-			location.replace("http://gall.dcinside.com/board/view/"+location.search);
+			location.replace("http://"+location.innerhost+"/board/view/"+location.search);
 		else
-			location.replace("http://gall.dcinside.com/board/lists/"+location.search);
+			location.replace("http://"+location.innerhost+"/board/lists/"+location.search);
 		MODE = false;
 		break;
 	default:
 		MODE = false;
 		break;
 }
-/*
-if(location.pathnameN === "/board/write") {
-	MODE.write = true;
-} else if(location.pathnameN === "/board/view") {
-	MODE.article = true;
-} else if(location.pathnameN === "/board/lists") {
-	MODE.list = true;
-} else if(location.pathnameN === "/singo/singo_write") {
-	if(parseQuery(location.search).gallname && parseQuery(location.search).singourl) {
-		$('singo_gallery').value = decodeURIComponent(parseQuery(location.search).gallname);
-		$('singo_url').value = decodeURIComponent(parseQuery(location.search).singourl);
-		$('singo_menu').focus();
-	}
-	else
-		$('singo_gallery').focus();
-	MODE = false;
-} else if(location.pathnameN === "/error/adult") {
-	if($('login_chk').children[0])
-		$('login_chk').children[0].href='http://dcid.dcinside.com/join/login.php?s_url=http://gall.dcinside.com/board/lists/?id=' + parseQuery(location.search).id;
-} else {
-	MODE = false;
-}*/
 if(parseQuery(location.search).keyword) {
 	MODE.search = true;
 }
@@ -283,9 +256,19 @@ var eRemove = BROWSER.firefox ?
 		elem[type] = null;
 	};
 
+Array.prototype.contains = function(needle) {
+	for(var i=0; i < this.length; i++) if(this[i] === needle) return true;
+	return false;
+}
+
 function $(id) {return document.getElementById(id);}
 function cElement(tag,insert,property,func) {
-	var element = document.createElement(tag);
+	var _DIRECT = ["className", "innerHTML", "textContent"];
+	var element;
+	if(!tag)
+		element= document.createTextNode(property);
+	else
+		element= document.createElement(tag);
 	if(insert) {
 		var parent;
 		var before = null;
@@ -306,11 +289,16 @@ function cElement(tag,insert,property,func) {
 		}
 		parent.insertBefore(element,before);
 	}
+	if(!tag)
+		return element;
 	if(property) {
 		if(typeof property === "object") {
 			for(var i in property) {
 				if(property.hasOwnProperty(i)) {
-					element[i] = property[i];
+					if(_DIRECT.contains(i))
+						element[i] = property[i];
+					else
+						element.setAttribute(i, property[i]);
 				}
 			}
 		} else {
@@ -444,74 +432,426 @@ var BASE64 = { // base64 (data:image/png;base64,)
 	hideOff : "iVBORw0KGgoAAAANSUhEUgAAABkAAAAOCAYAAADaOrdAAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABZ0RVh0Q3JlYXRpb24gVGltZQAwMi8wNC8xMB87UF8AAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzQGstOgAAAAwUlEQVQ4jb2Uyw2DQAxEnxcoCdEENXDEtORC4EBngIRzIiKQ8Akk77Q7lj0jr7QCUJaliwi/wMwkVlUvioI0TUmS5Lbh4zjSNA2AB4Asy241AAghkOc5ALGIEEXR4WZVfZ7NbFcHiM+kU9XVgC1902Qr1TesTJap5obzu5m91Ob6rsk7psZlgE/6knDE5Cp/MVmta7nrOx6eqqr8V/R976rqwd1p25ZhGK4nntF1HXVdAyAAqupTcfoo3f1d72nMTB7e0azZRgjcWAAAAABJRU5ErkJggg==",
 	viewAll : "iVBORw0KGgoAAAANSUhEUgAAAB4AAAARCAYAAADKZhx3AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNAay06AAAAAWdEVYdENyZWF0aW9uIFRpbWUAMDIvMDUvMTCnhzc6AAAA6klEQVRIib2VQQqEMAxFU/FGTXpSV+48godwl+uICsKfxaDUErU6Og8EU2yTfPPVERF57+Gco3+hqo5EBG3bYpomvM08z6jrGswMF0JA13VUluVaETOTqm7ipOLddWtvHBMRhRCoBLBJeiCPeUga51Lc2hXBzOuVrh9hthp3Z3WZPmsVc8a5xjfYm4GYXanTbpdDLEktqeMCTETkdRuliAiyhytneHLe7UJW4njQnuJnO72WOB6wJ7vOstOTEl9KvPfdju8t71p2GoZh3YymaTCO4+s26vseVVV9/07eeyqKAteEug8AUlX3AQ6usNTFNBFLAAAAAElFTkSuQmCC",
 	hideAll : "iVBORw0KGgoAAAANSUhEUgAAAB4AAAARCAYAAADKZhx3AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNAay06AAAAAWdEVYdENyZWF0aW9uIFRpbWUAMDIvMDUvMTCnhzc6AAAA5UlEQVRIicWVMQ6DMAxFnSg3ip2TMrFxBA7B5usgQEL6HVoQRKEkLbRviozg2992MERE3nsYY+hXqKohEUHbtpimCXczzzPqugYzw4QQ0HUdOefWjJiZVHV3ZuZtxuuzd7FtfEsIgRyAnegbe3YJpQSXc0os5lAxzryElBPZwkfW5ZBTsS3+6kWcN/fFUnnc5yWeisXxHSJy+xrFiAiyrY57nep9yTxkCad2+Vv+NlynwvHFcFXVWVN9pcVFwkerknt/bxmGYX0ZTdNgHMfb16jve1RV9fw7ee/JWosyoz4HAKmqeQBQB60uBTy2vgAAAABJRU5ErkJggg==",
-	bestIcon : "iVBORw0KGgoAAAANSUhEUgAAAAIAAAADAQMAAACDJEzCAAAAA3NCSVQICAjb4U/gAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFnRFWHRDcmVhdGlvbiBUaW1lADA0LzA4LzEwNj3a3QAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNAay06AAAAAOSURBVAiZY3BgaGBwAAADBgEB/Jz9DgAAAABJRU5ErkJggg=="
+	bestIcon : "iVBORw0KGgoAAAANSUhEUgAAAAIAAAADAQMAAACDJEzCAAAAA3NCSVQICAjb4U/gAAAABlBMVEUAAAD///+l2Z/dAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFnRFWHRDcmVhdGlvbiBUaW1lADA0LzA4LzEwNj3a3QAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNAay06AAAAAOSURBVAiZY3BgaGBwAAADBgEB/Jz9DgAAAABJRU5ErkJggg==",
+	dialogClose :
+	"iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAUklEQVR4XqXPYQrAIAhAYW/gXd8NJxTopVqsGEhtf+L9/ERU2k/HSMFQpKcYJeNFI9Be0LCMij8cYyjj5EHIivGBkwLfrbX3IF8PqumVmnDpEG+eDsKibPG2JwAAAABJRU5ErkJggg==",
+	dialogClose_H :
+	"iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAnUlEQVR4XoWQQQ6CQAxFewjkJkMCyXgJPMk7AiYczyBeZEAX6AKctGIaN+bt+trk9wtGQc/IkhnoKGxqqiWxOSZalapWFZ6VrIUDExsN0a5JRBq9LoVOR0eEQMoEhKizXhhsn0p1sCWVo7CwOf1RytPL8CPvwuBUoHL6ugeK30CVD1TqK7V/hdpe+VNChhOzV8xWny/+xosHF8578W/Hmc1OOC3wmwAAAABJRU5ErkJggg=="
 };
 
 // 환경 설정
 var SET = {
 
 call : function() {
-	if(!$("DCL_set")) {
+	if(!$("DCL_set_wrap")) {
 		addStyle(
-			"div#DCL_set {position:absolute ; width:550px ; border:5px solid #ccc ; -moz-border-radius:20px ; border-radius:20px ; padding:10px ; background-color:#f9f9f9 ; z-index:103}" +
-			"div#DCL_set * {margin:0 ; padding:0 ; font-size:9pt ; line-height:1.6em ; font-family:Tahoma,돋움 ; vertical-align:middle}" +
-			"div#DCL_set h2 {margin:5px ; padding:5px 10px ; font-weight:bold ; font-size:12pt ; color:#fff ; background-color:#666}" +
-			"div#DCL_set > fieldset:first-of-type {width:527px;}" +
-			"div#DCL_set > fieldset:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
-			"div#DCL_set fieldset {float:left ; padding:5px ; margin:5px 3px ; border:1px solid #666 ; -moz-border-radius:5px ; border-radius:5px}" +
-			"div#DCL_set legend {padding:0 5px ; font-weight:bold}" +
-			"div#DCL_set input + * {padding-left:3px}" +
-			"div#DCL_set input[type='text']," +
-			"div#DCL_set input[type='password'] {margin-left:5px ; border:1px solid #999}" +
-			"div#DCL_set textarea {display:block}" +
-			"div#DCL_set textarea[cols='11'] {width:110px}" +
-			"div#DCL_set textarea[cols='25'] {width:250px}" +
-			"div#DCL_set input[size='2'] {width:20px}" +
-			"div#DCL_set input[size='4'] {width:40px}" +
-			"div#DCL_set input[size='6'] {width:60px}" +
-			"div#DCL_set input[size='12'] {width:120px}" +
-			"div#DCL_set input[size='23'] {width:230px}" +
-			"div#DCL_set hr {border-width:1px 0 0 ; margin:3px}" +
-			"div#DCL_set input.DCL_number {text-align:right}" +
-			"div#DCL_set .DCL_indent {margin-left:15px !important}" +
-			"div#DCL_set p#DCL_prefBtn {clear:both ; padding:10px ; text-align:center}" +
-			"div#DCL_set p#DCL_prefBtn > span {margin:10px ; padding:7px 10px ; font-weight:bold ; background-color:#666 ; color:#fff ; cursor:pointer}" +
-			"div#DCL_set p.DCL_tooltip {display:none ; position:absolute ; padding:5px 10px ; border:1px solid #999 ; -moz-border-radius:5px ; border-radius:5px ; background-color:#fff}" +
-			"div#DCL_set *:hover + p.DCL_tooltip {display:block}");
+			"div#DCL_set_bg { position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; z-index: 101; }" +
+			"div.DCL_set_wrap,"+
+			"div.DCL_set_mdi { box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0,0,0,0.15); border-radius: 3px; background-color:rgba(255,255,255,.9); }" +
+			"div.DCL_set_wrap {z-index: 102; position: fixed; top: 50%; left: 50%; margin-top: -330px; margin-left: -320px; width: 640px; height: 660px; }" +
+
+			"div.DCL_set_wrap > div.head > button," +
+			"div.DCL_set_mdi > div.head > button {height: 14px; width: 14px; float: right; border: 0; border-radius: 7px; margin: 10px 10px; font-size: 0px; background:url('data:image/png;base64,"+BASE64.dialogClose+"'); padding: 0; box-shadow: none; text-shadow: none; }" +
+			"div.DCL_set_wrap > div.head > button:hover," +
+			"div.DCL_set_mdi > div.head > button:hover{ background:url('data:image/png;base64,"+BASE64.dialogClose_H+"'); }" + 
+			"div.DCL_set_wrap > div.head > h2," +
+			"div.DCL_set_mdi > div.head > h2{ padding:10px 20px; font-weight: normal; font-size: 120%;}" +
+
+			"div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: 'Segoe UI', 'Meiryo', 'MS PGothic', 'Malgun Gothic', 'Dotum', sans-serif; vertical-align:middle}" +
+			"div.DCL_set_wrap > div.body { overflow-y: scroll; height:570px; }" +
+			"div.DCL_set_wrap button, " +
+			"div.DCL_set_wrap input[type=button], " +
+			"div.DCL_set_wrap select, " +
+			"div.DCL_set_wrap input[type=submit] { padding: 2px 10px; border-radius: 2px; background-image: linear-gradient(0deg, #dedede, #ededed); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.25); text-shadow: 0 1px 0 rgb(240, 240, 240); color: #444; outline: none; margin: 0 4px 0 0; }" +
+
+			"div.DCL_set_wrap input[type=text]," +
+			"div.DCL_set_wrap input[type=number] { border: 1px solid #CCC; cursor: auto; outline: none; border-radius: 2px; padding: 2px 5px; margin: 0 4px 0 0; }" +
+			"div.DCL_set_wrap textarea { border: 1px solid #CCC; cursor: auto; font-family: monospace; outline: none; }" +
+
+			"div.DCL_set_wrap button:hover, " +
+			"div.DCL_set_wrap input[type=button]:hover, " +
+			"div.DCL_set_wrap select:hover, " +
+			"div.DCL_set_wrap input[type=submit]:hover, " +
+			"div.DCL_set_wrap input[type=text]:hover, " +
+			"div.DCL_set_wrap input[type=number]:hover { border: 1px solid rgba(0, 0, 0, 0.45); }" +
+
+			"div.DCL_set_wrap button:focus, " +
+			"div.DCL_set_wrap input[type=button]:focus, " +
+			"div.DCL_set_wrap select:focus, " +
+			"div.DCL_set_wrap input[type=submit]:focus, " +
+			"div.DCL_set_wrap input[type=text]:focus," +
+			"div.DCL_set_wrap input[type=number]:focus { border: 1px solid #09E; }" +
+
+			"div.DCL_set_wrap > div.foot > input[type=submit]," +
+			"div.DCL_set_mdi > div.foot > input[type=submit] { float: right; margin: 10px 15px; }" +
+			"div.DCL_set_wrap ::selection { background: inherit; }" +
+
+			"div#DCL_set_mdibg { z-index: 103; position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; }" +
+			"div.DCL_set_mdi { z-index: 104; position: fixed; top: 50%; left: 50%; margin-top: -173px; margin-left: -270px; height: 346px; width: 540px; display: none; }" +
+			"div.DCL_set_mdi > div.body { height:257px; padding: 0 20px; overflow: hidden; }" +
+			"div.DCL_set_mdi > div.body div#linkList { height: 100%; width: 100% }" +
+			"div.DCL_set_mdi > div.body div#linkList > textarea { height: 198px; width: 100%; border-radius: 2px 0 0 2px; }" +
+			"div.DCL_set_mdi > div.filter div[id^=textbox] { height: 210px; }" +
+			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea { overflow-y: scroll; height: 100%; width: 249px; resize: none; }" +
+			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:248px; border-radius: 2px 0 0 2px; }" +
+			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
+			"div.DCL_set_mdi > div.filter div#textboxAT," +
+			"div.DCL_set_mdi > div.filter div#textboxCN," +
+			"div.DCL_set_mdi > div.filter div#textboxCT { display: none; }" +
+			"div.DCL_set_mdi > div.filter div#info { height: 20px; }" +
+			"div.DCL_set_mdi > div.filter div#info > span { display: inline-block; font-weight: bold; width: 50%; }" +
+
+			"div#DCL_set > div { padding-left: 20px; padding-bottom: 10px; }" +
+			"div#DCL_set > div > h3 { font-size: 120%; font-weight: normal; }" +
+			"div#DCL_set > div ul > li { padding: 5px 0 5px 28px; }" +
+			"div#DCL_set > div ul > li.info + li { padding-top: 0; }" +
+
+			"div#DCL_set > div input[type=text]::-webkit-input-placeholder, " +
+			"div#DCL_set > div input[type=text]:-moz-placeholder { color:black; }" +
+			"div#DCL_set > div input[type=text].number { text-align: right; }" +
+				
+			"div#DCL_set > div:first-of-type > ul:first-of-type.disabled { height: 55px; overflow: hidden; }" +
+			"div#DCL_set > div a { cursor: auto; text-decoration: underline; color: blue; }" +
+			"div#DCL_set > div div.small { font-size: 10px; }" +
+			"div#DCL_set > div div.br { font-size: 10px; margin-top: 12px; }" +
+			"div#DCL_set > div div.copyable { cursor:auto; }" +
+			"div#DCL_set > div div.copyable::selection { background: #0BF; }" +
+
+/*			"div#DCL_set::-webkit-scrollbar { width: 14px; }" +
+			"div#DCL_set::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ddd; }" +
+			"div#DCL_set::-webkit-scrollbar-thumb { width: 12px; background: #dcdcdc; border: 3px solid transparent; border-radius: 5px; background-clip: content-box; box-shadow: 0 0 1px #999 inset; border-right: 2px solid transparent; }" +*/
+			"");
+
+		var dclset={};
+		dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"});
+		dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
+		dclset.head = cElement("div", dclset.wrap, {className:"head"});
+			cElement("button", dclset.head, {textContent:"닫기"}, SET.close);
+			cElement("h2", dclset.head, {textContent:"디시라이트 설정"});
+
+		dclset.body = cElement("div", dclset.wrap, {id:"DCL_set", className:"body"});
+		dclset.body.mdibg = cElement("div", dclset.body, {id:"DCL_set_mdibg"});
+		dclset.body.mdibg.style.display="none";
+
+		dclset.body.filter = cElement("div", dclset.body);
+		cElement("h3", dclset.body.filter, "필터");
+		dclset.body.filter.innerList = cElement("ul", dclset.body.filter);
+			dclset.body.filter.innerList.info = cElement("li", dclset.body.filter.innerList, {textContent:"미리 설정한 조건에 맞는 게시물을 보이지 않게 할 수 있습니다.", className:"info"});
+			dclset.body.filter.innerList.filter = cElement("li", dclset.body.filter.innerList);
+			cElement("input", dclset.body.filter.innerList.filter, {type:"checkbox", id:"DCL_filter"});
+			cElement("label", dclset.body.filter.innerList.filter, {"for":"DCL_filter",textContent:"필터 사용"});
+			
+			dclset.body.filter.innerList.blockN = cElement("li", dclset.body.filter.innerList);
+			cElement("input", dclset.body.filter.innerList.blockN, {type:"checkbox", id:"DCL_blockN"});
+			cElement("label", dclset.body.filter.innerList.blockN, {"for":"DCL_blockN",textContent:"공지 차단"});
+				dclset.body.filter.innerList.blockN.innerList = cElement("ul", dclset.body.filter.innerList.blockN);
+				dclset.body.filter.innerList.blockN.innerList.blockNA = cElement("li", dclset.body.filter.innerList.blockN.innerList);
+				cElement("input", dclset.body.filter.innerList.blockN.innerList.blockNA, {type:"checkbox", id:"DCL_blockNA"});
+				cElement("label", dclset.body.filter.innerList.blockN.innerList.blockNA, {"for":"DCL_blockNA",textContent:"운영자 공지만 차단"});
+				dclset.body.filter.innerList.blockN.innerList.blockNR = cElement("li", dclset.body.filter.innerList.blockN.innerList);
+				cElement("input", dclset.body.filter.innerList.blockN.innerList.blockNR, {type:"text", placeholder:"0", class:"number", id:"DCL_blockNR","size":"2"});
+				cElement("label", dclset.body.filter.innerList.blockN.innerList.blockNR, {"for":"DCL_blockNR",textContent:"일 이내 공지 표시"});
+				
+			dclset.body.filter.innerList.allowStyle = cElement("li", dclset.body.filter.innerList);
+			cElement("input", dclset.body.filter.innerList.allowStyle, {type:"checkbox", id:"DCL_allowStyle"});
+			cElement("label", dclset.body.filter.innerList.allowStyle, {"for":"DCL_allowStyle",textContent:"예외 단어 강조"});
+			dclset.body.filter.innerList.showLabel = cElement("li", dclset.body.filter.innerList);
+			cElement("input", dclset.body.filter.innerList.showLabel, {type:"checkbox", id:"DCL_showLabel"});
+			cElement("label", dclset.body.filter.innerList.showLabel, {"for":"DCL_showLabel",textContent:"차단된 사용자 표시"});
+			dclset.body.filter.innerList.filterPattern = cElement("li", dclset.body.filter.innerList);
+			cElement("input", dclset.body.filter.innerList.filterPattern, {type:"button", value:"필터 패턴 관리..."}, function() { dclset.body.filter.mdiwrap.style.display=dclset.body.mdibg.style.display="block"; });
+
+			dclset.body.filter.mdiwrap = cElement("div", dclset.body.filter, {className:"DCL_set_mdi"});
+			dclset.body.filter.mdihead = cElement("div", dclset.body.filter.mdiwrap, {className:"head"});
+				cElement("button", dclset.body.filter.mdihead, {textContent:"닫기"}, function() { dclset.body.filter.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
+				cElement("h2", dclset.body.filter.mdihead, {textContent:"필터 패턴 관리"});
+			dclset.body.filter.mdibody = cElement("div", dclset.body.filter.mdiwrap, {className:"body filter"});
+			dclset.body.filter.mdibody.selector = cElement("select", cElement("div", dclset.body.filter.mdibody));
+				cElement("option", dclset.body.filter.mdibody.selector, {value:"0",textContent:"게시물 작성자"});
+				cElement("option", dclset.body.filter.mdibody.selector, {value:"1",textContent:"게시물 제목"});
+				cElement("option", dclset.body.filter.mdibody.selector, {value:"2",textContent:"댓글 작성자"});
+				cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 제목"});
+				dclset.body.filter.mdibody.info = cElement("div", dclset.body.filter.mdibody, {id:"info"});
+				cElement("span", dclset.body.filter.mdibody.info, "차단");
+				cElement("span", dclset.body.filter.mdibody.info, "허용");
+				dclset.body.filter.mdibody.textbox=new Array();
+				dclset.body.filter.mdibody.textbox[0] = cElement("div", dclset.body.filter.mdibody, {id:"textboxAN"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[0], {id:"DCL_blockAN"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[0], {id:"DCL_allowAN"});
+				dclset.body.filter.mdibody.textbox[1] = cElement("div", dclset.body.filter.mdibody, {id:"textboxAT"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[1], {id:"DCL_blockAT"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[1], {id:"DCL_allowAT"});
+				dclset.body.filter.mdibody.textbox[2] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCN"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[2], {id:"DCL_blockCN"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[2], {id:"DCL_allowCN"});
+				dclset.body.filter.mdibody.textbox[3] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCT"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_blockCT"});
+				cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_allowCT"});
+			dclset.body.filter.mdifoot = cElement("div", dclset.body.filter.mdiwrap, {className:"foot"});
+				cElement("input", dclset.body.filter.mdifoot, {type:"submit", value:"닫기"}, function() { dclset.body.filter.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
+
+			dclset.body.filter.mdibody.selector.addEventListener("change", function() {
+				for(i=0;dclset.body.filter.mdibody.textbox[i];i++) {
+					if(i==dclset.body.filter.mdibody.selector.value)
+						dclset.body.filter.mdibody.textbox[i].style.display="block";
+					else
+						dclset.body.filter.mdibody.textbox[i].style.display="none";
+				}
+			});
 /*
-		divSet = cElement("div",document.body,{id:"DCL_set"});
-		cElement("input", cElement("h2", divSet, {textContent:"디시라이트 r"+R_VERSION}), {type:"hidden", id:"DCL_version"});
+					"<li><h4>게시물 작성자</h4><ul>" +
+						"<li><label for='DCL_blockAN'>차단</label><textarea id='DCL_blockAN' rows='4' cols='11' wrap='off'></textarea></li>" +
+						"<li><label for='DCL_allowAN'>예외</label><textarea id='DCL_allowAN' rows='4' cols='11' wrap='off'></textarea></li>" +
+					"</ul></li>" +
+					"<li><h4>게시물 제목</h4><ul>" +
+						"<li><label for='DCL_blockAT'>차단</label><textarea id='DCL_blockAT' rows='4' cols='11' wrap='off'></textarea></li>" +
+						"<li><label for='DCL_allowAT'>예외</label><textarea id='DCL_allowAT' rows='4' cols='11' wrap='off'></textarea></li>" +
+					"</ul></li>" +
+					"<li><h4>댓글 작성자</h4><ul>" +
+						"<li><label for='DCL_blockCN'>차단</label><textarea id='DCL_blockCN' rows='4' cols='11' wrap='off'></textarea></li>" +
+						"<li><label for='DCL_allowCN'>예외</label><textarea id='DCL_allowCN' rows='4' cols='11' wrap='off'></textarea></li>" +
+					"</ul></li>" +
+					"<li><h4>댓글 내용</h4><ul>" +
+						"<li><label for='DCL_blockCT'>차단</label><textarea id='DCL_blockCT' rows='4' cols='11' wrap='off'></textarea></li>" +
+						"<li><label for='DCL_allowCT'>예외</label><textarea id='DCL_allowCT' rows='4' cols='11' wrap='off'></textarea></li>" +
+					"</ul></li>" +*/
+		dclset.body.layout = cElement("div", dclset.body);
+		cElement("h3", dclset.body.layout, "레이아웃 변경");
+		dclset.body.layout.innerList = cElement("ul", dclset.body.layout);
+			dclset.body.layout.innerList.pageWidth = cElement("li", dclset.body.layout.innerList);
+			cElement("label", dclset.body.layout.innerList.pageWidth, {"for":"DCL_pageWidth", textContent:"페이지 폭"});
+			cElement("input", dclset.body.layout.innerList.pageWidth, {type:"text", id:"DCL_pageWidth", className:"number", size:"4"});
+			cElement(null, dclset.body.layout.innerList.pageWidth, "px");
+			dclset.body.layout.innerList.header = cElement("li", dclset.body.layout.innerList);
+			cElement("input", dclset.body.layout.innerList.header, {type:"checkbox", id:"DCL_header"});
+			cElement("label", dclset.body.layout.innerList.header, {"for":"DCL_header",textContent:"상단 메뉴 표시"});
+			dclset.body.layout.innerList.kanban = cElement("li", dclset.body.layout.innerList);
+			cElement("input", dclset.body.layout.innerList.kanban, {type:"checkbox", id:"DCL_title"});
+			cElement("label", dclset.body.layout.innerList.kanban, {"for":"DCL_title",textContent:"갤러리 타이틀 표시"});
+			dclset.body.layout.innerList.best = cElement("li", dclset.body.layout.innerList);
+			cElement("input", dclset.body.layout.innerList.best, {type:"checkbox", id:"DCL_best"});
+			cElement("label", dclset.body.layout.innerList.best, {"for":"DCL_best",textContent:"갤러리 박스 표시"});
+			dclset.body.layout.innerList.gallTab = cElement("li", dclset.body.layout.innerList);
+			cElement("input", dclset.body.layout.innerList.gallTab, {type:"checkbox", id:"DCL_gallTab"});
+			cElement("label", dclset.body.layout.innerList.gallTab, {"for":"DCL_gallTab",textContent:"갤러리 전환 탭 표시"});
 
-		fieldFilter = cElement("fieldset", divSet);
-		
-		lFilter = cElement("legend", fieldFilter);
-		cElement("input", lFilter, {type:"checkbox",id:"DCL_filter"});
-		cElement("label", lFilter, {htmlFor:"DCL_filter",textContent:"필터"});
-		cElement("p", lFilter, {className:"DCL_tooltip",innerHTML:"1) 작성자 필터<br />- 기본적으로 전체 일치하는 경우에 차단<br />- 와일드카드 ＊(ㅁ한자3)를 사용하여 부분 일치 차단<br />- #차단id 형식으로 닉네임이 아닌 DCinside 사용자 ID로 차단<br /><br />2) 제목 필터<br />- 차단 단어가 제목에 포함되어 있으면 차단 (부분 일치)<br /><br />3) 예외 목록에 있는 경우 다른 차단 목록에 있어도 무시"});
-		
-		cElement("input", fieldFilter, {type:"checkbox",id:"DCL_blockN"});
-		cElement("label", fieldFilter, {htmlFor:"DCL_blockN",textContent:"공지 차단"});
-		cElement("br", fieldFilter);
+		dclset.body.wideLayout = cElement("div", dclset.body);
+		cElement("h3", dclset.body.wideLayout, "와이드 레이아웃");
+		dclset.body.wideLayout.innerList = cElement("ul", dclset.body.wideLayout);
+		dclset.body.wideLayout.innerList.info = cElement("li", dclset.body.wideLayout.innerList);
+		cElement("div", dclset.body.wideLayout.innerList.info, "본문 영역을 오른쪽에 표시하여 화면을 넓게 사용합니다.");
+		dclset.body.wideLayout.innerList.wide = cElement("li", dclset.body.wideLayout.innerList);
+		cElement("input", dclset.body.wideLayout.innerList.wide, {type:"checkbox", id:"DCL_wide"});
+		cElement("label", dclset.body.wideLayout.innerList.wide, {"for":"DCL_wide",textContent:"와이드 레이아웃 사용"});
+		dclset.body.wideLayout.innerList.wideWidth = cElement("li", dclset.body.wideLayout.innerList);
+		cElement("label", dclset.body.wideLayout.innerList.wideWidth, {"for":"DCL_wideWidth", textContent:"본문 폭"});
+		cElement("input", dclset.body.wideLayout.innerList.wideWidth, {type:"text", id:"DCL_wideWidth", className:"number", size:"4"});
+		cElement(null, dclset.body.wideLayout.innerList.wideWidth, "px");
 
-		cElement("input", fieldFilter, {type:"checkbox",id:"DCL_blockNA",className:"DCL_indent"});
-		cElement("label", fieldFilter, {htmlFor:"DCL_blockNA",textContent:"운영자 공지만 차단"});
-		cElement("input", fieldFilter, {type:"text",id:"DCL_blockNR",className:"DCL_number DCL_indent", size:"2"});
-		cElement("label", fieldFilter, {htmlFor:"DCL_blockNR",textContent:"일 이내 공지 표시"});
-		cElement("br", fieldFilter);*/
+		dclset.body.pageTitle = cElement("div", dclset.body);
+		cElement("h3", dclset.body.pageTitle, "페이지 제목 변경");
+		dclset.body.pageTitle.innerList = cElement("ul", dclset.body.pageTitle);
+			dclset.body.pageTitle.innerList.info = cElement("li", dclset.body.pageTitle.innerList);
+			cElement("div", dclset.body.pageTitle.innerList.info, "페이지 제목을 변경합니다.");
+			cElement("div", dclset.body.pageTitle.innerList.info, "{G} : 갤러리 이름 {P} : 페이지 {T} : 게시물 제목 {W} : 작성자");
+			dclset.body.pageTitle.innerList.modTitle = cElement("li", dclset.body.pageTitle.innerList);
+			cElement("input", dclset.body.pageTitle.innerList.modTitle, {type:"checkbox", id:"DCL_modTitle"});
+			cElement("label", dclset.body.pageTitle.innerList.modTitle, {"for":"DCL_modTitle",textContent:"페이지 제목 변경"});
+			dclset.body.pageTitle.innerList.modTitle.innerList = cElement("ul", dclset.body.pageTitle.innerList.modTitle);
+				dclset.body.pageTitle.innerList.modTitle.innerList.listTitle = cElement("li", dclset.body.pageTitle.innerList.modTitle.innerList);
+				cElement("label", dclset.body.pageTitle.innerList.modTitle.innerList.listTitle, {"for":"DCL_listTitle",textContent:"목록"});
+				cElement("input", dclset.body.pageTitle.innerList.modTitle.innerList.listTitle, {type:"text", id:"DCL_listTitle", placeholder:"{G} - {P} 페이지"});
+				dclset.body.pageTitle.innerList.modTitle.innerList.articleTitle = cElement("li", dclset.body.pageTitle.innerList.modTitle.innerList);
+				cElement("label", dclset.body.pageTitle.innerList.modTitle.innerList.articleTitle, {"for":"DCL_articleTitle",textContent:"본문"});
+				cElement("input", dclset.body.pageTitle.innerList.modTitle.innerList.articleTitle, {type:"text", id:"DCL_articleTitle", placeholder:"{T} ({W}) - {G} 페이지"});
 
-		cElement("div",document.body,{id:"DCL_set",innerHTML:"<h2>디시라이트 r"+R_VERSION+"<input type='hidden' id='DCL_version' /></h2><fieldset><legend><input type='checkbox' id='DCL_filter' /><label for='DCL_filter'>필터</label><p class='DCL_tooltip'>1) 작성자 필터<br />- 기본적으로 전체 일치하는 경우에 차단<br />- 와일드카드 ＊(ㅁ한자3)를 사용하여 부분 일치 차단<br />- #차단id 형식으로 닉네임이 아닌 DCinside 사용자 ID로 차단<br /><br />2) 제목 필터<br />- 차단 단어가 제목에 포함되어 있으면 차단 (부분 일치)<br /><br />3) 예외 목록에 있는 경우 다른 차단 목록에 있어도 무시</p></legend><input type='checkbox' id='DCL_blockN' /><label for='DCL_blockN'>공지 차단</label><br /><input type='checkbox' id='DCL_blockNA' class='DCL_indent' /><label for='DCL_blockNA'>운영자 공지만 차단</label><input type='text' id='DCL_blockNR' size='2' class='DCL_number DCL_indent' /><label for='DCL_blockNR'>일 이내 공지 표시</label><br /><input type='checkbox' id='DCL_allowStyle' /><label for='DCL_allowStyle'>예외 단어 강조</label><br /><input type='checkbox' id='DCL_showLabel' /><label for='DCL_showLabel'>차단된 사용자 표시</label><p class='DCL_tooltip'>차단된 사용자를 상단 바에 표시합니다.</p><br /><fieldset><legend>게시물 작성자</legend><label for='DCL_blockAN'>차단</label><textarea id='DCL_blockAN' rows='4' cols='11' wrap='off'></textarea><label for='DCL_allowAN'>예외</label><textarea id='DCL_allowAN' rows='3' cols='11' wrap='off'></textarea></fieldset><fieldset><legend>게시물 제목</legend><label for='DCL_blockAT'>차단</label><textarea id='DCL_blockAT' rows='4' cols='11' wrap='off'></textarea><label for='DCL_allowAT'>예외</label><textarea id='DCL_allowAT' rows='3' cols='11' wrap='off'></textarea></fieldset><fieldset><legend>댓글 작성자</legend><label for='DCL_blockCN'>차단</label><textarea id='DCL_blockCN' rows='4' cols='11' wrap='off'></textarea><label for='DCL_allowCN'>예외</label><textarea id='DCL_allowCN' rows='3' cols='11' wrap='off'></textarea></fieldset><fieldset><legend>댓글 내용</legend><label for='DCL_blockCT'>차단</label><textarea id='DCL_blockCT' rows='4' cols='11' wrap='off'></textarea><label for='DCL_allowCT'>예외</label><textarea id='DCL_allowCT' rows='3' cols='11' wrap='off'></textarea></fieldset></fieldset><fieldset><legend>레이아웃</legend><input type='checkbox' id='DCL_modTitle' /><label for='DCL_modTitle'>브라우저 타이틀 수정</label><br /><label for='DCL_listTitle' class='DCL_indent'>목록</label><p class='DCL_tooltip'>{G} : 갤러리 이름<br />{P} : 페이지</p><input type='text' id='DCL_listTitle' size='12' /><br /><label for='DCL_articleTitle' class='DCL_indent' >본문</label><p class='DCL_tooltip'>{G} : 갤러리 이름<br />{T} : 게시물 제목<br />{W} : 작성자</p><input type='text' id='DCL_articleTitle' size='12' /><hr /><input type='checkbox' id='DCL_header' /><label for='DCL_header'>상단 메뉴 표시</label><p class='DCL_tooltip'>DCINSIDE의 기본 상단 메뉴를 표시합니다.</p><br /><input type='checkbox' id='DCL_title' /><label for='DCL_title'>갤러리 타이틀 표시</label><p class='DCL_tooltip'>갤러리 타이틀과 관련 메뉴를 표시합니다.</p><br /><input type='checkbox' id='DCL_best' /><label for='DCL_best'>갤러리 박스 표시</label><p class='DCL_tooltip'>목록 페이지 상단에 표시되는 갤러리 박스를 사용합니다.</p><br /><input type='checkbox' id='DCL_gallTab' /><label for='DCL_gallTab'>갤러리 전환 탭 표시</label><p class='DCL_tooltip'>목록 페이지 상단에 표시되는 갤러리 전환 탭을 사용합니다.</p><br /><input type='checkbox' checked='checked' disabled='disabled' /><label for='DCL_pageWidth'>페이지 너비</label><p class='DCL_tooltip'>페이지의 너비를 설정합니다.</p><input type='text' id='DCL_pageWidth' size='4' class='DCL_number' /><br /><input type='checkbox' id='DCL_wide' /><label for='DCL_wide'>와이드 레이아웃</label><p class='DCL_tooltip'>본문 영역을 오른쪽에 표시하여 화면을 가로로 길게 사용합니다.<br />(가로 해상도 1920 이상의 와이드 모니터에서 권장)</p> (<label for='DCL_wideWidth'>본문 너비</label><p class='DCL_tooltip'>와이드 레이아웃 모드에서의 본문 영역 너비</p><input type='text' id='DCL_wideWidth' size='4' class='DCL_number' />)<br /><input type='checkbox' checked='checked' disabled='disabled' /><label>목록 표시 설정</label><p class='DCL_tooltip'>목록에 표시할 항목을 설정합니다.</p><br /><input type='checkbox' id='DCL_listNumber' class='DCL_indent' /><label for='DCL_listNumber'>번호</label><input type='checkbox' id='DCL_listDate' class='DCL_indent' /><label for='DCL_listDate'>날짜</label><input type='checkbox' id='DCL_listCount' class='DCL_indent' /><label for='DCL_listCount'>조회수</label><input type='checkbox' id='DCL_listComment' class='DCL_indent' /><label for='DCL_listComment'>댓글 [0]</label><p class='DCL_tooltip'>댓글 수가 0 인 경우에도 댓글 링크를 표시합니다.</p><br /><input type='checkbox' id='DCL_listTime' class='DCL_indent' /><label for='DCL_listTime'>작성시간 표시</label><p class='DCL_tooltip'>게시글 작성 날짜 옆에 시간도 표시합니다.</p><hr /><input type='checkbox' id='DCL_menu' disabled='disabled' /><label for='DCL_menu'>메뉴 사용</label><p class='DCL_tooltip'>기능 메뉴를 사용합니다.(/ 로 구분)<br /><br />설정 : 스크립트 설정 버튼<br />로그인 : 로그인/아웃 버튼<br />갤로그 : 갤로그 버튼<br />갤러리 : 갤러리 메뉴 토글<br />목록 : 다중 목록 토글<br />와이드 : 와이드 모드 토글<br />상단 : 상단 기본 메뉴 토글<br />타이틀 : 갤러리 타이틀 토글<br />박스 : 갤러리 박스 토글<br />이미지 : 이미지 모아보기<br />베스트 : 일간 베스트 게시물 보기<br />개념글 : 개념글 보기</p><br /><input type='text' id='DCL_menuList' size='23' class='DCL_indent' /><br /><select id='DCL_menuPos' class='DCL_indent'><option id='DCL_menuPosTop' value='top'>위쪽</option><option id='DCL_menuPosLeft' value='left'>왼쪽</option></select><p class='DCL_tooltip'>메뉴의 위치를 설정합니다.<br />최근 방문 갤러리를 표시하도록 설정한 경우 위쪽으로 고정됩니다.</p><input type='checkbox' id='DCL_menuFix' class='DCL_indent' /><label for='DCL_menuFix'>화면 고정</label><p class='DCL_tooltip'>메뉴를 화면에 고정시킵니다. (스크롤 따라 이동)</p><br /><input type='checkbox' id='DCL_link' /><label for='DCL_link'>즐겨찾기 링크 사용</label><p class='DCL_tooltip'>자주가는 갤러리나 웹사이트를 등록하여 링크 메뉴를 생성합니다.<br />표시 이름@갤러리 주소 or http:// 주소<br />표시 이름@@갤러리 주소 or http:// 주소 (새창에 열기)<br /><br />예)<br />힛갤@hit<br />구글@http://www.google.co.kr/<br />신고@@http://gall.dcinside.com/article_write.php?id=singo</p><textarea id='DCL_linkList' rows='3' cols='25' wrap='off'></textarea></fieldset><fieldset><legend>기능</legend><input type='checkbox' id='DCL_page' /><label for='DCL_page'>멀티 페이지</label><p class='DCL_tooltip'>한번에 여러 페이지를 보여줍니다.</p> (<label for='DCL_pageCount'>표시할 페이지 수</label><input type='text' id='DCL_pageCount' size='2' class='DCL_number' />)<br /><input type='checkbox' checked='checked' disabled='disabled' /><label>바로보기 설정</label><p class='DCL_tooltip'>게시물의 내용을 페이지 이동 없이 보여줍니다.<br />바로보기에서 표시할 항목을 설정합니다.<br /><br />기능을 사용하지 않으려면 [링크 모드]의 체크를 해제하세요.</p><br /><input type='checkbox' id='DCL_layerImage' class='DCL_indent' /><label for='DCL_layerImage'>이미지</label><input type='checkbox' id='DCL_layerText' class='DCL_indent' /><label for='DCL_layerText'>본문</label><input type='checkbox' id='DCL_layerComment' class='DCL_indent' /><label for='DCL_layerComment'>댓글</label><input type='checkbox' id='DCL_layerThumb' class='DCL_indent' /><label for='DCL_layerThumb'>썸네일화</label><p class='DCL_tooltip'>바로보기의 이미지를 썸네일로 작게 보여줍니다.</p><br /><input type='checkbox' id='DCL_layerLink' class='DCL_indent' /><label for='DCL_layerLink'>링크 모드</label><p class='DCL_tooltip'>사용시<br />- 목록앞 아이콘 클릭 : 게시물 링크<br />- 제목 클릭 : 바로가기 모드<br /><br />해제시<br />- 목록앞 아이콘 클릭 : 바로가기 모드<br />- 제목 클릭 : 게시물 링크</p><input type='checkbox' id='DCL_layerReply' class='DCL_indent' /><label for='DCL_layerReply'>댓글 모드</label><p class='DCL_tooltip'>목록의 댓글 링크를 댓글 바로가기 모드로 사용합니다.</p><br /><input type='checkbox' id='DCL_layerSingle' class='DCL_indent' /><label for='DCL_layerSingle'>단독 레이어 사용</label><p class='DCL_tooltip'>한번에 하나의 바로보기만 사용합니다.</p><input type='checkbox' id='DCL_layerResize' class='DCL_indent' /><label for='DCL_layerResize'>높이 조절</label><p class='DCL_tooltip'>바로보기의 높이를 화면에 맞추어 제한합니다.</p><br /><input type='checkbox' id='DCL_albumLink' /><label for='DCL_albumLink'>이미지 모아보기 사용</label><p class='DCL_tooltip'>이미지 모아보기의 동작 및 썸네일 가로/세로 길이를 설정합니다.</p><br /><input type='checkbox' id='DCL_albumRealtime' class='DCL_indent' /><label for='DCL_albumRealtime'>실시간 표시</label><p class='DCL_tooltip'>이미지를 읽으면서 표시합니다.<br />체크하지 않으면 페이지 내의 모든 글을 읽을 때 까지 기다렸다 표시합니다.</p><br /><span class='DCL_indent'>썸네일</span> <label for='DCL_thumbWidth'>가로</label><input type='text' id='DCL_thumbWidth' size='4' class='DCL_number' /> /<label for='DCL_thumbHeight'>세로</label><input type='text' id='DCL_thumbHeight' size='4' class='DCL_number' /><hr /><input type='checkbox' id='DCL_hide' /><label for='DCL_hide'>이미지/동영상 차단 사용</label><p class='DCL_tooltip'>이미지 및 동영상, 플래시, 음악 등을 차단/차단해제 하는 기능입니다.<br /><br />Delete/Esc : 전체 차단<br />Insert/~ : 전체 차단해제</p><br /><input type='checkbox' id='DCL_hideImg' class='DCL_indent' /><label for='DCL_hideImg'>이미지 미리 차단</label><p class='DCL_tooltip'>페이지 로딩시 이미지를 미리 차단합니다.</p><input type='checkbox' id='DCL_hideMov' class='DCL_indent' /><label for='DCL_hideMov'>동영상 미리 차단</label><p class='DCL_tooltip'>페이지 로딩시 동영상, 플래시, 음악 등을 미리 차단합니다.</p><hr /><input type='checkbox' id='DCL_autoForm' /><label for='DCL_autoForm'>이름/비밀번호 자동 입력 사용</label><p class='DCL_tooltip'>비로그인 상태에서 게시물/코멘트 작성란의<br />이름과 비밀번호를 자동으로 설정합니다.</p><br /><label for='DCL_autoName' class='DCL_indent'>이름</label><input type='text' id='DCL_autoName' size='6' /><label for='DCL_autoPassword' class='DCL_indent'>비밀번호</label><input type='password' id='DCL_autoPassword' size='6' /><br /><input type='checkbox' id='DCL_longExpires' /><label for='DCL_longExpires'>브라우저를 닫아도 로그인을 유지</label><p class='DCL_tooltip'>브라우저를 닫아도 로그인이 해제되지 않도록 합니다.</p><button id='cookieDelete'>로그인 쿠키 초기화</button><hr /><input type='checkbox' id='DCL_updUse' onchange='javascript:document.getElementById(\"DCL_updDev\").disabled=!this.checked;' /><label for='DCL_updUse'>자동 업데이트 사용</label><p class='DCL_tooltip'>자동 업데이트 기능을 사용합니다.<br />Opera에서는 제대로 작동하지 않을 수 있습니다.</p><br /><input type='checkbox' id='DCL_updDev' class='DCL_indent' /><label for='DCL_updDev'>개발 버전도 자동으로 업데이트</label><p class='DCL_tooltip'>개발 버전을 포함해서 자동으로 업데이트합니다.<br />활성화할 경우 잦은 업데이트가 발생할 수 있고, 안정 버전이 아니므로 버그가 많은 스크립트가 업데이트 될 수도 있습니다.</p></fieldset><p id='DCL_prefBtn'></p>"});
+		dclset.body.listSet = cElement("div", dclset.body);
+		cElement("h3", dclset.body.listSet, "목록 양식");
+		dclset.body.listSet.innerList = cElement("ul", dclset.body.listSet);
+			dclset.body.listSet.innerList.info = cElement("li", dclset.body.listSet.innerList);
+			cElement("div", dclset.body.listSet.innerList.info, "목록에 표시할 항목을 선택합니다.");
+			dclset.body.listSet.innerList.listNumber = cElement("li", dclset.body.listSet.innerList);
+			cElement("input", dclset.body.listSet.innerList.listNumber, {type:"checkbox", id:"DCL_listNumber"});
+			cElement("label", dclset.body.listSet.innerList.listNumber, {"for":"DCL_listNumber",textContent:"게시물 번호"});
+			dclset.body.listSet.innerList.listDate = cElement("li", dclset.body.listSet.innerList);
+			cElement("input", dclset.body.listSet.innerList.listDate, {type:"checkbox", id:"DCL_listDate"});
+			cElement("label", dclset.body.listSet.innerList.listDate, {"for":"DCL_listDate",textContent:"날짜"});
+			dclset.body.listSet.innerList.listTime = cElement("li", dclset.body.listSet.innerList);
+			cElement("input", dclset.body.listSet.innerList.listTime, {type:"checkbox", id:"DCL_listTime"});
+			cElement("label", dclset.body.listSet.innerList.listTime, {"for":"DCL_listTime",textContent:"날짜 옆에 시간도 표시"});
+			dclset.body.listSet.innerList.listCount = cElement("li", dclset.body.listSet.innerList);
+			cElement("input", dclset.body.listSet.innerList.listCount, {type:"checkbox", id:"DCL_listCount"});
+			cElement("label", dclset.body.listSet.innerList.listCount, {"for":"DCL_listCount",textContent:"조회수"});
+			dclset.body.listSet.innerList.listComment = cElement("li", dclset.body.listSet.innerList);
+			cElement("input", dclset.body.listSet.innerList.listComment, {type:"checkbox", id:"DCL_listComment"});
+			cElement("label", dclset.body.listSet.innerList.listComment, {"for":"DCL_listComment",textContent:"댓글이 없을 때도 댓글 수를 표시"});
+			
+		dclset.body.menuSet = cElement("div", dclset.body);
+		cElement("h3", dclset.body.menuSet, "메뉴");
+		dclset.body.menuSet.innerList = cElement("ul", dclset.body.menuSet);
+			dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
+			cElement("div", dclset.body.menuSet.innerList.info, "메뉴의 위치와 표시할 항목을 선택하고 순서를 바꿉니다.");
+			dclset.body.menuSet.innerList.menuFix = cElement("li", dclset.body.menuSet.innerList);
+			cElement("input", dclset.body.menuSet.innerList.menuFix, {type:"checkbox", id:"DCL_menuFix"});
+			cElement("label", dclset.body.menuSet.innerList.menuFix, {"for":"DCL_menuFix",textContent:"메뉴 고정"});
+			dclset.body.menuSet.innerList.menu = cElement("li", dclset.body.menuSet.innerList);
+			dclset.body.menuSet.innerList.menu.selector = cElement("select", dclset.body.menuSet.innerList.menu, {id:"DCL_menuPos"});
+				cElement("option", dclset.body.menuSet.innerList.menu.selector, {id:"DCL_menuPosTop",value:"top",textContent:"위쪽"});
+				cElement("option", dclset.body.menuSet.innerList.menu.selector, {id:"DCL_menuPosLeft",value:"left",textContent:"왼쪽"});
+			cElement("input", dclset.body.menuSet.innerList.menu, {type:"text", id:"DCL_menuList", "size":"23"});
+			cElement("input", dclset.body.menuSet.innerList.menu, {type:"button", value:"즐겨찾기 링크 관리..."}, function() { dclset.body.menuSet.mdiwrap.style.display=dclset.body.mdibg.style.display="block"; });
+			
+			dclset.body.menuSet.mdiwrap = cElement("div", dclset.body.menuSet, {className:"DCL_set_mdi"});
+			dclset.body.menuSet.mdihead = cElement("div", dclset.body.menuSet.mdiwrap, {className:"head"});
+				cElement("button", dclset.body.menuSet.mdihead, {textContent:"닫기"}, function() { dclset.body.menuSet.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
+				cElement("h2", dclset.body.menuSet.mdihead, {textContent:"즐겨찾기 링크 관리"});
+			dclset.body.menuSet.mdibody = cElement("div", dclset.body.menuSet.mdiwrap, {className:"body"});
+				dclset.body.menuSet.mdibody.info = cElement("div", dclset.body.menuSet.mdibody);
+				cElement("label", dclset.body.menuSet.mdibody.info, {for:"DCL_linkList", innerHTML:"자주 가는 갤러리나 웹 사이트를 등록하여 메뉴에 링크를 생성합니다.<br />표시 이름@갤러리 주소 or http:// 주소<br />표시 이름@@갤러리 주소 or http:// 주소 (새 창에 열기)"});
+				dclset.body.menuSet.mdibody.linkList = cElement("div", dclset.body.menuSet.mdibody, {id:"linkList"});
+				cElement("textarea", dclset.body.menuSet.mdibody.linkList, {id:"DCL_linkList"});
+			dclset.body.menuSet.mdifoot = cElement("div", dclset.body.menuSet.mdiwrap, {className:"foot"});
+				cElement("input", dclset.body.menuSet.mdifoot, {type:"submit", value:"닫기"}, function() { dclset.body.menuSet.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
+
+			dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력할 수 있습니다."});
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 스크립트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기"});
+/* <input type='checkbox' id='DCL_link' /><label for='DCL_link'>즐겨찾기 링크 사용</label><p class='DCL_tooltip'>자주가는 갤러리나 웹사이트를 등록하여 링크 메뉴를 생성합니다.<br />표시 이름@갤러리 주소 or http:// 주소<br />표시 이름@@갤러리 주소 or http:// 주소 (새창에 열기)<br /><br />예)<br />힛갤@hit<br />구글@http://www.google.co.kr/<br />신고@@http://gall.dcinside.com/article_write.php?id=singo</p><textarea id='DCL_linkList' rows='3' cols='25' wrap='off'></textarea>"*/
+
+		dclset.body.multiPage = cElement("div", dclset.body);
+		cElement("h3", dclset.body.multiPage, "멀티 페이지");
+		dclset.body.multiPage.innerList = cElement("ul", dclset.body.multiPage);
+			dclset.body.multiPage.innerList.info = cElement("li", dclset.body.multiPage.innerList);
+			cElement("div", dclset.body.multiPage.innerList.info, "한번에 여러 페이지를 로드합니다.");
+			dclset.body.multiPage.innerList.page = cElement("li", dclset.body.multiPage.innerList);
+			cElement("input", dclset.body.multiPage.innerList.page, {type:"checkbox", id:"DCL_page"});
+			cElement("label", dclset.body.multiPage.innerList.page, {"for":"DCL_page",textContent:"멀티 페이지 사용"});
+			dclset.body.multiPage.innerList.pageCount = cElement("li", dclset.body.multiPage.innerList);
+			cElement("label", dclset.body.multiPage.innerList.pageCount, {"for":"DCL_pageCount",textContent:"한 번에 "});
+			cElement("input", dclset.body.multiPage.innerList.pageCount, {type:"text", className:"number", size:"2", id:"DCL_pageCount"});
+			cElement(null, dclset.body.multiPage.innerList.pageCount, "페이지 로드");
+			
+		dclset.body.easyView = cElement("div", dclset.body);
+		cElement("h3", dclset.body.easyView, "바로보기");
+		dclset.body.easyView.innerList = cElement("ul", dclset.body.easyView);
+			dclset.body.easyView.innerList.info = cElement("li", dclset.body.easyView.innerList);
+			cElement("div", dclset.body.easyView.innerList.info, "게시물 리스트에서 페이지 이동 없이 본문을 봅니다.");
+			dclset.body.easyView.innerList.layerLink = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerLink, {type:"checkbox", id:"DCL_layerLink"});
+			cElement("label", dclset.body.easyView.innerList.layerLink, {"for":"DCL_layerLink",textContent:"바로보기 사용 (링크 연결)"});
+			dclset.body.easyView.innerList.layerReply = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerReply, {type:"checkbox", id:"DCL_layerReply"});
+			cElement("label", dclset.body.easyView.innerList.layerReply, {"for":"DCL_layerReply",textContent:"댓글 링크 연결"});
+			dclset.body.easyView.innerList.layerSingle = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerSingle, {type:"checkbox", id:"DCL_layerSingle"});
+			cElement("label", dclset.body.easyView.innerList.layerSingle, {"for":"DCL_layerSingle",textContent:"단독 레이어 사용"});
+			dclset.body.easyView.innerList.layerResize = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerResize, {type:"checkbox", id:"DCL_layerResize"});
+			cElement("label", dclset.body.easyView.innerList.layerResize, {"for":"DCL_layerResize",textContent:"높이 자동 조절"});
+			dclset.body.easyView.innerList.layerImage = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerImage, {type:"checkbox", id:"DCL_layerImage"});
+			cElement("label", dclset.body.easyView.innerList.layerImage, {"for":"DCL_layerImage",textContent:"이미지"});
+			dclset.body.easyView.innerList.layerThumb = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerThumb, {type:"checkbox", id:"DCL_layerThumb"});
+			cElement("label", dclset.body.easyView.innerList.layerThumb, {"for":"DCL_layerThumb",textContent:"이미지 섬네일화"});
+			dclset.body.easyView.innerList.layerText = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerText, {type:"checkbox", id:"DCL_layerText"});
+			cElement("label", dclset.body.easyView.innerList.layerText, {"for":"DCL_layerText",textContent:"본문"});
+			dclset.body.easyView.innerList.layerComment = cElement("li", dclset.body.easyView.innerList);
+			cElement("input", dclset.body.easyView.innerList.layerComment, {type:"checkbox", id:"DCL_layerComment"});
+			cElement("label", dclset.body.easyView.innerList.layerComment, {"for":"DCL_layerComment",textContent:"댓글"});
+			
+		dclset.body.Album = cElement("div", dclset.body);
+		cElement("h3", dclset.body.Album, "이미지 모아보기");
+		dclset.body.Album.innerList = cElement("ul", dclset.body.Album);
+			dclset.body.Album.innerList.info = cElement("li", dclset.body.Album.innerList);
+			cElement("div", dclset.body.Album.innerList.info, "게시판의 이미지를 모아 봅니다.");
+			dclset.body.Album.innerList.albumLink = cElement("li", dclset.body.Album.innerList);
+			cElement("input", dclset.body.Album.innerList.albumLink, {type:"checkbox", id:"DCL_albumLink"});
+			cElement("label", dclset.body.Album.innerList.albumLink, {"for":"DCL_albumLink",textContent:"모아보기 사용"});
+			dclset.body.Album.innerList.albumRealtime = cElement("li", dclset.body.Album.innerList);
+			cElement("input", dclset.body.Album.innerList.albumRealtime, {type:"checkbox", id:"DCL_albumRealtime"});
+			cElement("label", dclset.body.Album.innerList.albumRealtime, {"for":"DCL_albumRealtime",textContent:"읽으면서 표시"});
+			dclset.body.Album.innerList.thumb = cElement("li", dclset.body.Album.innerList);
+			cElement(null, dclset.body.Album.innerList.thumb, "섬네일 크기 ");
+			cElement("input", dclset.body.Album.innerList.thumb, {type:"text", className:"number", size:"3", id:"DCL_thumbWidth"});
+			cElement(null, dclset.body.Album.innerList.thumb, "× ");
+			cElement("input", dclset.body.Album.innerList.thumb, {type:"text", className:"number", size:"3", id:"DCL_thumbHeight"});
+			
+		dclset.body.blockContent = cElement("div", dclset.body);
+		cElement("h3", dclset.body.blockContent, "컨텐츠 차단");
+		dclset.body.blockContent.innerList = cElement("ul", dclset.body.blockContent);
+			dclset.body.blockContent.innerList.info = cElement("li", dclset.body.blockContent.innerList);
+			cElement("div", dclset.body.blockContent.innerList.info, "게시물의 이미지나 동영상 등을 미리 차단합니다.");
+			dclset.body.blockContent.innerList.hide = cElement("li", dclset.body.blockContent.innerList);
+			cElement("input", dclset.body.blockContent.innerList.hide, {type:"checkbox", id:"DCL_hide"});
+			cElement("label", dclset.body.blockContent.innerList.hide, {"for":"DCL_hide",textContent:"컨텐츠 차단 사용"});
+			dclset.body.blockContent.innerList.hideImg = cElement("li", dclset.body.blockContent.innerList);
+			cElement("input", dclset.body.blockContent.innerList.hideImg, {type:"checkbox", id:"DCL_hideImg"});
+			cElement("label", dclset.body.blockContent.innerList.hideImg, {"for":"DCL_hideImg",textContent:"이미지 차단"});
+			dclset.body.blockContent.innerList.hideMov = cElement("li", dclset.body.blockContent.innerList);
+			cElement("input", dclset.body.blockContent.innerList.hideMov, {type:"checkbox", id:"DCL_hideMov"});
+			cElement("label", dclset.body.blockContent.innerList.hideMov, {"for":"DCL_hideMov",textContent:"동영상 차단"});
+			dclset.body.blockContent.innerList.info.keyCmd = cElement("li", dclset.body.blockContent.innerList);
+			cElement("div", dclset.body.blockContent.innerList.info.keyCmd, {className:"small", textContent:"Delete/Esc : 전체 차단"});
+			cElement("div", dclset.body.blockContent.innerList.info.keyCmd, {className:"small", textContent:"Insert/~ : 전체 차단해제"});
+			
+		dclset.body.autoForm = cElement("div", dclset.body);
+		cElement("h3", dclset.body.autoForm, "자동입력");
+		dclset.body.autoForm.innerList = cElement("ul", dclset.body.autoForm);
+			dclset.body.autoForm.innerList.info = cElement("li", dclset.body.autoForm.innerList);
+			cElement("div", dclset.body.autoForm.innerList.info, "로그인하지 않은 상태에서 글을 쓸 때 입력 폼을 자동으로 채웁니다.");
+			dclset.body.autoForm.innerList.autoForm = cElement("li", dclset.body.autoForm.innerList);
+			cElement("input", dclset.body.autoForm.innerList.autoForm, {type:"checkbox", id:"DCL_autoForm"});
+			cElement("label", dclset.body.autoForm.innerList.autoForm, {"for":"DCL_autoForm",textContent:"자동입력 사용"});
+			dclset.body.autoForm.innerList.autoNamePw = cElement("li", dclset.body.autoForm.innerList);
+			cElement("label", dclset.body.autoForm.innerList.autoNamePw, {"for":"DCL_autoName",textContent:"이름 "});
+			cElement("input", dclset.body.autoForm.innerList.autoNamePw, {type:"text", size:"6", id:"DCL_autoName"});
+			cElement("label", dclset.body.autoForm.innerList.autoNamePw, {"for":"DCL_autoPassword",textContent:"비밀번호 "});
+			cElement("input", dclset.body.autoForm.innerList.autoNamePw, {type:"text", size:"6", id:"DCL_autoPassword"});
+			
+		dclset.body.setEtc = cElement("div", dclset.body);
+		cElement("h3", dclset.body.setEtc, "로그인 및 쿠키");
+		dclset.body.setEtc.innerList = cElement("ul", dclset.body.setEtc);
+			dclset.body.setEtc.innerList.longExpires = cElement("li", dclset.body.setEtc.innerList);
+			cElement("input", dclset.body.setEtc.innerList.longExpires, {type:"checkbox", id:"DCL_longExpires"});
+			cElement("label", dclset.body.setEtc.innerList.longExpires, {"for":"DCL_longExpires",textContent:"브라우저를 닫아도 로그인을 유지"});
+			dclset.body.setEtc.innerList.cookieDelete = cElement("li", dclset.body.setEtc.innerList);
+			cElement("input", dclset.body.setEtc.innerList.cookieDelete, {type:"button", value:"로그인 쿠키 초기화"}, cookieDelete);
+
+		dclset.body.dclInfo = cElement("div", dclset.body);
+		cElement("h3", dclset.body.dclInfo, "DCinside Lite r"+R_VERSION);
+		dclset.body.dclInfo.innerList = cElement("ul", dclset.body.dclInfo);
+			dclset.body.dclInfo.innerList.updUse = cElement("li", dclset.body.dclInfo.innerList);
+			cElement("input", dclset.body.dclInfo.innerList.updUse, {type:"checkbox", id:"DCL_updUse"});
+			cElement("label", dclset.body.dclInfo.innerList.updUse, {"for":"DCL_updUse",textContent:"업데이트 알림"});
+
+			dclset.body.dclInfo.innerList.info = cElement("li", dclset.body.dclInfo.innerList);
+			dclset.body.dclInfo.innerList.info.copyright = cElement("div", dclset.body.dclInfo.innerList.info);
+			cElement(null, dclset.body.dclInfo.innerList.info.copyright, "제작 : ");
+			cElement("a", dclset.body.dclInfo.innerList.info.copyright, {href:"http://gallog.dcinside.com/hkyuwon", target:"_blank", textContent:"디시인사이드 고정닉 축"});
+			dclset.body.dclInfo.innerList.info.kasugano = cElement("div", dclset.body.dclInfo.innerList.info);
+			cElement(null, dclset.body.dclInfo.innerList.info.kasugano, "수정 : ");
+			cElement("a", dclset.body.dclInfo.innerList.info.kasugano, {href:"http://kasugano.tistory.com/", target:"_blank", textContent:"디시인사이드 고정닉 하루카나소라"});
+			dclset.body.dclInfo.innerList.info.github = cElement("div", dclset.body.dclInfo.innerList.info);
+			cElement("a", dclset.body.dclInfo.innerList.info.github, {href:"https://github.com/koreapyj/dcinside_lite", target:"_blank", textContent:"GitHub 페이지"});
+			cElement("div", dclset.body.dclInfo.innerList.info, {className:"small br", textContent:"이 스크립트는 자유 소프트웨어 라이센스를 따르지 않습니다. 이 스크립트의 저작권은 디시인사이드 고정닉 축에게 있습니다. 이 스크립트는 원 저작자의 허락을 받지 않고 수정되었으며, 원 저작자의 문제 제기시 배포는 중단됩니다. 이 스크립트의 버전 1.5.5 이후 변경사항은 Public Domain으로 배포됩니다."});
+
+
+		dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
+			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
 
 	//	document.getElementById('DCL_setUpload').addEventListener("change",SET.cloud,false);
-		
+	/*
 		$('cookieDelete').style.display='block';
 		$('cookieDelete').addEventListener('click', cookieDelete);
-
-		var prefBtn = $("DCL_prefBtn");
+	*/
+	/*	var prefBtn = $("DCL_prefBtn");
 		cElement("span",prefBtn,"저장",SET.save);
 		cElement("span",prefBtn,"취소",SET.close);
 		cElement("span",prefBtn,"초기화",SET.reset);
-	//	cElement("span",prefBtn,"프리셋",SET.preset);
-	//	cElement("span",prefBtn,"제작자 갤로그",function(){window.open("http://gallog.dcinside.com/hkyuwon");}); (접속 불능으로 링크 제거)
+		cElement("span",prefBtn,"프리셋",SET.preset);
+		cElement("span",prefBtn,"제작자 갤로그",function(){window.open("http://gallog.dcinside.com/hkyuwon");}); (접속 불능으로 링크 제거)
 		cElement("span",prefBtn,"업데이트 확인",function(){
 		simpleRequest(
 			"http://lite.dcmys.kr/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
@@ -531,20 +871,22 @@ call : function() {
 					alert("최신 버전을 사용하고 있습니다.");
 			}
 		);});
-		cElement("span",prefBtn,"버그 신고",function(){window.open("http://kasugano.tistory.com/");});
+		cElement("span",prefBtn,"버그 신고",function(){window.open("http://kasugano.tistory.com/");});*/
 	}
 
 	if(!MODE.sync) {
-		var div = $("DCL_set");
-		div.style.display = "block";
-		div.style.top = SCROLL.scrollTop + Math.max(0,document.documentElement.clientHeight-div.clientHeight)/2 + "px";
-		div.style.left = SCROLL.scrollLeft + Math.max(0,document.documentElement.clientWidth-div.clientWidth)/2 + "px";
+		$("DCL_set_wrap").style.display = "block";
+		$("DCL_set_bg").style.display = "block";
+		document.body.style.overflow = "hidden";
+		$("DCL_set").scrollTop=0;
 	}
 
 	var input,value;
 	for(var i in P) {
 		if(P.hasOwnProperty(i)) {
 			input = $("DCL_" + i);
+			if(!input)
+				input = cElement("input", dclset.body, {type:"hidden", id:"DCL_"+i});
 			value = P[i];
 			if(input.type === "checkbox") {
 				input.checked = value;
@@ -553,13 +895,13 @@ call : function() {
 			}
 		}
 	}
-	$("DCL_updDev").disabled=!$("DCL_updUse").checked;
+//	$("DCL_updDev").disabled=!$("DCL_updUse").checked;
 },
 preset : function() {
 	alert('test');
 },
 load : function() {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","link","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumLink","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires"];
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumLink","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires"];
 	if(MODE.sync) {
 		var cookie = location.hash.substr(1);
 		if(cookie) {
@@ -722,7 +1064,9 @@ reset : function() {
 	location.reload();
 },
 close : function() {
-	$("DCL_set").style.display = "none";
+	$("DCL_set_wrap").style.display = "none";
+	$("DCL_set_bg").style.display = "none";
+	document.body.style.overflow = "auto";
 }
 
 };
@@ -889,7 +1233,7 @@ function menuFunc() {
 	}
 
 	// 즐겨찾기 링크 추가
-	if(P.link && P.linkList) {
+	if(P.linkList) {
 		var linkUl = cElement("ul",menuWrap,{id:"DCL_linkUl"});
 
 		if(P.menuPos === "top") {
@@ -1657,7 +2001,7 @@ Layer.prototype.call = function() {
 
 					if(P.layerText) {
 						var bfloc = document.location.toString();
-						history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/board/view/?id='+_ID+'&no='+Layer.now.no);
+//						history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no);
 						var DivHtml = text.substring(text.indexOf("<!-- con_substance -->"),text.lastIndexOf('<!-- //con_substance -->'));
 						DivHtml= DivHtml.replace(/(<|<\/)(iframe|script)[^>]+>/g, "");
 
@@ -1669,23 +2013,26 @@ Layer.prototype.call = function() {
 							textImg = textImgs[i];
 							textImg.removeAttribute("width");
 							textImg.removeAttribute("height");
-							if(textImg.parentNode.getAttribute('onclick'))
-								origUrl = textImg.parentNode.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-							else
-								origUrl = ' ';
-							if(textImg.parentNode.tagName === 'A' && origUrl.substr(0, imagePopUrl.length) === imagePopUrl) {
-								eRemove(textImg.parentNode,"onclick");
-								textImg.parentNode.removeAttribute("onclick");
-								viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
-							}
-							else {
+							textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+							if(textImg.getAttribute('onclick')) {
+								origUrl = textImg.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
 								eRemove(textImg,"onclick");
 								textImg.removeAttribute("onclick");
-								viewer.add(textImg.src,textImg);
 							}
+							else if(textImg.parentNode.getAttribute('onclick')) {
+								origUrl = textImg.parentNode.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
+								eRemove(textImg.parentNode,"onclick");
+								textImg.parentNode.removeAttribute("onclick");
+							}
+							else
+								origUrl = ' ';
+							if(origUrl.substr(0, imagePopUrl.length) === imagePopUrl)
+								viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
+							else
+								viewer.add(textImg.src,textImg);
 						}
 						autoLink(textDiv);
-						history.pushState(bfloc, bfloc, bfloc);
+//						history.pushState(bfloc, bfloc, bfloc);
 					}
 
 					if(P.hide) {
@@ -1714,7 +2061,7 @@ Layer.prototype.call = function() {
 					cElement("span",topBtn,{textContent:"댓글",className:"DCL_layerBtn"},function(){rMemo.focus();});
 
 					var bfloc = document.location.toString();
-//					history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/board/view/?id='+_ID+'&no='+Layer.now.no);		//리퍼러로 갑질할때 대비용
+//					history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no);		//리퍼러로 갑질할때 대비용
 					simpleRequest('/comment/view', 
 						function(response) {
 							commentText=response.responseText.replace(/<\/td><tr>/g, '</td></tr>');
@@ -1825,7 +2172,7 @@ Layer.prototype.call = function() {
 				var bottomBtn = cElement("p",fragment,{className:"DCL_layerBottom"});
 				cElement("span",bottomBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
 				cElement("span",bottomBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
-				cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
+				cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('http://'+location.host+'/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
 				cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"});
 				cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"});
 				cElement("span",bottomBtn,{className:"DCL_layerLoad"});
@@ -1897,7 +2244,7 @@ Layer.prototype.reply = function(){
 	var layer = this;
 
 	var bfloc = document.location.toString();
-	history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/board/view/?id='+_ID+'&no='+Layer.now.no);		//리퍼러로 갑질할때 대비용
+	history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no);		//리퍼러로 갑질할때 대비용
 	simpleRequest("/forms/comment_submit",
 		function(response) {
 			layer.div.lastChild.lastChild.textContent = "";
@@ -1913,7 +2260,7 @@ Layer.prototype.reply = function(){
 			}
 		},
 		"POST",
-		{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://gall.dcinside.com/board/view/?id='+_ID+'&no='+Layer.now.no},
+		{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
 		data
 	);
 	history.pushState(bfloc, bfloc, bfloc);
@@ -2244,7 +2591,7 @@ Viewer.init = function() {
 Viewer.prototype.add = function(src,obj) {
 	var i = this.list.length;
 //	현재의 과학기술로는 URL 분석이 불가능하여 주석을 걸어 둔다. 2013년 8월 8일.
-//	src = src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+	src = src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 	this.list[i] = src;
 	cAdd(obj,"DCL_viewerItem");
 	obj.addEventListener("click",function(e){e.preventDefault();},false);
@@ -2743,6 +3090,7 @@ function DCINSIDE_LITE() {
 	else
 		tabRecomm=true;
 	addStyle(
+		'* { -webkit-text-size-adjust: none; }' +
 		"#dgn_gallery_right, .banner_box, #dgn_footer, #dgn_gallery_right_detail {display:none !important; }" +
 		'#dgn_gallery_detail, #dgn_gallery_left, .gallery_re_contents, #dgn_gallery_left .gallery_box, .re_gall_box_5, #dgn_gallery_list, .re_gall_box_5, .re_input { width: 100% !important; }' +
 		'.menu_bg iframe { width: '+(P.pageWidth)+'px !important;}' +
@@ -2992,14 +3340,21 @@ function DCINSIDE_LITE() {
 				for(var i=0,l=articleImgs.length ; i<l ; i+=1) {
 					regexp = /javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\',]+)/;
 					img = articleImgs[i];
+					img.src=img.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 					if(img.getAttribute("onclick") && (vtarget = img.getAttribute("onclick").match(regexp))) {
+						img.removeAttribute("href");
+						img.removeAttribute("onclick");
+						eRemove(img,"onclick");
+						vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
+					}
+					else if(img.parentNode.getAttribute("onclick") && (vtarget = img.parentNode.getAttribute("onclick").match(regexp))) {
 						img.parentNode.removeAttribute("href");
 						img.parentNode.removeAttribute("onclick");
+						eRemove(img.parentNode,"onclick");
 						vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
 					}
 					else
 						vtarget = img.src;
-					eRemove(img,"onclick");
 					eRemove(img,"onload");
 					img.removeAttribute("width");
 					img.removeAttribute("height");
