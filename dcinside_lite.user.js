@@ -1754,7 +1754,7 @@ Layer.init = function() {
 	var css =
 		"tr.DCL_layerTr > td {border-width:2px 0 1px ; border-style:solid ; border-color:#000}" +
 		"tr.DCL_layerTr > td:first-child {border-left-width:2px ; -moz-border-radius:5px 0 0 0 ; border-radius:5px 0 0 0}" +
-		"tr.DCL_layerTr > td:last-child {border-right-width:2px ; -moz-border-radius:0 5px 0 0 ; border-radius:0 5px 0 0}" +
+		"tr.DCL_layerTr > td:nth-child(5) {border-right-width:2px ; -moz-border-radius:0 5px 0 0 ; border-radius:0 5px 0 0}" +
 		"tr.DCL_layerTr + tr > td {border-style:solid; border-color: #000 !important; background:none; border-width:0 2px 2px 2px !important; -moz-border-radius:0 0 0 5px; border-radius:0 0 5px 5px; text-align: left !important;}" +
 
 		"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto;}" +
@@ -1785,7 +1785,9 @@ Layer.init = function() {
 		"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
 		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left}" +
 		"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
-		"table.DCL_layerComment td { padding: 0 10px; height: auto; vertical-align: middle !important;}" +
+		"table.DCL_layerComment td { height: auto; vertical-align: middle !important;}" +
+		"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
+		"table.DCL_layerComment td:last-child { padding-right: 5px; }" +
 		"table.DCL_layerComment td {border-bottom:1px solid #ccc !important; text-align: left !important;}" +
 		"table.DCL_layerComment td.com_name {width:120px; font:10pt 굴림 !important;}" +
 		"table.DCL_layerComment td.com_text {width:auto; font:10pt 굴림 !important; line-height: 22px !important;}" +
@@ -2046,7 +2048,6 @@ Layer.prototype.call = function() {
 				}
 
 				if(P.layerComment || layer.mode === "comment") {
-					var csrf_token = /(?:^|; )ci_c=([^;]*)/.exec(document.cookie)[1];
 					var commentTable = cElement("table",fragment,{className:"DCL_layerComment"});
 
 					var replyP = cElement("p",[commentTable,"next"],{className:"DCL_replyP"});
@@ -2077,14 +2078,15 @@ Layer.prototype.call = function() {
 							if(si > -1 && ei > -1 && si < ei) {
 								var proc = document.createDocumentFragment();
 								var procTable = cElement("table",proc,{innerHTML:commentText.substring(si,ei)});
-								var commentTable = Layer.now.div.getElementsByClassName('DCL_layerComment')[0];
 								var caption = cElement("caption",commentTable);
 								var rows = procTable.rows;
 								var lc = 4;
 								var btn,onclick;
 								var name,cc=0;
-								var reg1 = /show_delbox\((\d+),\d+\)/;
-								var reg2 = /new_delComment\d*\('\w+',\d+,(\d+)\)/;
+								var reg1 = /del_comment_orgin\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\',\'([^\']+)\'\);/;
+								var reg2 = /del_comment\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\'\);/;
+								var reg3 = /nomember_comment\((\d+)\);/;
+								var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
 								var delExec;
 								for(var i=0,l=rows.length ; i<l ; i+=3) {
 									ip=null;
@@ -2094,31 +2096,33 @@ Layer.prototype.call = function() {
 											ip = ipExec[1]+'.***.***';//+ipExec[2];
 										}
 										rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent='';
+									}									
+									if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
+										delbox = delbox.children[0];
+										if( delExec=reg3.exec(onclick) ) {
+											delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
+											delbox.setAttribute("DCL_del_password",1);
+										}
+										else if( !(delExec=reg1.exec(onclick)) && !(delExec=reg2.exec(onclick)) ) {
+											console.log('삭제 버튼 없음');
+										}
+										delbox.addEventListener("click",function(e){ layer.delComment(e);});
+										delbox.setAttribute("DCL_del_no",delExec[1]);
+										delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
 									}
+									else { delbox=null; }
+
 									name	= rows[i].cells[0].innerHTML;
 									value	= rows[i].cells[1].innerHTML;
 //									ip		= rows[i].cells[0].textContent;
 									date	= rows[i].cells[2].textContent;
-//									delbox	= (rows[i+2].cells[1]?rows[i+2].cells[1].innerHTML:'');
 									ktr = cElement('tr', commentTable);
 									cElement('td', ktr, {innerHTML:name,className:'com_name'});
 									cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
 									cElement('td', ktr, {innerHTML:date,className:'com_ip'});
-									
+									btn = cElement('td', ktr, {className:'com_btn'});
+									if(delbox)btn.appendChild(delbox);
 									/*
-									if( (btn=rows[i+lc].children[0]) && (onclick=btn.getAttribute("onclick")) ) {
-										eRemove(btn,"onclick");
-										if( (delExec=reg1.exec(onclick)) ) {
-											btn.setAttribute("DCL_del_password","1");
-										} else if( !(delExec=reg2.exec(onclick)) ) {
-											return;
-										}
-										btn.addEventListener("click",function(e){layer.delComment(e);},false);
-										btn.setAttribute("DCL_del_no",layer.no);
-										btn.setAttribute("DCL_del_c_no",delExec[1]);
-									}
-									name = rows[i].cells[0];
-									
 									if(rows[i].getElementsByClassName('btn_voice_info').length>0) {
 										for(j=0;j<rows[i].getElementsByClassName('btn_voice_info').length;j++) {
 											rows[i].getElementsByClassName('btn_voice_info')[j].addEventListener("click",function(e){
@@ -2136,10 +2140,12 @@ Layer.prototype.call = function() {
 							} else {
 								layer.row.cells[1].children[2].textContent = "";
 							}
-//							div.appendChild(fragment);
+							if(Layer.now === layer) {
+								layer.focus();
+							}
 						},
 						"POST", 
-						{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token);
+						{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
 //					history.pushState(bfloc, bfloc, bfloc);
 
 				}
@@ -2181,9 +2187,7 @@ Layer.prototype.call = function() {
 				cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"});
 				cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"});
 				cElement("span",bottomBtn,{className:"DCL_layerLoad"});
-				
-//				if(!(P.layerComment || layer.mode === "comment"))
-					div.appendChild(fragment);
+				div.appendChild(fragment);
 			} else { // 로드 에러
 				cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
 				loadSpan.textContent = "읽기 실패";
@@ -2227,8 +2231,7 @@ Layer.prototype.reply = function(){
 		memo.focus();
 		return;
 	}
-	var csrf_token = /(?:^|; )ci_c=([^;]*)/.exec(document.cookie)[1];
-	var data = "id="+_ID+"&no="+this.no+"&memo="+encodeURIComponent(memo.value)+'&ci_t='+csrf_token;
+	var data = "id="+_ID+"&no="+this.no+"&memo="+encodeURIComponent(memo.value)+'&ci_t='+csrf_token();
 	if(!_GID) {
 		var rName = memo.previousSibling;
 		var rPassword = memo.nextSibling;
@@ -2253,16 +2256,15 @@ Layer.prototype.reply = function(){
 	simpleRequest("/forms/comment_submit",
 		function(response) {
 			layer.div.lastChild.lastChild.textContent = "";
-			var res = /<COMMENTOK RESULT = "(\w+)" ALERT="(.*)" \/>/.exec(response.responseText);
+			if(response.status != 200) {
+				alert("댓글 등록 중 오류가 발생했습니다.\n\n" + response.statusText);
+				return;
+			}
 			if(response.responseText!=='') {
 				alert("댓글 등록 중 오류가 발생했습니다.\n\n#code\n"+response.responseText);
 				return;
 			}
-			if(response.responseText==='') {
-				layer.call();
-			} else {
-				alert(res[2]);
-			}
+			layer.call();
 		},
 		"POST",
 		{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
@@ -2272,7 +2274,7 @@ Layer.prototype.reply = function(){
 };
 Layer.prototype.delComment = function(e) {
 	var btn = e.target;
-	var password;
+	var password = null;
 	if(btn.getAttribute("DCL_del_password")) {
 		password = prompt("비밀번호를 입력하세요.","");
 		if(!password) {
@@ -2285,11 +2287,22 @@ Layer.prototype.delComment = function(e) {
 
 	this.div.lastChild.lastChild.textContent = "댓글 삭제 중...";
 	var layer = this;
+	var data = "ci_t=" + csrf_token() + "&id=" + _ID + "&no=" + Layer.now.no + "&p_no=" + Layer.now.no + "&re_no=" + btn.getAttribute("DCL_del_no") + "&orgin_no=" + btn.getAttribute("DCL_del_orgin") + "&password=" + password;
 
 	simpleRequest(
-		"/delcomment_ok.php?id=" + _ID + "&no=" + btn.getAttribute("DCL_del_no") + "&c_no=" + btn.getAttribute("DCL_del_c_no") + (password?"&password="+password:""),
+		"/forms/comment_delete_submit",
 		function(response) {
 			layer.div.lastChild.lastChild.textContent = "";
+			if(response.status != 200) {
+				alert("댓글 삭제 중 오류가 발생했습니다.\n\n" + response.statusText);
+				return;
+			}
+			if(response.responseText!=='') {
+				alert("댓글 삭제 중 오류가 발생했습니다.\n\n"+response.responseText.split('||')[1]);
+				return;
+			}
+			layer.call();
+			/*
 			var res = /<DELCOMMENTOK RESULT = "(\w+)"  ALERT="(.*)"  \/>/.exec(response.responseText);
 			if(!res) {
 				alert("댓글 삭제 중 오류가 발생했습니다.\n\n#code\n"+response.responseText);
@@ -2299,8 +2312,11 @@ Layer.prototype.delComment = function(e) {
 				layer.call();
 			} else {
 				alert(res[2]);
-			}
-		}
+			}*/
+		},
+		"POST",
+		{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
+		data
 	);
 };
 
@@ -3069,6 +3085,10 @@ function LongCookie() {
 	document.cookie = 'PHPSESSID='+cookie[1]+'; path=/; domain='+domain+'; expires='+expires.toGMTString()+';';
 }
 
+function csrf_token() {
+	return document.cookie.match(/ci_c=([^;]+)(;|$)/)[1];
+}
+
 function cookieDelete() {
 	var expires = new Date();
 	var domain = location.host.substr(location.host.indexOf('.'));
@@ -3127,7 +3147,7 @@ function DCINSIDE_LITE() {
 		".con_substance img[id^='paranimg_m_'] {border:none !important}" +
 		".re_gall_box_1 .con_substance .DCL_viewerItem {margin-left: -10px;}" +
 
-		"#list_table {table-layout:fixed; clear:both; font-family: Tahoma, sans-serif;}" +
+		"#list_table {table-layout:fixed; clear:both; font-family: Tahoma, sans-serif; border-collapse: separate; border-spacing: 0; }" +
 		"#list_table > * > tr > td," +
 		"#list_table > * > tr > th {overflow:hidden; height: 26px !important; vertical-align: middle; }" +
 		"#list_table > * > tr > td.t_date { line-height: normal !important; }" +
@@ -3136,7 +3156,8 @@ function DCINSIDE_LITE() {
 		"#list_table > colgroup > col:nth-child(3) {width:14%;}" +
 		"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?10:0)+"%;}" +
 		"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?6:0)+"%;}" +
-		"#list_table > colgroup > col:nth-child(6) {width:0%;}" +
+		"#list_table > colgroup > col:nth-child(6) {display:none;}" +
+		"#list_table > .list_tbody > tr > td:nth-child(6) {display:none;}" +
 		"#list_table .list_tbody .tb td { padding-top: 3px; padding-bottom: 0; }" +
 		"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; }" +
 
