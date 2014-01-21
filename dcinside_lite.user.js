@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14104
-// @date           2014.01.17
+// @version        14105
+// @date           2014.01.21
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,7 +10,7 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14104";	// 실제 버전
+var R_VERSION = "14105";	// 실제 버전
 var VERSION = "14104";		// 설정 내용 버전
 var P = {
 version : "",
@@ -63,6 +63,7 @@ layerSingle : 1,
 layerResize : 1,
 albumLink : 1,
 albumRealtime : 1,
+albumFullsize : 1,
 thumbWidth : 320,
 thumbHeight : 240,
 hide : 1,
@@ -769,6 +770,9 @@ call : function() {
 			dclset.body.Album.innerList.albumLink = cElement("li", dclset.body.Album.innerList);
 			cElement("input", dclset.body.Album.innerList.albumLink, {type:"checkbox", id:"DCL_albumLink"});
 			cElement("label", dclset.body.Album.innerList.albumLink, {"for":"DCL_albumLink",textContent:"모아보기 사용"});
+			dclset.body.Album.innerList.albumFullsize = cElement("li", dclset.body.Album.innerList);
+			cElement("input", dclset.body.Album.innerList.albumFullsize, {type:"checkbox", id:"DCL_albumFullsize"});
+			cElement("label", dclset.body.Album.innerList.albumFullsize, {"for":"DCL_albumFullsize",textContent:"풀 사이즈 이미지 표시"});
 			dclset.body.Album.innerList.albumRealtime = cElement("li", dclset.body.Album.innerList);
 			cElement("input", dclset.body.Album.innerList.albumRealtime, {type:"checkbox", id:"DCL_albumRealtime"});
 			cElement("label", dclset.body.Album.innerList.albumRealtime, {"for":"DCL_albumRealtime",textContent:"읽으면서 표시"});
@@ -2013,7 +2017,8 @@ Layer.prototype.call = function() {
 							textImg = textImgs[i];
 							textImg.removeAttribute("width");
 							textImg.removeAttribute("height");
-							textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+							if(P.albumFullsize)
+								textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 							if(textImg.getAttribute('onclick')) {
 								origUrl = textImg.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
 								eRemove(textImg,"onclick");
@@ -2591,7 +2596,8 @@ Viewer.init = function() {
 Viewer.prototype.add = function(src,obj) {
 	var i = this.list.length;
 //	현재의 과학기술로는 URL 분석이 불가능하여 주석을 걸어 둔다. 2013년 8월 8일.
-	src = src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+	if(P.albumFullsize)
+		src = src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 	this.list[i] = src;
 	cAdd(obj,"DCL_viewerItem");
 	obj.addEventListener("click",function(e){e.preventDefault();},false);
@@ -3340,7 +3346,8 @@ function DCINSIDE_LITE() {
 				for(var i=0,l=articleImgs.length ; i<l ; i+=1) {
 					regexp = /javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\',]+)/;
 					img = articleImgs[i];
-					img.src=img.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+					if(P.albumFullsize)
+						img.src=img.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 					if(img.getAttribute("onclick") && (vtarget = img.getAttribute("onclick").match(regexp))) {
 						img.removeAttribute("href");
 						img.removeAttribute("onclick");
