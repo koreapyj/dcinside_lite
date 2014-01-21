@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14105
-// @date           2014.01.21
+// @version        14106
+// @date           2014.01.22
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,7 +10,7 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14105";	// 실제 버전
+var R_VERSION = "14106";	// 실제 버전
 var VERSION = "14104";		// 설정 내용 버전
 var P = {
 version : "",
