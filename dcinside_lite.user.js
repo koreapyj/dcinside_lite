@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14106
-// @date           2014.01.22
+// @version        14107
+// @date           2014.01.23
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,8 +10,8 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14106";	// 실제 버전
-var VERSION = "14104";		// 설정 내용 버전
+var R_VERSION = "14107";	// 실제 버전
+var VERSION = "14107";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -61,7 +61,7 @@ layerLink : 1,
 layerReply : 1,
 layerSingle : 1,
 layerResize : 1,
-albumLink : 1,
+albumInfScrl : 1,
 albumRealtime : 1,
 albumFullsize : 1,
 thumbWidth : 320,
@@ -767,9 +767,9 @@ call : function() {
 		dclset.body.Album.innerList = cElement("ul", dclset.body.Album);
 			dclset.body.Album.innerList.info = cElement("li", dclset.body.Album.innerList);
 			cElement("div", dclset.body.Album.innerList.info, "게시판의 이미지를 모아 봅니다.");
-			dclset.body.Album.innerList.albumLink = cElement("li", dclset.body.Album.innerList);
-			cElement("input", dclset.body.Album.innerList.albumLink, {type:"checkbox", id:"DCL_albumLink"});
-			cElement("label", dclset.body.Album.innerList.albumLink, {"for":"DCL_albumLink",textContent:"모아보기 사용"});
+			dclset.body.Album.innerList.albumInfScrl = cElement("li", dclset.body.Album.innerList);
+			cElement("input", dclset.body.Album.innerList.albumInfScrl, {type:"checkbox", id:"DCL_albumInfScrl"});
+			cElement("label", dclset.body.Album.innerList.albumInfScrl, {"for":"DCL_albumInfScrl",textContent:"무한 스크롤"});
 			dclset.body.Album.innerList.albumFullsize = cElement("li", dclset.body.Album.innerList);
 			cElement("input", dclset.body.Album.innerList.albumFullsize, {type:"checkbox", id:"DCL_albumFullsize"});
 			cElement("label", dclset.body.Album.innerList.albumFullsize, {"for":"DCL_albumFullsize",textContent:"풀 사이즈 이미지 표시"});
@@ -905,7 +905,7 @@ preset : function() {
 	alert('test');
 },
 load : function() {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumLink","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires"];
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires"];
 	if(MODE.sync) {
 		var cookie = location.hash.substr(1);
 		if(cookie) {
@@ -2635,15 +2635,12 @@ Viewer.prototype.clear = function() {
 // 이미지 모아보기
 function Album(page, more) {
 	if(!Album.inited) {
-		if(!(P.albumLink)) {
-			alert("모아보기 기능을 사용하지 않고 있습니다.\n설정을 확인하세요.");
-			return;
-		}
 		Album.init();
 	}
 
 	Album.on = true;
 	Album.complete = false;
+	Album.finish = false;
 	Album.page = page;
 	document.body.style.overflow = "hidden";
 	cAdd(document.body,"DCL_hideMovAll");
@@ -2651,6 +2648,7 @@ function Album(page, more) {
 	$("DCL_albumLoad").textContent = "읽는 중...";
 	if(!more) {
 		Album.count = 0;
+		Album.align.last=-1;
 		Album.viewer.clear();
 		$("DCL_albumUl").innerHTML = "";
 	}
@@ -2672,6 +2670,7 @@ Album.init = function() {
 	var width = P.thumbWidth;
 	var height = P.thumbHeight;
 	var cols = Math.floor(document.documentElement.clientWidth/(width+20));
+	Album.cssWidth = document.documentElement.clientWidth-120;
 
 	addStyle(
 		"div#DCL_albumDiv {position:fixed ; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:101}" +
@@ -2683,24 +2682,21 @@ Album.init = function() {
 		"span#DCL_albumPage > span {margin:5px ; cursor:pointer}" +
 		"span#DCL_albumPage > span.DCL_albumNow {font-size:16pt}" +
 		"span#DCL_albumLoad {margin-left:20px}" +
-		"ul#DCL_albumUl {position:relative ; overflow:auto ; width:" + (width+20)*cols + "px ; margin:10px auto}" +
-		"ul#DCL_albumUl > li {float:left ; position:relative ; width:" + width + "px ; height:" + (height+40) + "px ; margin:5px ; border-width:5px ; border-style:solid ; background-color:#f5f5f5 ; text-align:center}" +
-		"ul#DCL_albumUl > li.DCL_albumDC {border-color:#000}" +
-		"ul#DCL_albumUl > li.DCL_albumParan {border-color:#039}" +
-		"ul#DCL_albumUl > li.DCL_albumLink {border-color:#999}" +
-		"ul#DCL_albumUl > li.DCL_albumMore {cursor: pointer;}" +
-		"ul#DCL_albumUl > li.DCL_albumMore > div {line-height: " + (height+40) + "px; font-size: " + ((height+40)/2) + "px;}" +
-		"ul#DCL_albumUl img {max-width:" + width + "px ; max-height:" + height + "px ; background-color:#fff}" +
-		"ul#DCL_albumUl p {position:absolute ; overflow:hidden ; bottom:0 ; width:" + (width) + "px ; height:40px ; line-height: 15px; background-color:#ddd}" +
-		"ul#DCL_albumUl > li:hover p {background-color:#fff}" +
-		"ul#DCL_albumUl span {color: #333; display: block; height: 1em; overflow: hidden;}" +
-		"ul#DCL_albumUl span.author{font-weight:bold ;}" +
-		"ul#DCL_albumUl a {margin:7px 5px 0; display: block; height: 100%;}" +
-		"ul#DCL_albumUl a:visited {color:#666}"
+		"ul#DCL_albumUl {position:relative ; overflow:auto ; width:" + Album.cssWidth + "px ; margin:10px auto}" +
+		"ul#DCL_albumUl > li { position: relative; float:left; margin:5px; border: none; display:none; overflow: hidden; }" +
+		"ul#DCL_albumUl > li.DCL_albumDC { border-color:#000; }" +
+		"ul#DCL_albumUl > li.DCL_albumLink { border-color:#999; }" +
+		"ul#DCL_albumUl img { background-color:#fff}" +
+		"ul#DCL_albumUl p { position:absolute; padding: 5px; overflow:hidden; bottom: -1px; left:0; right:0; height:40px; line-height: 15px; background-image: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,1)); box-shadow: 0 0 1px black; display:none; text-align: center; }" +
+		"ul#DCL_albumUl > li:hover p { display: block; }" +
+		"ul#DCL_albumUl span {color: #DDD; display: block; height: 15px; overflow: hidden; min-width: 250px; }" +
+		"ul#DCL_albumUl span.author{font-weight: bold;}" +
+		"ul#DCL_albumUl a { display: inline-block; height: 100%; text-align: left; }"
 	);
 
 	Album.on = false; // 앨범 상태 여부
 	Album.complete = false; // 렌더링 여부 ; 연결이 여러개이므로 다른 연결에 의해 렌더링(display)이 시작되었는지 체크
+	Album.finish = false;
 	Album.page = 0; // 현재 페이지
 	Album.count = 0; // 이미지 개수
 
@@ -2710,6 +2706,7 @@ Album.init = function() {
 
 	Album.viewer = new Viewer();
 	Album.inited = true;
+	Album.align.last=-1;
 
 	var div = cElement("div",document.body,{id:"DCL_albumDiv"});
 	cElement("div",div,{id:"DCL_albumBack"});
@@ -2720,6 +2717,17 @@ Album.init = function() {
 	cElement("span",albumP,{id:"DCL_albumPage"});
 	cElement("span",albumP,{id:"DCL_albumLoad"});
 	cElement("ul",wrap,{id:"DCL_albumUl"});
+	
+	if(P.albumInfScrl) {
+		wrap.addEventListener("scroll", function() {
+			if(!Album.complete || !Album.finish)
+				return;
+			if(wrap.scrollHeight - wrap.clientHeight < wrap.scrollTop + wrap.clientHeight/2) {
+				Album(Album.page+1, true);
+				console.log("Scroll event!");
+			}
+		});
+	}
 };
 Album.display = function(disp) {
 	if(!Album.on || Album.complete) {
@@ -2752,10 +2760,9 @@ Album.display = function(disp) {
 	Album.complete = true;
 	albumLoad.textContent = "읽기 완료.";
 
-	var fragment = document.createDocumentFragment();
+	var fragment = $("DCL_albumUl");
 	if(!disp || (disp && !P.albumRealtime)) {
-		if(document.querySelector('.DCL_albumMore'))
-			removeElement(document.querySelector('.DCL_albumMore'));
+		Album.loadedCnt=0;
 		var data,imgs,li,img,p;
 		for(var i=0,l=pData.length ; i<l ; i+=1) {
 			data = Album.aData[pData[i]];
@@ -2776,19 +2783,72 @@ Album.display = function(disp) {
 				Album.count += 1;
 				li = cElement("li",fragment,{className:"DCL_album"+type});
 				img = cElement("img",li,{alt:data.title+" ("+(j+1)+")",src:thumb});
+				img.addEventListener("load", function(e) {
+					Album.loadedCnt=(Album.loadedCnt || 0) + 1;
+					if(Album.loadedCnt==Album.count) {
+						Album.align();
+					}
+				});
+				img.addEventListener("error", function(e) {
+					Album.count--;
+					removeElement(this.parentNode.parentNode);
+					if(Album.loadedCnt==Album.count) {
+						Album.align();
+					}
+				});
 				Album.viewer.add(orig,img);
+				
 				p = cElement("p",li);
-				ah=cElement("a",p,{href:"/board/view/?id="+_ID+"&no="+data.no,target:(BROWSER.msie?"":"_blank")});
+				ah=cElement("a",p,{href:"/board/view/?id="+_ID+"&no="+data.no,target:"_blank"});
 				cElement("span",ah,{textContent:data.name,className:"author"});
 				cElement("span",ah,{textContent:data.title});
 			}
 		}
 	}
+	Album.align();
+	albumLoad.textContent = "로드 완료 (" + Album.count + " 개 로드됨)";
+	Album.finish=true;
+	if(disp && P.albumInfScrl) {
+		var wrap = $('DCL_albumWrap');
 
-	cElement("div", cElement("li",fragment,{className:"DCL_albumMore"}, function() { Album(Album.page+1, true); this.children[0].textContent="로드 중..."; this.children[0].style.fontSize="16px"; }), {textContent:'+'});
-	$("DCL_albumUl").appendChild(fragment);
-	albumLoad.textContent = "전체 이미지 " + Album.count + " 개";
+		if(wrap.scrollHeight - wrap.clientHeight < wrap.scrollTop + wrap.clientHeight/2) {
+			Album(Album.page+1, true);
+			console.log("Display finished!");
+			console.log("disp=" + disp);
+		}
+	}
 };
+Album.align = function() {
+	var target = $("DCL_albumUl").childNodes;
+	var _width  = Album.cssWidth;
+	var _max_height = P.thumbHeight; // 구분선 20px
+	var wsum = 0;
+	if(typeof Album.align.last==="undefined") Album.align.last = -1;
+	
+	for(i=Album.align.last+1;i<target.length;i++) {
+		img = target[i].firstChild;
+		img.style.maxWidth=img.style.maxHeight=null;
+		img.realWidth  =img.width;
+		img.realHeight =img.height;
+		wsum += img.realWidth/img.realHeight; // 높이를 1로 두었을 때 너비
+		if(_max_height >= (_width-(i-Album.align.last+1)*10)/wsum) {
+			for(k=Album.align.last+1;k<=i;k++) {
+				kimg = target[k].firstChild;
+				kimg.style.height = ((_width-(i-Album.align.last+1)*10)/wsum) + "px";
+				kimg.parentNode.style.display= "inline-block";
+			}
+			Album.align.last = i;
+			wsum = 0;
+		}
+	}
+	for(k=Album.align.last+1;wsum && k<=i;k++) {
+		if(!target[k])
+			continue;
+		kimg = target[k].firstChild;
+		kimg.style.height = _max_height + "px";
+		kimg.parentNode.style.display= "inline-block";
+	}
+}
 Album.pCall = function(page) {
 	if(Album.pData.hasOwnProperty(page)) {
 		return;
@@ -2833,6 +2893,7 @@ Album.aCall = function(no) {
 				var data = Album.aData[no];
 				data.no = no;
 				data.name = /<span class="user_layer" user_name='([^\']+)' user_id=/.exec(text);
+				data.isdisplayed = false;
 				if(data.name===null) {
 					Album.rData[no] = (Album.rData[no] || 0) + 1;
 					if(Album.rData[no] < 3) {
@@ -2855,30 +2916,19 @@ Album.aCall = function(no) {
 				delete Album.rData[no];
 
 				var html,regexp,exec;
-				if( (P.albumLink) && (html=text.substring(text.indexOf("<!-- con_substance -->"),text.indexOf("<!-- //con_substance -->"))) ) {
-/*					if(P.albumDC) {
-						regexp = /src=[\"\']*(http:\/\/[a-z0-9]+.dcinside.com\/viewimage\.php\?[^\"\' ]+)/mg;
-						while( (exec=regexp.exec(html)) ) {
-							data.imgs.push([exec[1],"DC"]);
-						}
-					}*/
-					if(P.albumLink) {
-						regexp = /(|onClick=\"javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\']+)\'[^\"]+\">)<img[^>]*src=[\'\">\s]?([^\'\" >]+)[\'\">\s]?/mig;
-						while( (exec=regexp.exec(html)) ) {
-							if(typeof exec[2]!="undefined")
-								exec[2] = exec[2].replace("viewimagePop.php", "viewimage.php");
-							if(!(/wstatic\.dcinside\.com|images\/g_fix\.gif|dc2\.dcinside\.com/.test(exec[3]))) {
-								full = (typeof exec[2]!="undefined"?exec[2]:null)
-								data.imgs.push([exec[3].replace(/&amp;/g,"&"),full]);
-							}
+				if( (html=text.substring(text.indexOf("<!-- con_substance -->"),text.indexOf("<!-- //con_substance -->"))) ) {
+					regexp = /(|onClick=\"javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\']+)\'[^\"]+\">)<img[^>]*src=[\'\">\s]?([^\'\" >]+)[\'\">\s]?/mig;
+					while( (exec=regexp.exec(html)) ) {
+						if(typeof exec[2]!="undefined")
+							exec[2] = exec[2].replace("viewimagePop.php", "viewimage.php");
+						if(!(/wstatic\.dcinside\.com|images\/g_fix\.gif|dc2\.dcinside\.com/.test(exec[3]))) {
+							full = (typeof exec[2]!="undefined"?exec[2]:null)
+							data.imgs.push([exec[3].replace(/&amp;/g,"&"),full]);
 						}
 					}
 				}
 				if(P.albumRealtime) {
-					if(document.querySelector('.DCL_albumMore'))
-						removeElement(document.querySelector('.DCL_albumMore'));
-
-					var fragment = document.createDocumentFragment();
+					var fragment = $("DCL_albumUl");
 					var data,imgs,li,img,p;
 					imgs = data.imgs;
 					for(var j=imgs.length ; j-- ; ) {
@@ -2897,13 +2947,26 @@ Album.aCall = function(no) {
 						Album.count += 1;
 						li = cElement("li",fragment,{className:"DCL_album"+type});
 						img = cElement("img",li,{alt:data.title+" ("+(j+1)+")",src:thumb});
+						img.addEventListener("load", function(e) {
+							Album.loadedCnt=(Album.loadedCnt || 0) + 1;
+							if(Album.loadedCnt==Album.count) {
+								Album.align();
+							}
+						});
+						img.addEventListener("error", function(e) {
+							Album.count--;
+							removeElement(this.parentNode.parentNode);
+							if(Album.loadedCnt==Album.count) {
+								Album.align();
+							}
+						});
 						Album.viewer.add(orig,img);
+						
 						p = cElement("p",li);
 						ah=cElement("a",p,{href:"/board/view/?id="+_ID+"&no="+data.no,target:"_blank"});
 						cElement("span",ah,{textContent:data.name,className:"author"});
 						cElement("span",ah,{textContent:data.title});
 					}
-					$("DCL_albumUl").appendChild(fragment);
 				}
 			} else { // 응답을 못받았을 경우
 				Album.rData[no] = (Album.rData[no] || 0) + 1;
