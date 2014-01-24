@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14107
-// @date           2014.01.23
+// @version        14108
+// @date           2014.01.24
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,8 +10,8 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14107";	// 실제 버전
-var VERSION = "14107";		// 설정 내용 버전
+var R_VERSION = "14108";	// 실제 버전
+var VERSION = "14108";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -2791,7 +2791,7 @@ Album.display = function(disp) {
 				});
 				img.addEventListener("error", function(e) {
 					Album.count--;
-					removeElement(this.parentNode.parentNode);
+					removeElement(this.parentNode);
 					if(Album.loadedCnt==Album.count) {
 						Album.align();
 					}
@@ -2955,7 +2955,7 @@ Album.aCall = function(no) {
 						});
 						img.addEventListener("error", function(e) {
 							Album.count--;
-							removeElement(this.parentNode.parentNode);
+							removeElement(this.parentNode);
 							if(Album.loadedCnt==Album.count) {
 								Album.align();
 							}
