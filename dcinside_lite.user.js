@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14108
-// @date           2014.01.24
+// @version        14109
+// @date           2014.01.29
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,8 +10,8 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14108";	// 실제 버전
-var VERSION = "14108";		// 설정 내용 버전
+var R_VERSION = "14109";	// 실제 버전
+var VERSION = "14109";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -2260,8 +2260,14 @@ Layer.prototype.reply = function(){
 				alert("댓글 등록 중 오류가 발생했습니다.\n\n" + response.statusText);
 				return;
 			}
-			if(response.responseText!=='') {
-				alert("댓글 등록 중 오류가 발생했습니다.\n\n#code\n"+response.responseText);
+
+			var res = /^([^|]+)\|\|(.+)$/.exec(response.responseText);
+			if(!res) {
+				layer.call();
+				return;
+			}
+			if(res[1] === "false") {
+				alert("댓글 등록 중 오류가 발생했습니다.\n\n" + res[2]);
 				return;
 			}
 			layer.call();
@@ -2297,22 +2303,17 @@ Layer.prototype.delComment = function(e) {
 				alert("댓글 삭제 중 오류가 발생했습니다.\n\n" + response.statusText);
 				return;
 			}
-			if(response.responseText!=='') {
-				alert("댓글 삭제 중 오류가 발생했습니다.\n\n"+response.responseText.split('||')[1]);
+
+			var res = /^([^|]+)\|\|(.+)$/.exec(response.responseText);
+			if(!res) {
+				layer.call();
+				return;
+			}
+			if(res[1] === "false") {
+				alert("댓글 삭제 중 오류가 발생했습니다.\n\n" + res[2]);
 				return;
 			}
 			layer.call();
-			/*
-			var res = /<DELCOMMENTOK RESULT = "(\w+)"  ALERT="(.*)"  \/>/.exec(response.responseText);
-			if(!res) {
-				alert("댓글 삭제 중 오류가 발생했습니다.\n\n#code\n"+response.responseText);
-				return;
-			}
-			if(res[1] === "1") {
-				layer.call();
-			} else {
-				alert(res[2]);
-			}*/
 		},
 		"POST",
 		{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
