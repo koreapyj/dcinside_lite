@@ -74,7 +74,9 @@ updUse : 1,
 updDev : 0,
 autoName : "",
 autoPassword : "",
-longExpires : 0
+longExpires : 0,
+
+commentColorNameByIP : 0
 };
 
 // 기본 함수 및 상수, 변수
@@ -686,7 +688,16 @@ call : function() {
 			dclset.body.listSet.innerList.listComment = cElement("li", dclset.body.listSet.innerList);
 			cElement("input", dclset.body.listSet.innerList.listComment, {type:"checkbox", id:"DCL_listComment"});
 			cElement("label", dclset.body.listSet.innerList.listComment, {"for":"DCL_listComment",textContent:"댓글이 없을 때도 댓글 수를 표시"});
-			
+
+		dclset.body.commentSet = cElement("div", dclset.body);
+		cElement("h3", dclset.body.commentSet, "댓글");
+		dclset.body.commentSet.innerList = cElement("ul", dclset.body.commentSet);
+			//dclset.body.commentSet.innerList.info = cElement("li", dclset.body.commentSet.innerList);
+			//cElement("div", dclset.body.commentSet.innerList.info, "댓글과 관련된 설정");
+			dclset.body.commentSet.innerList.listNumber = cElement("li", dclset.body.commentSet.innerList);
+			cElement("input", dclset.body.commentSet.innerList.listNumber, {type:"checkbox", id:"DCL_commentColorNameByIP"});
+			cElement("label", dclset.body.commentSet.innerList.listNumber, {"for":"DCL_commentColorNameByIP",textContent:"유동닉의 경우 IP에 따라 이름에 색 지정"});
+
 		dclset.body.menuSet = cElement("div", dclset.body);
 		cElement("h3", dclset.body.menuSet, "메뉴");
 		dclset.body.menuSet.innerList = cElement("ul", dclset.body.menuSet);
@@ -2111,6 +2122,13 @@ Layer.prototype.call = function() {
 										delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
 									}
 									else { delbox=null; }
+
+									if (ip && P.commentColorNameByIP) {
+										var name_color = "#" + Math.floor((Math.abs(Math.sin(ip.replace(/[^0-9]/g, "")) * 16777215)) % 16777215 / 2).toString(16);
+										// from https://stackoverflow.com/questions/8132081
+
+										rows[i].cells[0].firstElementChild.style.color = name_color;
+									}
 
 									name	= rows[i].cells[0].innerHTML;
 									value	= rows[i].cells[1].innerHTML;
