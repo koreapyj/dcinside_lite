@@ -618,23 +618,6 @@ call : function() {
 						dclset.body.filter.mdibody.textbox[i].style.display="none";
 				}
 			});
-/*
-					"<li><h4>게시물 작성자</h4><ul>" +
-						"<li><label for='DCL_blockAN'>차단</label><textarea id='DCL_blockAN' rows='4' cols='11' wrap='off'></textarea></li>" +
-						"<li><label for='DCL_allowAN'>예외</label><textarea id='DCL_allowAN' rows='4' cols='11' wrap='off'></textarea></li>" +
-					"</ul></li>" +
-					"<li><h4>게시물 제목</h4><ul>" +
-						"<li><label for='DCL_blockAT'>차단</label><textarea id='DCL_blockAT' rows='4' cols='11' wrap='off'></textarea></li>" +
-						"<li><label for='DCL_allowAT'>예외</label><textarea id='DCL_allowAT' rows='4' cols='11' wrap='off'></textarea></li>" +
-					"</ul></li>" +
-					"<li><h4>댓글 작성자</h4><ul>" +
-						"<li><label for='DCL_blockCN'>차단</label><textarea id='DCL_blockCN' rows='4' cols='11' wrap='off'></textarea></li>" +
-						"<li><label for='DCL_allowCN'>예외</label><textarea id='DCL_allowCN' rows='4' cols='11' wrap='off'></textarea></li>" +
-					"</ul></li>" +
-					"<li><h4>댓글 내용</h4><ul>" +
-						"<li><label for='DCL_blockCT'>차단</label><textarea id='DCL_blockCT' rows='4' cols='11' wrap='off'></textarea></li>" +
-						"<li><label for='DCL_allowCT'>예외</label><textarea id='DCL_allowCT' rows='4' cols='11' wrap='off'></textarea></li>" +
-					"</ul></li>" +*/
 		dclset.body.layout = cElement("div", dclset.body);
 		cElement("h3", dclset.body.layout, "레이아웃 변경");
 		dclset.body.layout.innerList = cElement("ul", dclset.body.layout);
@@ -1812,6 +1795,7 @@ Layer.init = function() {
 
 		"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
 		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left}" +
+		"table.DCL_layerComment tr.dark * {color: white !important;}" +
 		"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
 		"table.DCL_layerComment td { height: auto; vertical-align: middle !important;}" +
 		"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
@@ -2153,13 +2137,6 @@ Layer.prototype.call = function() {
 									}
 									else { delbox=null; }
 
-									if (ip && P.commentColorNameByIP) {
-										var name_color = "#" + Math.floor((Math.abs(Math.sin(ip.replace(/[^0-9]/g, "")) * 16777215)) % 16777215 / 2).toString(16);
-										// from https://stackoverflow.com/questions/8132081
-
-										rows[i].cells[0].firstElementChild.style.color = name_color;
-									}
-
 									name	= rows[i].cells[0].innerHTML;
 									value	= rows[i].cells[1].innerHTML;
 //									ip		= rows[i].cells[0].textContent;
@@ -2170,6 +2147,18 @@ Layer.prototype.call = function() {
 									cElement('td', ktr, {innerHTML:date,className:'com_ip'});
 									btn = cElement('td', ktr, {className:'com_btn'});
 									if(delbox)btn.appendChild(delbox);
+
+									if (ip && P.commentColorNameByIP) {
+										var ipN = /(\d+)\.(\d+)/g.exec(ip);
+										// var name_color = "#" + Math.floor((Math.abs(Math.sin(ip.replace(/[^0-9]/g, "")) * 16777215)) % 16777215 / 2).toString(16);
+										// from https://stackoverflow.com/questions/8132081
+										var color = "hsl(" + (ipN[2]>100?ipN[1]+100:ipN[1]) + "," + ipN[2]%100 + "%," + (ipN[2]>200?"25%":"75%") + ")";
+
+										ktr.style.backgroundColor = color;
+										if(ipN[2]>200)
+											ktr.className = "dark";
+									}
+
 									/*
 									if(rows[i].getElementsByClassName('btn_voice_info').length>0) {
 										for(j=0;j<rows[i].getElementsByClassName('btn_voice_info').length;j++) {
