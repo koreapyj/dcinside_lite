@@ -1764,7 +1764,7 @@ Layer.init = function() {
 	var width = P.pageWidth;
 	var css =
 		"tr.DCL_layerTr > td {border-width:2px 0 1px ; border-style:solid ; border-color:#000}" +
-		"tr.DCL_layerTr > td:first-child {border-left-width:2px ; -moz-border-radius:5px 0 0 0 ; border-radius:5px 0 0 0}" +
+		"tr.DCL_layerTr > td" + (P.listNumber?":first-child":":nth-child(2)") + " {border-left-width:2px ; -moz-border-radius:5px 0 0 0 ; border-radius:5px 0 0 0}" +
 		"tr.DCL_layerTr > td:nth-child(5) {border-right-width:2px ; -moz-border-radius:0 5px 0 0 ; border-radius:0 5px 0 0}" +
 		"tr.DCL_layerTr + tr > td {border-style:solid; border-color: #000 !important; background:none; border-width:0 2px 2px 2px !important; -moz-border-radius:0 0 0 5px; border-radius:0 0 5px 5px; text-align: left !important;}" +
 
@@ -1795,7 +1795,6 @@ Layer.init = function() {
 
 		"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
 		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left}" +
-		"table.DCL_layerComment tr.dark * {color: white !important;}" +
 		"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
 		"table.DCL_layerComment td { height: auto; vertical-align: middle !important;}" +
 		"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
@@ -2150,23 +2149,9 @@ Layer.prototype.call = function() {
 
 									if (ip && P.commentColorNameByIP) {
 										var ipN = /(\d+)\.(\d+)/g.exec(ip);
-										// var name_color = "#" + Math.floor((Math.abs(Math.sin(ip.replace(/[^0-9]/g, "")) * 16777215)) % 16777215 / 2).toString(16);
-										// from https://stackoverflow.com/questions/8132081
-										var color = "hsl(" + (ipN[2]>100?ipN[1]+100:ipN[1]) + "," + ipN[2]%100 + "%," + (ipN[2]>200?"25%":"75%") + ")";
-
+										var color = "hsl(" + (ipN[2]>100?ipN[1]+100:ipN[1]) + "," + ipN[2]%100 + "%," + "80%" + ")";
 										ktr.style.backgroundColor = color;
-										if(ipN[2]>200)
-											ktr.className = "dark";
 									}
-
-									/*
-									if(rows[i].getElementsByClassName('btn_voice_info').length>0) {
-										for(j=0;j<rows[i].getElementsByClassName('btn_voice_info').length;j++) {
-											rows[i].getElementsByClassName('btn_voice_info')[j].addEventListener("click",function(e){
-												$('dgn_voice_pop_info').style.display="block";
-											},false);
-										}
-									}*/
 								}
 								l/=3;
 								if(P.filter) {
@@ -2659,9 +2644,6 @@ Viewer.init = function() {
 	btn.addEventListener("mouseout",function() { btn.hidestop=false; btn.showstop=true; cboxhide(); },false);
 	btn.style.opacity = 0.9;
 
-//	box.addEventListener("mousemove",function() { console.log("box mousemove!"); if(btn.style.opacity == 0.9 && false) cboxhide(); },false);
-//	img.addEventListener("mousemove",function() { console.log("img mousemove!"); if(btn.style.opacity == 0.9 && false) cboxhide(); },false);
-
 	cElement("span",btn,{textContent:"이전",style:"background-image: url('data:image/gif;base64," + BASE64.viewerPrev + "');"},function(){open(index-1);});
 	cElement("span",btn,{textContent:"다음",style:"background-image: url('data:image/gif;base64," + BASE64.viewerNext + "');"},function(){open(index+1);});
 	cElement("span",btn,{textContent:"확대",style:"background-image: url('data:image/gif;base64," + BASE64.viewerZoomin + "');"},function(){zoom("+");});
@@ -2805,7 +2787,6 @@ Album.init = function() {
 				return;
 			if(wrap.scrollHeight - wrap.clientHeight < wrap.scrollTop + wrap.clientHeight/2) {
 				Album(Album.page+1, true);
-				console.log("Scroll event!");
 			}
 		});
 	}
@@ -3302,7 +3283,7 @@ function DCINSIDE_LITE() {
 		"#list_table > * > tr > th {overflow:hidden; height: 26px !important; vertical-align: middle; }" +
 		"#list_table > * > tr > td.t_date { line-height: normal !important; }" +
 		"#list_table > colgroup > col:nth-child(1) {width:"+(P.listNumber?8:0)+"%;}" +
-		"#list_table > colgroup > col:nth-child(2) {width:"+(100-(P.listNumber?8:0)-14-(P.listDate?8:0)-(P.listCount?6:0))+"%;}" +
+		"#list_table > colgroup > col:nth-child(2) {width:100%;}" +
 		"#list_table > colgroup > col:nth-child(3) {width:14%;}" +
 		"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?10:0)+"%;}" +
 		"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?6:0)+"%;}" +
