@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        14110
+// @version        14111
 // @date           2014.07.24
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
@@ -10,7 +10,7 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14110";	// 실제 버전
+var R_VERSION = "14111";	// 실제 버전
 var VERSION = "14109";		// 설정 내용 버전
 var P = {
 version : "",
@@ -2424,7 +2424,7 @@ Viewer.init = function() {
 		ePrevent(e);
 	};
 	up = function(e) {
-		if(e.button === 2 && e.target.id !== "DCL_viewerImg") {
+		if(e.button === 2 && e.target.parentNode.id !== "DCL_viewerImg" && e.target.tagName !== "A") {
 			zoom(1);
 		}
 		if(e.button === 0 && !moved && !wheeled) {
@@ -2436,7 +2436,7 @@ Viewer.init = function() {
 		remove();
 	};
 	contextmenu = function(e) {
-		if(e.target.id !== "DCL_viewerImg") {
+		if(e.target.tagName !== "A" && e.target.parentNode.id !== "DCL_viewerImg") {
 			ePrevent(e);
 		}
 	};
