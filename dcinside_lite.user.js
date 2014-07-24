@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
-// @namespace      http://gallog.dcinside.com/koreapyj
-// @version        14109
-// @date           2014.01.29
+// @namespace      http://kasugano.tistory.com
+// @version        14111
+// @date           2014.07.24
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,7 +10,7 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14109";	// 실제 버전
+var R_VERSION = "14111";	// 실제 버전
 var VERSION = "14109";		// 설정 내용 버전
 var P = {
 version : "",
@@ -439,7 +439,24 @@ var BASE64 = { // base64 (data:image/png;base64,)
 	dialogClose :
 	"iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAUklEQVR4XqXPYQrAIAhAYW/gXd8NJxTopVqsGEhtf+L9/ERU2k/HSMFQpKcYJeNFI9Be0LCMij8cYyjj5EHIivGBkwLfrbX3IF8PqumVmnDpEG+eDsKibPG2JwAAAABJRU5ErkJggg==",
 	dialogClose_H :
-	"iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAnUlEQVR4XoWQQQ6CQAxFewjkJkMCyXgJPMk7AiYczyBeZEAX6AKctGIaN+bt+trk9wtGQc/IkhnoKGxqqiWxOSZalapWFZ6VrIUDExsN0a5JRBq9LoVOR0eEQMoEhKizXhhsn0p1sCWVo7CwOf1RytPL8CPvwuBUoHL6ugeK30CVD1TqK7V/hdpe+VNChhOzV8xWny/+xosHF8578W/Hmc1OOC3wmwAAAABJRU5ErkJggg=="
+	"iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAQAAAC1QeVaAAAAnUlEQVR4XoWQQQ6CQAxFewjkJkMCyXgJPMk7AiYczyBeZEAX6AKctGIaN+bt+trk9wtGQc/IkhnoKGxqqiWxOSZalapWFZ6VrIUDExsN0a5JRBq9LoVOR0eEQMoEhKizXhhsn0p1sCWVo7CwOf1RytPL8CPvwuBUoHL6ugeK30CVD1TqK7V/hdpe+VNChhOzV8xWny/+xosHF8578W/Hmc1OOC3wmwAAAABJRU5ErkJggg==",
+	transparentBg :
+	"iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABGdBTUEAALGPC/xhBQAAAAZQTFRF8PDwAAAAfqfmLAAAAAJ0Uk5TzAAR3FV6AAAAFElEQVQI12NgsP/AQAz+f4CBGAwAJIIdTTn0+w0AAAAASUVORK5CYII=",
+
+	viewerPrev :
+	"R0lGODdhHgAeAMIAAP///wAAAMzMzJmZmWZmZjMzM////////ywAAAAAHgAeAAADXQi63P4wyulGoViNwPPcXOc9YBgIY1OGaLqsXOsC8DlrZnzTuX3XMletRyzyisikIMksDptJAAFKDeCqzFdPwO16v19GbafNkRVT83l8TpvOx/c6F/yx4Lg6fj9LAAA7",
+	viewerNext :
+	"R0lGODdhHgAeAMIAAP///wAAAMzMzJmZmTMzM2ZmZv///////ywAAAAAHgAeAAADWgi63P4wyhlFGDQDG66WXOd9kChi5GN2RaquqMuso7zQsQ3gjOD/wCBwwFPQjshicpnEMJ84qLQTmi6d1quu2smluDUX2Esab2mCM0xtIqfWuls33iC46XhXAgA7",
+	viewerZoomin :
+	"R0lGODdhHgAeAIAAAP///wAAACwAAAAAHgAeAAACQYSPEMubD1FrsabJrFY4bNt5XxSOZGdCZXqhrOS+xlqF9o3n+s73/g8MCoc8DU12fCVZy1TT9BxFP9NN1RhDZiEFADs=",
+	viewerZoomout :
+	"R0lGODdhHgAeAIAAAP///wAAACwAAAAAHgAeAAACKYSPqcvtD6OctNqLs968pwCG4kiW5omm6sq27gvH8nx69o3n+s73flcAADs=",
+	viewerRotateL :
+	"R0lGODdhHgAeAMIAAP///wAAADMzM8zMzGZmZpmZmf///////ywAAAAAHgAeAAADgwi63P4wyukGESEHUQatWhgK3gdgYpoRn+pmwvTOMYSmAnG5LJiWjILqgZMUgynKj0EQASPCUIFx23wGop4iaxLlZplJNQCIqmqSsaI5VI4WbA1aFtIC4nOJOTNF5o1OFSYAR4NISYZrYxp2Jlguf1eQiQuPXJQKljBPlI8cnJihogsJADs=",
+	viewerRotateR :
+	"R0lGODdhHgAeAMIAAP///wAAADMzM8zMzGZmZpmZmf///////ywAAAAAHgAeAAADggi63P4wyqlGESEHQQZ1A6aNmvcBBKlqwieu8PTCMZSuHDGP7bMWoJWJsQtIio2BiqICLgokp0Q5IjBumtOsp1h+sBkGiQuhacAbSlED9E5gVhTp1HxGtWwGdXQCZKQLSCdDej99D2gscYcKaxmEh46Qh4kBk4chJJeMFiKbjKChJwkAOw==",
+	viewerClose :
+	"R0lGODdhHgAeAIAAAP///wAAACwAAAAAHgAeAAACOoSPqcvtD6OcJtiLs85o+2914IiJJGmeYKp61AvHMttqdF0e+HfvQb+bCYdEIM5YQ7aUKuapCI1KKQUAOw==",
 };
 
 // 환경 설정
@@ -1791,7 +1808,7 @@ Layer.init = function() {
 		"ul.DCL_layerFlash iframe {border: 0}" +
 		"ul.DCL_layerFlash > li {margin-bottom:5px}" +
 		"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
-		"div.DCL_layerText > .con_substance { padding: 10px; font-size: 10pt; font-family: 굴림; }" +
+		"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 10pt; font-family: 굴림; }" +
 
 		"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
 		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left}" +
@@ -2028,22 +2045,35 @@ Layer.prototype.call = function() {
 						var imagePopUrl = "http://image.dcinside.com/viewimagePop.php";
 						for(var i=0,l=textImgs.length ; i<l ; i+=1) {
 							textImg = textImgs[i];
-							textImg.removeAttribute("width");
-							textImg.removeAttribute("height");
+
 							if(P.albumFullsize)
 								textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 							if(textImg.getAttribute('onclick')) {
 								origUrl = textImg.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-								eRemove(textImg,"onclick");
-								textImg.removeAttribute("onclick");
 							}
 							else if(textImg.parentNode.getAttribute('onclick')) {
 								origUrl = textImg.parentNode.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-								eRemove(textImg.parentNode,"onclick");
-								textImg.parentNode.removeAttribute("onclick");
 							}
 							else
 								origUrl = ' ';
+
+							if(textImg.parentNode.tagName=="A") {
+								nImg = cElement("img", [textImg.parentNode,"next"], {src:textImg.src});
+								textImg.parentNode.parentNode.removeChild(textImg.parentNode);
+								textImg = nImg;
+							}
+							else {
+								nImg = cElement("img", [textImg,"next"], {src:textImg.src});
+								textImg.parentNode.removeChild(textImg);
+								textImg = nImg;
+							}
+
+							textImg.removeAttribute("width");
+							textImg.removeAttribute("height");
+							textImg.removeAttribute("href");
+							textImg.removeAttribute("onclick");
+							eRemove(textImg,"onclick");
+
 							if(origUrl.substr(0, imagePopUrl.length) === imagePopUrl)
 								viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
 							else
@@ -2360,10 +2390,11 @@ Viewer.init = function() {
 		}
 		Viewer.on = true;
 		index = i;
-		indexSpan.textContent = (index+1) + "/" + (list.length) + " (읽는 중)";
-		height=width=x=y=ratio=0;
+		indexSpan.textContent = "[" + (index+1) + "/" + (list.length) + "]";
+		height=width=x=y=ratio=deg=0;
 		box.style.display = "block";
-		img.style.visibility = "hidden";
+		imgbox.style.visibility = "hidden";
+		img.style.transform="rotate(0deg)";
 		img.removeAttribute("width");
 		img.removeAttribute("height");
 		img.src = list[i];
@@ -2372,13 +2403,16 @@ Viewer.init = function() {
 	load = function() {
 		height = img.height;
 		width = img.width;
-		indexSpan.textContent = (index+1) + "/" + (Viewer.list.length) + " (" + width + "*" + height + ")";
+		indexSpan.textContent = "[" + (index+1) + "/" + (Viewer.list.length) + "]"
+		sizeSpan.textContent = width + "x" + height;
+		addrSpan.href = img.src;
+		addrSpan.textContent = img.src.toString().substr(7,20)+"...";
 		fit();
-		img.style.visibility = "visible";
+		imgbox.style.visibility = "visible";
 		box.style.cursor = "crosshair";
 	};
 	error = function() {
-		indexSpan.textContent = (index+1) + "/" + (Viewer.list.length) + " (읽기 실패)";
+		indexSpan.textContent = "[" + (index+1) + "/" + (Viewer.list.length) + "]";
 		box.style.cursor = "not-allowed";
 	};
 	close = function() {
@@ -2399,7 +2433,7 @@ Viewer.init = function() {
 		moved = false;
 		downed = true;
 		wheeled = false;
-		if(e.target.id === "DCL_viewerImg") {
+		if(e.target.parentNode.id === "DCL_viewerImg") {
 			x = e.clientX;
 			y = e.clientY;
 			document.addEventListener("mousemove",move,false);
@@ -2408,7 +2442,7 @@ Viewer.init = function() {
 		ePrevent(e);
 	};
 	up = function(e) {
-		if(e.button === 2 && e.target.id !== "DCL_viewerImg") {
+		if(e.button === 2 && e.target.parentNode.id !== "DCL_viewerImg" && e.target.tagName !== "A") {
 			zoom(1);
 		}
 		if(e.button === 0 && !moved && !wheeled) {
@@ -2420,12 +2454,12 @@ Viewer.init = function() {
 		remove();
 	};
 	contextmenu = function(e) {
-		if(e.target.id !== "DCL_viewerImg") {
+		if(e.target.tagName !== "A" && e.target.parentNode.id !== "DCL_viewerImg") {
 			ePrevent(e);
 		}
 	};
 	move = function(e) {
-		position(img.getBoundingClientRect().left+e.clientX-x,img.getBoundingClientRect().top+e.clientY-y);
+		position(imgbox.getBoundingClientRect().left+e.clientX-x,imgbox.getBoundingClientRect().top+e.clientY-y);
 		x = e.clientX;
 		y = e.clientY;
 		moved = true;
@@ -2439,45 +2473,20 @@ Viewer.init = function() {
 			return;
 		}
 		var code = e.keyCode;
-		var rect = img.getBoundingClientRect();
+		var rect = imgbox.getBoundingClientRect();
 		var width = document.documentElement.clientWidth;
 		var height = document.documentElement.clientHeight;
-		if(code === 37) { // left
-			if(rect.left < 0) {
-				position(rect.left+100,false);
-			}
-		} else if(code === 38) { // up
-			if(rect.top < 0) {
-				position(false,rect.top+100);
-			}
-		} else if(code === 39) { // right
-			if(rect.right > width) {
-				position(rect.left-100,false);
-			}
-		} else if(code === 40) { // down
-			if(rect.bottom > height) {
-				position(false,rect.top-100);
-			}
-		} else if(code === 33) { // pageup
-			if(rect.top < 0) {
-				position(false,rect.top+height-100);
-			}
-		} else if(code === 34) { // pagedown
-			if(rect.bottom > height) {
-				position(false,rect.top-height+100);
-			}
-		} else if(code === 36) { // home
-			if(rect.top < 0) {
-				position(false,0);
-			}
-		} else if(code === 35) { // end
-			if(rect.bottom > height) {
-				position(false,height-img.height);
-			}
-		} else if(code === 8) { // backspace
+		if(code === 8 || code === 33 || code === 37 || code === 38) { // 다음 이미지
 			open(index-1);
-		} else if(code === 13) { // enter
+		} else if(code === 34 ||code === 39 || code === 40) { // 이전 이미지
 			open(index+1);
+		} else if(code === 36) { // home
+			open(0);
+		} else if(code === 35) { // end
+			open(Viewer.list.length - 1);
+		} else if(code === 13) { // enter
+			//nothing to do
+			return;
 		} else if(code === 107 || code === 187) { // +
 			zoom("+");
 		} else if(code === 109 || code === 189) { // -
@@ -2533,17 +2542,35 @@ Viewer.init = function() {
 		}
 		ratio = r;
 
-		var rect = img.getBoundingClientRect();
-		var x_ = rect.left + img.width/2 - width*ratio/2;
-		var y_ = rect.top + img.height/2 - height*ratio/2;
+		var rect = imgbox.getBoundingClientRect();
+		var x_ = rect.left + rect.width/2 - width*ratio/2;
+		var y_ = rect.top + rect.height/2 - height*ratio/2;
 		img.height = Math.round(height*ratio);
 		img.width = Math.round(width*ratio);
-		ratioSpan.textContent = Math.round(ratio*100) + "%";
+		ratioSpan.textContent = "확대/축소: " + Math.round(ratio*100) + "%";
 		position(x_,y_);
 	};
+	rotate = function(r) {
+		if(r === "r") {
+			deg = (deg+90+360)%360;
+		} else if(r === "l") {
+			deg = (deg-90+360)%360;
+		}
+		img.style.transform="rotate(" + deg + "deg)";/*
+		var irect = img.getBoundingClientRect();
+
+		var rect = imgbox.getBoundingClientRect();
+		var x_ = rect.left + rect.width/2 - irect.width/2;
+		var y_ = rect.top + rect.height/2 - irect.height/2;
+		imgbox.style.height = irect.height + "px";
+		imgbox.style.width = irect.width + "px";
+		position(x_,y_);*/
+	};
 	position = function(x_,y_) {
+		var rect = imgbox.getBoundingClientRect();
+		var mw = document.documentElement.clientWidth - rect.width;
+		var mh = document.documentElement.clientHeight - rect.height;
 		if(x_ !== false) {
-			var mw = document.documentElement.clientWidth - img.width;
 			if(0 > mw) {
 				if(x_ < mw) {
 					x_ = mw;
@@ -2557,11 +2584,10 @@ Viewer.init = function() {
 					x_ = 0;
 				}
 			}
-			img.style.left = Math.round(x_) + "px";
+			imgbox.style.left = Math.round(x_) + "px";
 		}
 
 		if(y_ !== false) {
-			var mh = document.documentElement.clientHeight - img.height;
 			if(0 > mh) {
 				if(y_ < mh) {
 					y_ = mh;
@@ -2575,16 +2601,43 @@ Viewer.init = function() {
 					y_ = 0;
 				}
 			}
-			img.style.top = Math.round(y_) + "px";
+			imgbox.style.top = Math.round(y_) + "px";
 		}
 	};
+	cboxshow = function() {
+		if(btn.showstop)
+			return;
+		if(parseFloat(btn.style.opacity)>=0.9) {
+			exif.style.opacity=btn.style.opacity = 0.9;
+			return;
+		}
+		exif.style.opacity=btn.style.opacity=parseFloat(btn.style.opacity) + 0.08;
+		setTimeout(cboxshow, 20);
+	}
+	cboxhide = function() {
+		if(btn.hidestop)
+			return;
+		if(parseFloat(btn.style.opacity)<=0.05) {
+			exif.style.opacity=btn.style.opacity = 0;
+			return;
+		}
+		exif.style.opacity=btn.style.opacity=parseFloat(btn.style.opacity) - 0.08;
+		setTimeout(cboxhide, 20);
+	}
 
 	addStyle(
-		"div#DCL_viewerDiv {position:fixed ; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:102 ; display:none}" +
-		"div#DCL_viewerBack {position:fixed ; top:0 ; left:0 ; width:100% ; height:100% ; background-color:#000 ; opacity:0.8}" +
-		"img#DCL_viewerImg {position:absolute ; background-color:#fff ; cursor:all-scroll ; cursor:-moz-grab}" +
-		"div#DCL_viewerBtn {position:absolute ; top:2px ; right:0}" +
-		"div#DCL_viewerBtn > span {font:10pt 돋움 ; -moz-border-radius:4px ; border-radius:4px ; padding:2px 3px ; margin-right:1px ; color:#fff ; background-color:#333 ; opacity:0.8 ; cursor:pointer}" +
+		"div#DCL_viewerDiv {position:fixed; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:102 ; display:none}" +
+		"div#DCL_viewerBack {position:fixed; top:0 ; left:0 ; width:100% ; height:100% ; background-color:#000 ; opacity:0.8}" +
+		"div#DCL_viewerImg {position:absolute; cursor:all-scroll; display: inline-block; }" +
+		"div#DCL_viewerBtn {position:absolute; bottom: 0px; left: 0px; right: 0px; }" +
+		"div#DCL_viewerBtn > div { margin: 0 auto 20px auto; text-align: center; background-color: #292929; width: 408px; height: 72px; border-radius: 36px; opacity: 0.9; cursor: default; overflow: hidden; box-shadow: 0 0 50px black; background-image: linear-gradient(0deg, #222, #333); }" +
+		"div#DCL_viewerBtn > div > span:first-of-type { margin-left: 16px; }" +
+		"div#DCL_viewerBtn > div > span:last-of-type { margin-right: 16px; }" +
+		"div#DCL_viewerBtn > div > span { float: left; margin: 16px 8px; width: 40px; height: 40px; background-color: white; border-radius: 20px; background-repeat: no-repeat; background-position: center; color: transparent; background-size: 25px; opacity: 0.5; }" +
+		"div#DCL_viewerBtn > div > span:hover { opacity: 1; }" +
+		"div#DCL_viewerExif { position: absolute; top: 20px; left: 20px; cursor: default; }" +
+		"div#DCL_viewerExif > span { font-family: Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif; font-size: 12pt; color: white; text-shadow:0px 0px 10px #000; display: block; }" +
+		"div#DCL_viewerExif > span > a { font-family: Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif; font-size: 12pt; color: white; cursor: pointer; }" +
 		"div#DCL_viewerBtnBack, div#DCL_viewerBtnForward {position: absolute; top: 50%; height: 100px; line-height: 100px; font-size: 70px; font-family: Tahoma; z-index: 9999989999; background-color: white; color: black; opacity: 0.5; padding: 5px 10px 15px 10px; margin-top: -50px; cursor: pointer}" +
 		"div#DCL_viewerBtnBack {left: 0;  border-radius: 0 10px 10px 0;}" +
 		"div#DCL_viewerBtnForward {right: 0; border-radius: 10px 0 0 10px;}" +
@@ -2603,30 +2656,50 @@ Viewer.init = function() {
 
 	cElement("div",box,{id:"DCL_viewerBack"},close);
 
-	img = cElement("img",box,{id:"DCL_viewerImg"});
+	imgbox = cElement("div",box,{id:"DCL_viewerImg"});
+	img = cElement("img",imgbox);
 	img.addEventListener("load",load,false);
 	img.addEventListener("error",error,false);
 	img.addEventListener("dragstart",ePrevent,false);
 
-	btn = cElement("div",box,{id:"DCL_viewerBtn"});
-	btn.addEventListener("mousedown",ePrevent,false); // drag 방지
-	btn.addEventListener("mouseup",ePrevent,false); // 닫기 방지
+	btnct = cElement("div",box,{id:"DCL_viewerBtn"});
+	btnct.addEventListener("mousedown",ePrevent,false); // drag 방지
+	btnct.addEventListener("mouseup",ePrevent,false); // 닫기 방지
+	btn = cElement("div",btnct);
+	btn.addEventListener("mouseover",function() { btn.hidestop=true; btn.showstop=false; cboxshow(); },false);
+	btn.addEventListener("mouseout",function() { btn.hidestop=false; btn.showstop=true; cboxhide(); },false);
+	btn.style.opacity = 0.9;
 
-	ratioSpan = cElement("span",btn,"100%");
-	indexSpan = cElement("span",btn,"0/0");
-	cElement("span",btn,"이전",function(){open(index-1);});
-	cElement("span",btn,"다음",function(){open(index+1);});
-	cElement("span",btn,"축소",function(){zoom("-");});
-	cElement("span",btn,"확대",function(){zoom("+");});
-	cElement("span",btn,"원본",function(){zoom(1);});
-	cElement("span",btn,"창맞춤",fit);
-	cElement("span",btn,"닫기",close);
+//	box.addEventListener("mousemove",function() { console.log("box mousemove!"); if(btn.style.opacity == 0.9 && false) cboxhide(); },false);
+//	img.addEventListener("mousemove",function() { console.log("img mousemove!"); if(btn.style.opacity == 0.9 && false) cboxhide(); },false);
+
+	cElement("span",btn,{textContent:"이전",style:"background-image: url('data:image/gif;base64," + BASE64.viewerPrev + "');"},function(){open(index-1);});
+	cElement("span",btn,{textContent:"다음",style:"background-image: url('data:image/gif;base64," + BASE64.viewerNext + "');"},function(){open(index+1);});
+	cElement("span",btn,{textContent:"확대",style:"background-image: url('data:image/gif;base64," + BASE64.viewerZoomin + "');"},function(){zoom("+");});
+	cElement("span",btn,{textContent:"축소",style:"background-image: url('data:image/gif;base64," + BASE64.viewerZoomout + "');"},function(){zoom("-");});
+	cElement("span",btn,{textContent:"왼쪽으로 회전",style:"background-image: url('data:image/gif;base64," + BASE64.viewerRotateL + "');"},function(){rotate("l");});
+	cElement("span",btn,{textContent:"오른쪽으로 회전",style:"background-image: url('data:image/gif;base64," + BASE64.viewerRotateR + "');"},function(){rotate("r");});
+//	cElement("span",btn,"원본",function(){zoom(1);});
+//	cElement("span",btn,"창맞춤",fit);
+	cElement("span",btn,{textContent:"닫기",style:"background-image: url('data:image/gif;base64," + BASE64.viewerClose + "');"},close);
+
+	exif = cElement("div", box, {id:"DCL_viewerExif"});
+	exif.addEventListener("mouseover",function() { btn.hidestop=true; btn.showstop=false; cboxshow(); },false);
+	exif.addEventListener("mouseout",function() { btn.hidestop=false; btn.showstop=true; cboxhide(); },false);
+	urlSpan = cElement("span",exif, "파일 주소: ");
+	addrSpan = cElement("a", urlSpan, {target:"_blank"});
+	indexSpan = cElement("span",urlSpan,"[0/0]");
+	ratioSpan = cElement("span",exif,"확대/축소: 100%");
+	infoSpan = cElement("span",exif,"이미지 정보: ");
+	sizeSpan = cElement("span",infoSpan,"로드 중...");
+//	dateSpan = cElement("span",exif,"로드 중...");
 
 	backbtn = cElement("div",box,{id:"DCL_viewerBtnBack",textContent:"‹"},function(){open(index-1);});
 	fwdbtn  = cElement("div",box,{id:"DCL_viewerBtnForward",textContent:"›"},function(){open(index+1);});
 
 	Viewer.open = open;
 	Viewer.inited = true;
+
 };
 Viewer.prototype.add = function(src,obj) {
 	var i = this.list.length;
@@ -2695,11 +2768,11 @@ Album.init = function() {
 		"div#DCL_albumDiv {position:fixed ; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:101}" +
 		"div#DCL_albumBack {position:absolute; top:0; width:100%; height:100%; background-color:#000 ; opacity:0.6}" +
 		"div#DCL_albumWrap {position:absolute; top: 30px; bottom: 0px; width:100%; overflow:auto;}" +
-		"p#DCL_albumP {overflow:hidden; height:30px ; font:11pt Tahoma,돋움 ; color:#fff ; background-color:#333; position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1;}" +
+		"p#DCL_albumP {overflow:hidden; height:25px; padding-top: 5px; font: 15px Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif; color:#fff ; background-color:#333; position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1;}" +
 		"span.DCL_albumBtn {margin-left:10px ; cursor:pointer}" +
 		"span#DCL_albumPage {margin-left:15px}" +
 		"span#DCL_albumPage > span {margin:5px ; cursor:pointer}" +
-		"span#DCL_albumPage > span.DCL_albumNow {font-size:16pt}" +
+		"span#DCL_albumPage > span.DCL_albumNow {font-size: 21px; line-height: 15px; }" +
 		"span#DCL_albumLoad {margin-left:20px}" +
 		"ul#DCL_albumUl {position:relative ; overflow:auto ; width:" + Album.cssWidth + "px ; margin:10px auto}" +
 		"ul#DCL_albumUl > li { position: relative; float:left; margin:5px; border: none; display:none; overflow: hidden; }" +
@@ -2832,8 +2905,6 @@ Album.display = function(disp) {
 
 		if(wrap.scrollHeight - wrap.clientHeight < wrap.scrollTop + wrap.clientHeight/2) {
 			Album(Album.page+1, true);
-			console.log("Display finished!");
-			console.log("disp=" + disp);
 		}
 	}
 };
@@ -3042,7 +3113,7 @@ apply : function(obj) {
 			".DCL_hideMov.DCL_hideOn {display:none}" +
 			"span.DCL_hideMovBtn.DCL_hideOn {opacity:0.8 ; position:relative ; display:block ; margin:0}" +
 
-			"p.DCL_hideBtns {margin-bottom:10px}" +
+//			"p.DCL_hideBtns {margin-bottom:10px}" +
 			"p.DCL_hideBtns > span {display:inline-block ; width:30px ; height:17px ; margin:3px ; cursor:pointer ; opacity:0.5}" +
 			"span.DCL_viewAll {background-image:url('data:image/png;base64,"+BASE64.viewAll+"')}" +
 			"span.DCL_hideAll {background-image:url('data:image/png;base64,"+BASE64.hideAll+"')}" +
@@ -3197,6 +3268,10 @@ function DCINSIDE_LITE() {
 		tabRecomm=false;
 	else
 		tabRecomm=true;
+
+	if(document.querySelector(".tab_menu")) document.querySelector(".tab_menu").style.display = P.gallTab?"block":"none";
+	if(document.querySelector(".tab_icon_menu")) document.querySelector(".tab_icon_menu").style.display = P.gallTab?"block":"none";
+
 	addStyle(
 		'* { -webkit-text-size-adjust: none; }' +
 		"#dgn_gallery_right, .banner_box, #dgn_footer, #dgn_gallery_right_detail {display:none !important; }" +
@@ -3211,12 +3286,16 @@ function DCINSIDE_LITE() {
 		"#dgn_gallery_wrap .gallery_content { margin-top: 10px; }" + 
 
 		"#dgn_gallery_left { float: none; }" +
-		"#dgn_gallery_left .gallery_box {position: static; margin-bottom: 10px; "+(!MODE.list?'':'/*height: 175px !important;*/')+"}" +
+		"#dgn_gallery_left .gallery_title { display: " + (P.title?"block":"none") + "; }" +
+		"#dgn_gallery_left .gallery_box { display: " + (P.best?"block":"none") + "; " + (P.title?"":"top: 0px !important;") + "}" +
+		"#dgn_gallery_left .gallery_box {position: static !important; margin-bottom: 10px; "+(!MODE.list?'':'height: 175px !important;')+"}" +
 		"#dgn_gallery_left .tab_menu {float: left;}" +
 		"#dgn_gallery_left .tab_icon_menu {float: right; position: static;}" +
-		"#dgn_gallery_left .gallery_list {position: static; padding: 0;}" +
+		"#dgn_gallery_left .gallery_list {position: static !important; padding: 0 !important;}" +
 		"#dgn_gallery_left .list_table {margin-top: "+(P.gallTab?33:0)+"px;}" +
 		"#dgn_gallery_left .con_lately :after {clear:both; content: \" \";}" +
+		"#dgn_gallery_left .select_div { z-index: 1000 !important; width: 550px !important; margin: 0 auto !important; }" +
+		"#dgn_gallery_left .select_div ul { left: 13px !important; }" +
 
 		"#dgn_popup_4 { top: 0px !important; }" +
 
@@ -3271,6 +3350,9 @@ function DCINSIDE_LITE() {
 		".ad_left_wing_list_top, " +
 		".ad_left_wing_con_top { left: -150px !important; }" +
 
+		".best_img { background-image: url('data:image/png;base64,"+BASE64.transparentBg+"'); text-align: center; display: table-cell; vertical-align: middle; }" +
+		".best_img img { width: auto; height: auto; max-width: 123px; max-height: 92px; }" + 
+
 		// 로딩 오류시
 		"#dgn_wrap {width:"+P.pageWidth+"px !important;}" +
 		"#testDiv > table[width='200'], #right_div {display:none}"
@@ -3288,11 +3370,6 @@ function DCINSIDE_LITE() {
 	if(!P.header && $("dgn_header_gall")!==null) {
 		$("dgn_header_gall").style.display = "none";
 	}
-
-	document.querySelector(".gallery_title").style.display = P.title?"block":"none";
-	document.querySelector(".gallery_box").style.display = P.best?"block":"none";
-	if(document.querySelector(".tab_menu")) document.querySelector(".tab_menu").style.display = P.gallTab?"block":"none";
-	if(document.querySelector(".tab_icon_menu")) document.querySelector(".tab_icon_menu").style.display = P.gallTab?"block":"none";
 
 	if(P.wide) {
 		wideFunc();
@@ -3449,25 +3526,37 @@ function DCINSIDE_LITE() {
 				for(var i=0,l=articleImgs.length ; i<l ; i+=1) {
 					regexp = /javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\',]+)/;
 					img = articleImgs[i];
+
+
 					if(P.albumFullsize)
 						img.src=img.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
-					if(img.getAttribute("onclick") && (vtarget = img.getAttribute("onclick").match(regexp))) {
-						img.removeAttribute("href");
-						img.removeAttribute("onclick");
-						eRemove(img,"onclick");
+					if(img.parentNode.getAttribute("onclick") && (vtarget = img.parentNode.getAttribute("onclick").match(regexp))) {
 						vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
 					}
-					else if(img.parentNode.getAttribute("onclick") && (vtarget = img.parentNode.getAttribute("onclick").match(regexp))) {
-						img.parentNode.removeAttribute("href");
-						img.parentNode.removeAttribute("onclick");
-						eRemove(img.parentNode,"onclick");
+					else if(img.getAttribute("onclick") && (vtarget = img.getAttribute("onclick").match(regexp))) {
 						vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
 					}
 					else
 						vtarget = img.src;
+
+					if(img.parentNode.tagName=="A") {
+						nImg = cElement("img", [img.parentNode,"next"], {src:img.src});
+						img.parentNode.parentNode.removeChild(img.parentNode);
+						img = nImg;
+					}
+					else {
+						nImg = cElement("img", [img,"next"], {src:img.src});
+						img.parentNode.removeChild(img);
+						img = nImg;
+					}
+
+					img.removeAttribute("href");
+					img.removeAttribute("onclick");
+					eRemove(img,"onclick");
 					eRemove(img,"onload");
 					img.removeAttribute("width");
 					img.removeAttribute("height");
+
 					viewer.add(vtarget,img);
 				}
 			}
@@ -3480,6 +3569,7 @@ function DCINSIDE_LITE() {
 		
 		if(MODE.list) {
 			try {
+				ilbeView();
 				document.getElementsByClassName('btn_bottom')[0].children[0].children[0].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
 				document.getElementsByClassName('btn_bottom')[0].children[0].children[1].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
 				document.getElementsByClassName('btn_bottom')[0].children[0].children[2].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
@@ -3544,6 +3634,19 @@ function DCINSIDE_LITE() {
 		}
 	}
 
+}
+
+function ilbeView() {
+	// 일베 이미지 뷰어 등록
+	var ilbeImg = document.querySelectorAll('.best_img img');
+	if(ilbeImg.length<1) {
+		setTimeout(ilbeView, 100);
+		return;
+	}
+	var viewer = new Viewer();
+	for(i=ilbeImg.length;ilbeImg[--i];) {
+		viewer.add(ilbeImg[i].src,ilbeImg[i]);
+	}
 }
 
 function time() {
