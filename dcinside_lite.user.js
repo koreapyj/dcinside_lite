@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        14112
-// @date           2014.07.24
+// @version        14113
+// @date           2014.07.27
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,8 +10,8 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14112";	// 실제 버전
-var VERSION = "14112";		// 설정 내용 버전
+var R_VERSION = "14113";	// 실제 버전
+var VERSION = "14113";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -461,7 +461,6 @@ var BASE64 = { // base64 (data:image/png;base64,)
 
 // 환경 설정
 var SET = {
-
 call : function() {
 	if(!$("DCL_set_wrap")) {
 		addStyle(
@@ -696,7 +695,7 @@ call : function() {
 			//cElement("div", dclset.body.commentSet.innerList.info, "댓글과 관련된 설정");
 			dclset.body.commentSet.innerList.listNumber = cElement("li", dclset.body.commentSet.innerList);
 			cElement("input", dclset.body.commentSet.innerList.listNumber, {type:"checkbox", id:"DCL_commentColorNameByIP"});
-			cElement("label", dclset.body.commentSet.innerList.listNumber, {"for":"DCL_commentColorNameByIP",textContent:"유동닉의 경우 IP에 따라 이름에 색 지정"});
+			cElement("label", dclset.body.commentSet.innerList.listNumber, {"for":"DCL_commentColorNameByIP",textContent:"유동닉 배경색 사용"});
 
 		dclset.body.menuSet = cElement("div", dclset.body);
 		cElement("h3", dclset.body.menuSet, "메뉴");
@@ -852,41 +851,8 @@ call : function() {
 			cElement("a", dclset.body.dclInfo.innerList.info.github, {href:"https://github.com/koreapyj/dcinside_lite", target:"_blank", textContent:"GitHub 페이지"});
 			cElement("div", dclset.body.dclInfo.innerList.info, {className:"small br", textContent:"이 스크립트는 자유 소프트웨어 라이센스를 따르지 않습니다. 이 스크립트의 저작권은 디시인사이드 고정닉 축에게 있습니다. 이 스크립트는 원 저작자의 허락을 받지 않고 수정되었으며, 원 저작자의 문제 제기시 배포는 중단됩니다. 이 스크립트의 버전 1.5.5 이후 변경사항은 Public Domain으로 배포됩니다."});
 
-
 		dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
-
-	//	document.getElementById('DCL_setUpload').addEventListener("change",SET.cloud,false);
-	/*
-		$('cookieDelete').style.display='block';
-		$('cookieDelete').addEventListener('click', cookieDelete);
-	*/
-	/*	var prefBtn = $("DCL_prefBtn");
-		cElement("span",prefBtn,"저장",SET.save);
-		cElement("span",prefBtn,"취소",SET.close);
-		cElement("span",prefBtn,"초기화",SET.reset);
-		cElement("span",prefBtn,"프리셋",SET.preset);
-		cElement("span",prefBtn,"제작자 갤로그",function(){window.open("http://gallog.dcinside.com/hkyuwon");}); (접속 불능으로 링크 제거)
-		cElement("span",prefBtn,"업데이트 확인",function(){
-		simpleRequest(
-			"http://lite.dcmys.kr/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
-			function(response) {
-				nVer = parseInt(response.responseText.split('<>')[0]);
-				if(response.responseText.split('<>')[1]!=undefined) {
-					nVerDesc = response.responseText.split('<>')[1];
-					nVerDesc = nVerDesc.replace(/<br>/gi, "\n");
-					dText = "\n\n이 업데이트의 변경 사항\n" + nVerDesc + "\n";
-				}
-				if(R_VERSION < nVer) {
-					if(confirm("새 버전이 있습니다(" + nVer + ")" + dText + "\n업데이트하시겠습니까?")) {
-						document.body.innerHTML = '<form action="http://lite.dcmys.kr/update/' + nVer + '.zip" method="get"><div style="margin: 10px;">업데이트를 진행할 경우 이 버전으로 돌아올 수 없습니다. 계속하시겠습니까?<br /><input type="submit" style="padding-left: 5px; padding-right: 5px; margin: 3px; border: 2px solid black;" value="예" onclick="alert(\'새 버전 설치 후 새로고침하면 설치가 완료됩니다.\');" /><input type="button" style="padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin: 2px; border: 1px solid black;" value="아니오" /></div></form>';
-					}
-				}
-				else
-					alert("최신 버전을 사용하고 있습니다.");
-			}
-		);});
-		cElement("span",prefBtn,"버그 신고",function(){window.open("http://kasugano.tistory.com/");});*/
 	}
 
 	if(!MODE.sync) {
@@ -912,11 +878,8 @@ call : function() {
 	}
 //	$("DCL_updDev").disabled=!$("DCL_updUse").checked;
 },
-preset : function() {
-	alert('test');
-},
 load : function() {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires"];
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColorNameByIP"];
 	if(MODE.sync) {
 		var cookie = location.hash.substr(1);
 		if(cookie) {
@@ -1023,10 +986,6 @@ load : function() {
 	}
 },
 save : function() {
-	if(!BROWSER.dataMigration && !MODE.sync)
-		if(!confirm("값을 저장하겠습니까?")) {
-			return;
-		}
 	var input;
 	var dataStr='';
 	for(var i in P) {
@@ -2602,7 +2561,8 @@ Viewer.init = function() {
 	addStyle(
 		"div#DCL_viewerDiv {position:fixed; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:102 ; display:none}" +
 		"div#DCL_viewerBack {position:fixed; top:0 ; left:0 ; width:100% ; height:100% ; background-color:#000 ; opacity:0.8}" +
-		"div#DCL_viewerImg {position:absolute; cursor:all-scroll; display: inline-block; }" +
+		"div#DCL_viewerImg {position:absolute; display: inline-block; }" +
+		"div#DCL_viewerImg > img { cursor:all-scroll; }" +
 		"div#DCL_viewerBtn {position:absolute; bottom: 0px; left: 0px; right: 0px; }" +
 		"div#DCL_viewerBtn > div { margin: 0 auto 20px auto; text-align: center; background-color: #292929; width: 408px; height: 72px; border-radius: 36px; opacity: 0.9; cursor: default; overflow: hidden; box-shadow: 0 0 50px black; background-image: linear-gradient(0deg, #222, #333); }" +
 		"div#DCL_viewerBtn > div > span:first-of-type { margin-left: 16px; }" +
@@ -3223,15 +3183,6 @@ function cookieDelete() {
 	location.reload();
 }
 
-function NoAD()
-{
-/*
-	target = document.querySelectorAll(".ad_left_wing_list_top");
-	for(i=target.length;i--;) {
-		target[i].style.display='none';
-	}*/
-}
-
 // 실제 실행
 function DCINSIDE_LITE() {
 	if(document.getElementsByClassName('list_thead')[0].getElementsByTagName('th')[5]===undefined)
@@ -3282,11 +3233,11 @@ function DCINSIDE_LITE() {
 		"#list_table > * > tr > td," +
 		"#list_table > * > tr > th {overflow:hidden; height: 26px !important; vertical-align: middle; }" +
 		"#list_table > * > tr > td.t_date { line-height: normal !important; }" +
-		"#list_table > colgroup > col:nth-child(1) {width:"+(P.listNumber?8:0)+"%;}" +
+		"#list_table > colgroup > col:nth-child(1) {width:"+(P.listNumber?72:0)+"px;}" +
 		"#list_table > colgroup > col:nth-child(2) {width:100%;}" +
-		"#list_table > colgroup > col:nth-child(3) {width:14%;}" +
-		"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?10:0)+"%;}" +
-		"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?6:0)+"%;}" +
+		"#list_table > colgroup > col:nth-child(3) {width:125px;}" +
+		"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?110:0)+"px;}" +
+		"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?35:0)+"px;}" +
 		"#list_table > colgroup > col:nth-child(6) {display:none;}" +
 		"#list_table > .list_tbody > tr > td:nth-child(6) {display:none;}" +
 		"#list_table .list_tbody .tb td { padding-top: 3px; padding-bottom: 0; }" +
