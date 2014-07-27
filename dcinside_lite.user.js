@@ -693,9 +693,9 @@ call : function() {
 		dclset.body.commentSet.innerList = cElement("ul", dclset.body.commentSet);
 			//dclset.body.commentSet.innerList.info = cElement("li", dclset.body.commentSet.innerList);
 			//cElement("div", dclset.body.commentSet.innerList.info, "댓글과 관련된 설정");
-			dclset.body.commentSet.innerList.listNumber = cElement("li", dclset.body.commentSet.innerList);
-			cElement("input", dclset.body.commentSet.innerList.listNumber, {type:"checkbox", id:"DCL_commentColorNameByIP"});
-			cElement("label", dclset.body.commentSet.innerList.listNumber, {"for":"DCL_commentColorNameByIP",textContent:"유동닉 배경색 사용"});
+			dclset.body.commentSet.innerList.commentColor = cElement("li", dclset.body.commentSet.innerList);
+			cElement("input", dclset.body.commentSet.innerList.commentColor, {type:"checkbox", id:"DCL_commentColorNameByIP"});
+			cElement("label", dclset.body.commentSet.innerList.commentColor, {"for":"DCL_commentColorNameByIP",textContent:"유동닉 색상 사용"});
 
 		dclset.body.menuSet = cElement("div", dclset.body);
 		cElement("h3", dclset.body.menuSet, "메뉴");
