@@ -85,8 +85,13 @@ syncStore : 1
 var BROWSER = {};
 if(navigator.userAgent.indexOf("Firefox") !== -1) {
 	BROWSER.firefox = true;
-} else if(chrome) {
+} else if(navigator.userAgent.indexOf("Chrome") !== -1) {
 	BROWSER.chrome = true;
+	if(chrome) {
+		BROWSER.chrome.google=true;
+		if(chrome.storage)
+			BROWSER.chrome.storage=true;
+	}
 } else if(navigator.userAgent.indexOf("Opera") !== -1) {
 	BROWSER.opera = true;
 } else if(navigator.userAgent.indexOf("Trident") !== -1) {
@@ -220,7 +225,7 @@ function softLoad(url) {
 }
 
 function setValue(name,value,type) {
-	if(BROWSER.chrome && P.syncStore) {
+	if(BROWSER.chrome.storage && P.syncStore) {
 		chrome.storage.sync.set(JSON.parse('{"' + name + '":' + JSON.stringify(value) + '}'));
 		return;
 	}else if(BROWSER.localStorage && type === undefined) {
@@ -865,7 +870,7 @@ call : function() {
 
 		dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
-		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome?"":"disabled";
+		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome.storage?"":"disabled";
 	}
 
 
@@ -891,7 +896,7 @@ call : function() {
 },
 load : function(nochrome) {
 	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
-	if(BROWSER.chrome && typeof chrome.storage !== "undefined" && nochrome!==true) {
+	if(BROWSER.chrome.storage && nochrome!==true) {
 		chrome.storage.sync.get(null,function(items) {
 			for(key in items) {
 				if(P.hasOwnProperty(key)) {
@@ -1014,7 +1019,7 @@ save : function() {
 
 	P.syncStore = $("DCL_syncStore").checked;
 
-	if(BROWSER.chrome) {
+	if(BROWSER.chrome.storage) {
 		if(!P.syncStore)
 			chrome.storage.sync.clear();
 		else
