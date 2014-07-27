@@ -76,7 +76,8 @@ autoName : "",
 autoPassword : "",
 longExpires : 0,
 
-commentColorNameByIP : 0,
+commentColor : 1,
+commentColorType : "gc",
 syncStore : 1
 };
 
@@ -539,7 +540,9 @@ call : function() {
 			"div#DCL_set > div div.small { font-size: 10px; }" +
 			"div#DCL_set > div div.br { font-size: 10px; margin-top: 12px; }" +
 			"div#DCL_set > div div.copyable { cursor:auto; }" +
-			"div#DCL_set > div div.copyable::selection { background: #0BF; }" +
+			"div#DCL_set > div div.copyable::selection," +
+			"div#DCL_set > div input::selection," +
+			"div#DCL_set > div textarea::selection" + "{ background: #0BF; color: white; }" +
 			"");
 
 		var dclset={};
@@ -693,10 +696,16 @@ call : function() {
 		cElement("h3", dclset.body.commentSet, "댓글");
 		dclset.body.commentSet.innerList = cElement("ul", dclset.body.commentSet);
 			//dclset.body.commentSet.innerList.info = cElement("li", dclset.body.commentSet.innerList);
-			//cElement("div", dclset.body.commentSet.innerList.info, "댓글과 관련된 설정");
+			//cElement("div", dclset.body.commentSet.innerList.info, "댓글과 관련된 설정");  commentColorType
 			dclset.body.commentSet.innerList.commentColor = cElement("li", dclset.body.commentSet.innerList);
-			cElement("input", dclset.body.commentSet.innerList.commentColor, {type:"checkbox", id:"DCL_commentColorNameByIP"});
-			cElement("label", dclset.body.commentSet.innerList.commentColor, {"for":"DCL_commentColorNameByIP",textContent:"유동닉 색상 사용"});
+			cElement("input", dclset.body.commentSet.innerList.commentColor, {type:"checkbox", id:"DCL_commentColor"});
+			cElement("label", dclset.body.commentSet.innerList.commentColor, {"for":"DCL_commentColor",textContent:"유동닉 색상 사용"});
+			dclset.body.commentSet.innerList.commentColorType = cElement("li", dclset.body.commentSet.innerList);
+			cElement("label", dclset.body.commentSet.innerList.commentColorType, {"for":"DCL_commentColorType", textContent:"변경할 색상: "});
+			dclset.body.commentSet.innerList.commentColorType.selector = cElement("select", dclset.body.commentSet.innerList.commentColorType, {id:"DCL_commentColorType"});
+				cElement("option", dclset.body.commentSet.innerList.commentColorType.selector, {id:"DCL_commentColorForg",value:"fg",textContent:"글자색"});
+				cElement("option", dclset.body.commentSet.innerList.commentColorType.selector, {id:"DCL_commentColorBacg",value:"bg",textContent:"배경색"});
+				cElement("option", dclset.body.commentSet.innerList.commentColorType.selector, {id:"DCL_commentColorGcon",value:"gc",textContent:"갤러콘"});
 
 		dclset.body.menuSet = cElement("div", dclset.body);
 		cElement("h3", dclset.body.menuSet, "메뉴");
@@ -856,9 +865,9 @@ call : function() {
 
 		dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
+		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome?"":"disabled";
 	}
 
-	dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome?"":"disabled";
 
 	$("DCL_set_wrap").style.display = "block";
 	$("DCL_set_bg").style.display = "block";
@@ -881,7 +890,7 @@ call : function() {
 	}
 },
 load : function(nochrome) {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColorNameByIP","syncStore"];
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
 	if(BROWSER.chrome && typeof chrome.storage !== "undefined" && nochrome!==true) {
 		chrome.storage.sync.get(null,function(items) {
 			for(key in items) {
@@ -2120,19 +2129,23 @@ Layer.prototype.call = function() {
 
 									name	= rows[i].cells[0].innerHTML;
 									value	= rows[i].cells[1].innerHTML;
-//									ip		= rows[i].cells[0].textContent;
 									date	= rows[i].cells[2].textContent;
 									ktr = cElement('tr', commentTable);
-									cElement('td', ktr, {innerHTML:name,className:'com_name'});
+									tnm = cElement('td', ktr, {innerHTML:name,className:'com_name'});
 									cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
 									cElement('td', ktr, {innerHTML:date,className:'com_ip'});
 									btn = cElement('td', ktr, {className:'com_btn'});
 									if(delbox)btn.appendChild(delbox);
 
-									if (ip && P.commentColorNameByIP) {
+									if (ip && P.commentColor) {
 										var ipN = /(\d+)\.(\d+)/g.exec(ip);
-										var color = "hsl(" + (ipN[2]>100?ipN[1]+100:ipN[1]) + "," + ipN[2]%100 + "%," + "80%" + ")";
-										ktr.style.backgroundColor = color;
+										var color = "hsl(" + Math.floor(Math.abs(Math.sin(ipN[1]))*360) + "," + Math.floor(Math.abs(Math.sin(ipN[2]))*100) + "%," + (P.commentColorType=="bg"?"80%":"40%") + ")";
+										if (P.commentColorType=="bg")
+											ktr.style.backgroundColor = color;
+										else if(P.commentColorType=="fg")
+											tnm.style.color = color;
+										else if(P.commentColorType=="gc")
+											cElement('span', tnm, "■").style.color = color;
 									}
 								}
 								l/=3;
