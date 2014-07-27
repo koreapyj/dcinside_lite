@@ -1001,7 +1001,7 @@ update : function() {
 				}
 				if(R_VERSION < nVer) {
 					if(confirm("새 버전이 있습니다(" + nVer + ")" + dText + "\n업데이트하시겠습니까?")) {
-						document.body.innerHTML = '<form action="http://lite.dcmys.kr/update/' + nVer + '.zip" method="get"><div style="margin: 10px;">업데이트를 진행할 경우 이 버전으로 돌아올 수 없습니다. 계속하시겠습니까?<br /><input type="submit" style="padding-left: 5px; padding-right: 5px; margin: 3px; border: 2px solid black;" value="예" onclick="alert(\'새 버전 설치 후 새로고침하면 설치가 완료됩니다.\');" /><input type="button" style="padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin: 2px; border: 1px solid black;" value="아니오" /></div></form>';
+						document.body.innerHTML = '<form action="https://github.com/koreapyj/dcinside_lite/releases/download/' + nVer + '/dcinside_lite.zip" method="get"><div style="margin: 10px;">업데이트를 진행할 경우 이 버전으로 돌아올 수 없습니다. 계속하시겠습니까?<br /><input type="submit" style="padding-left: 5px; padding-right: 5px; margin: 3px; border: 2px solid black;" value="예" onclick="alert(\'새 버전 설치 후 새로고침하면 설치가 완료됩니다.\');" /><input type="button" style="padding-left: 6px; padding-right: 6px; padding-top: 1px; padding-bottom: 1px; margin: 2px; border: 1px solid black;" value="아니오" /></div></form>';
 					}
 				}
 			}
