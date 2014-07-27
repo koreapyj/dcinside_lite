@@ -13,5 +13,5 @@
       "js": [ "dcinside_lite.user.js" ],
       "matches": [ "http://gall.dcinside.com/*", "http://gall.dcgame.in/*", "http://job.dcinside.com/*" ]
    } ],
-   "permissions": [ "http://gall.dcinside.com/*", "http://gall.dcgame.in/*", "http://job.dcinside.com/*" ]
+   "permissions": [ "storage", "http://gall.dcinside.com/*", "http://gall.dcgame.in/*", "http://job.dcinside.com/*" ]
 }

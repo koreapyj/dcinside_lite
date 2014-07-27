@@ -76,14 +76,15 @@ autoName : "",
 autoPassword : "",
 longExpires : 0,
 
-commentColorNameByIP : 0
+commentColorNameByIP : 0,
+syncStore : 1
 };
 
 // 기본 함수 및 상수, 변수
 var BROWSER = {};
 if(navigator.userAgent.indexOf("Firefox") !== -1) {
 	BROWSER.firefox = true;
-} else if(navigator.userAgent.indexOf("Chrome") !== -1) {
+} else if(chrome) {
 	BROWSER.chrome = true;
 } else if(navigator.userAgent.indexOf("Opera") !== -1) {
 	BROWSER.opera = true;
@@ -218,7 +219,10 @@ function softLoad(url) {
 }
 
 function setValue(name,value,type) {
-	if(BROWSER.localStorage && type === undefined) {
+	if(BROWSER.chrome && P.syncStore) {
+		chrome.storage.sync.set(JSON.parse('{"' + name + '":' + JSON.stringify(value) + '}'));
+		return;
+	}else if(BROWSER.localStorage && type === undefined) {
 		if(typeof value === "boolean") {
 			value = Number(value);
 		}
@@ -524,6 +528,7 @@ call : function() {
 			"div#DCL_set > div > h3 { font-size: 120%; font-weight: normal; }" +
 			"div#DCL_set > div ul > li { padding: 5px 0 5px 28px; }" +
 			"div#DCL_set > div ul > li.info + li { padding-top: 0; }" +
+			"div#DCL_set > div ul > li.disabled { color: gray; }" +
 
 			"div#DCL_set > div input[type=text]::-webkit-input-placeholder, " +
 			"div#DCL_set > div input[type=text]:-moz-placeholder { color:black; }" +
@@ -535,10 +540,6 @@ call : function() {
 			"div#DCL_set > div div.br { font-size: 10px; margin-top: 12px; }" +
 			"div#DCL_set > div div.copyable { cursor:auto; }" +
 			"div#DCL_set > div div.copyable::selection { background: #0BF; }" +
-
-/*			"div#DCL_set::-webkit-scrollbar { width: 14px; }" +
-			"div#DCL_set::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ddd; }" +
-			"div#DCL_set::-webkit-scrollbar-thumb { width: 12px; background: #dcdcdc; border: 3px solid transparent; border-radius: 5px; background-clip: content-box; box-shadow: 0 0 1px #999 inset; border-right: 2px solid transparent; }" +*/
 			"");
 
 		var dclset={};
@@ -727,7 +728,6 @@ call : function() {
 			dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
 			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력할 수 있습니다."});
 			cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 스크립트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기"});
-/* <input type='checkbox' id='DCL_link' /><label for='DCL_link'>즐겨찾기 링크 사용</label><p class='DCL_tooltip'>자주가는 갤러리나 웹사이트를 등록하여 링크 메뉴를 생성합니다.<br />표시 이름@갤러리 주소 or http:// 주소<br />표시 이름@@갤러리 주소 or http:// 주소 (새창에 열기)<br /><br />예)<br />힛갤@hit<br />구글@http://www.google.co.kr/<br />신고@@http://gall.dcinside.com/article_write.php?id=singo</p><textarea id='DCL_linkList' rows='3' cols='25' wrap='off'></textarea>"*/
 
 		dclset.body.multiPage = cElement("div", dclset.body);
 		cElement("h3", dclset.body.multiPage, "멀티 페이지");
@@ -839,6 +839,9 @@ call : function() {
 			dclset.body.dclInfo.innerList.updUse = cElement("li", dclset.body.dclInfo.innerList);
 			cElement("input", dclset.body.dclInfo.innerList.updUse, {type:"checkbox", id:"DCL_updUse"});
 			cElement("label", dclset.body.dclInfo.innerList.updUse, {"for":"DCL_updUse",textContent:"업데이트 알림"});
+			dclset.body.dclInfo.innerList.syncStore = cElement("li", dclset.body.dclInfo.innerList);
+			cElement("input", dclset.body.dclInfo.innerList.syncStore, {type:"checkbox", id:"DCL_syncStore"});
+			cElement("label", dclset.body.dclInfo.innerList.syncStore, {"for":"DCL_syncStore",textContent:"데이터를 Google 계정으로 동기화"});
 
 			dclset.body.dclInfo.innerList.info = cElement("li", dclset.body.dclInfo.innerList);
 			dclset.body.dclInfo.innerList.info.copyright = cElement("div", dclset.body.dclInfo.innerList.info);
@@ -855,12 +858,12 @@ call : function() {
 			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
 	}
 
-	if(!MODE.sync) {
-		$("DCL_set_wrap").style.display = "block";
-		$("DCL_set_bg").style.display = "block";
-		document.body.style.overflow = "hidden";
-		$("DCL_set").scrollTop=0;
-	}
+	dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome?"":"disabled";
+
+	$("DCL_set_wrap").style.display = "block";
+	$("DCL_set_bg").style.display = "block";
+	document.body.style.overflow = "hidden";
+	$("DCL_set").scrollTop=0;
 
 	var input,value;
 	for(var i in P) {
@@ -876,30 +879,43 @@ call : function() {
 			}
 		}
 	}
-//	$("DCL_updDev").disabled=!$("DCL_updUse").checked;
 },
-load : function() {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColorNameByIP"];
-	if(MODE.sync) {
-		var cookie = location.hash.substr(1);
-		if(cookie) {
-			cookie = cookie.split("&");
-			for(var i=0,l=cookie.length ; i<l ; i++) {
-				cookie[i]=cookie[i].split('=');
-				if(P.hasOwnProperty(cookie[i][0])) {
-					P[cookie[i][0]] = decodeURIComponent(cookie[i][1]);
+load : function(nochrome) {
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColorNameByIP","syncStore"];
+	if(BROWSER.chrome && typeof chrome.storage !== "undefined" && nochrome!==true) {
+		chrome.storage.sync.get(null,function(items) {
+			for(key in items) {
+				if(P.hasOwnProperty(key)) {
+					if(items[key]=="undefined" || typeof(items[key])=="undefined") {
+						P[key]="";
+						continue;
+					}
+					P[key] = items[key];
 				}
-			} // boolean 이나 number 을 형변환
+			}
 			for(i=0,l=num.length ; i<l ; i+=1) {
 				P[num[i]] = Number(P[num[i]]);
 			}
-		}
+			
+			if(P.version === "")
+				return SET.load(true);
+			
+			P.syncStore = 1;
+			if(localStorage['version'])
+				localStorage.clear();
 
-		SET.call();
-		SET.save();
-		window.top.location.reload();
+			SET.update();
+			if(P.version !== VERSION) {
+				alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
+				addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
+			}
+
+			DCINSIDE_LITE();
+		});
+		return;
 	}
-	else if(BROWSER.localStorage && !BROWSER.dataMigration) {
+
+	if(BROWSER.localStorage && !BROWSER.dataMigration) {
 		for(var i = 0; i < localStorage.length; i++)
 		{
 			key = localStorage.key(i);
@@ -914,7 +930,8 @@ load : function() {
 		for(i=0,l=num.length ; i<l ; i+=1) {
 			P[num[i]] = Number(P[num[i]]);
 		}
-	}else if(BROWSER.firefox) {
+
+	} else if(BROWSER.firefox) {
 		var listValues = GM_listValues();
 		for(var i=0,l=listValues.length ; i<l ; i+=1) {
 			if(P.hasOwnProperty(listValues[i])) {
@@ -953,6 +970,16 @@ load : function() {
 			cElement("div",document.body,{id:"DCL_setCall"},SET.call);
 		}
 	}
+	P.syncStore = 0;
+	SET.update();
+	if(P.version !== VERSION) {
+		alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
+		addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
+	}
+
+	DCINSIDE_LITE();
+},
+update : function() {
 	if(P.updUse && !BROWSER.msie) {
 		simpleRequest(
 			"http://lite.dcmys.kr/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
@@ -971,23 +998,19 @@ load : function() {
 			}
 		);
 	}
-	if(P.version !== VERSION) {
-		var cookie = /(?:^|; )dcinsidelitesetting=([^;]*)/.exec(document.cookie);
-		if(cookie && BROWSER.localStorage && !BROWSER.dataMigration) {
-			if(confirm("이전 버전의 데이터를 찾았습니다. 이전 버전 데이터를 이용해 복구하시겠습니까?"))
-			{
-				BROWSER.dataMigration=true;
-				SET.load();
-				return;
-			}
-		}
-		alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
-		addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
-	}
 },
 save : function() {
 	var input;
 	var dataStr='';
+
+	P.syncStore = $("DCL_syncStore").checked;
+
+	if(BROWSER.chrome) {
+		if(!P.syncStore)
+			chrome.storage.sync.clear();
+		else
+			localStorage.clear();
+	}
 	for(var i in P) {
 		if(P.hasOwnProperty(i)) {
 			input = $("DCL_" + i);
@@ -3581,6 +3604,5 @@ if(BROWSER && MODE && !$('DCL_menuDiv')) {
 	P.menu=true;
 	if(window === window.top) {
 		SET.load();
-		DCINSIDE_LITE();
 	}
 }
