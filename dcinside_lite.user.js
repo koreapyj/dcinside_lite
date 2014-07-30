@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        14113
-// @date           2014.07.27
+// @version        14114
+// @date           2014.07.30
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,8 +10,8 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14113";	// 실제 버전
-var VERSION = "14113";		// 설정 내용 버전
+var R_VERSION = "14114";	// 실제 버전
+var VERSION = "14114";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -64,8 +64,8 @@ layerResize : 1,
 albumInfScrl : 1,
 albumRealtime : 1,
 albumFullsize : 1,
-thumbWidth : 320,
-thumbHeight : 240,
+thumbWidth : 640,
+thumbHeight : 480,
 hide : 1,
 hideImg : 0,
 hideMov : 0,
@@ -122,14 +122,9 @@ switch(location.pathnameN) {
 		MODE.list = true;
 		break;
 	case "/singo/singo_write":
-		if(parseQuery(location.search).gallname && parseQuery(location.search).singourl) {
-			$('singo_gallery').value = decodeURIComponent(parseQuery(location.search).gallname);
-			$('singo_url').value = decodeURIComponent(parseQuery(location.search).singourl);
-			$('singo_menu').focus();
-		}
-		else
-			$('singo_gallery').focus();
-		MODE = false;
+	case "/singo/singo_nonmember":
+		MODE.singo= true;
+		document.title = "신고 게시물";
 		break;
 	case "/list.php":
 		if(parseQuery(location.search).no)
@@ -150,13 +145,13 @@ if(MODE!=false) {
 	var WINDOW = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 	var SCROLL = BROWSER.firefox || BROWSER.opera ? document.documentElement : document.body;
 	var _ID = parseQuery(location.search).id; // 갤러리 id
-	var _GID = document.querySelector('#favorite_gallog_img').href.match(/http:\/\/gallog\.dcinside\.com\/(.+)$/); // 로그인 상태
+	var _GID = document.querySelector('#favorite_gallog_img')?document.querySelector('#favorite_gallog_img').href.match(/http:\/\/gallog\.dcinside\.com\/(.+)$/):null; // 로그인 상태
 		_GID = (_GID!=null?_GID[1]:false);
 	var _RECOMM = (parseQuery(location.search).recommend==undefined?0:parseQuery(location.search).recommend); // 개념글
-	if(MODE.write)
+	if(MODE.write || MODE.singo)
 		GALLERY = document.title.replace(/ 갤러리$/,"");
 	else
-		GALLERY = decodeURIComponent(document.getElementsByClassName("gallery_title")[0].getElementsByTagName("embed")[0].getAttribute("flashvars").match(/gallery_title=([^&]+)&/)[1]); // 갤러리(한글)
+		GALLERY = decodeURIComponent(document.querySelector('.gallery_title embed').getAttribute("flashvars").match(/gallery_title=([^&]+)&/)[1]); // 갤러리(한글)
 	var PAGE = Number(parseQuery(location.search).page) || 1;
 }
 
@@ -225,7 +220,7 @@ function softLoad(url) {
 }
 
 function setValue(name,value,type) {
-	if(BROWSER.chrome.storage && P.syncStore) {
+	if(BROWSER.chrome && BROWSER.chrome.storage && P.syncStore) {
 		chrome.storage.sync.set(JSON.parse('{"' + name + '":' + JSON.stringify(value) + '}'));
 		return;
 	}else if(BROWSER.localStorage && type === undefined) {
@@ -870,7 +865,7 @@ call : function() {
 
 		dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
-		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome.storage?"":"disabled";
+		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome && BROWSER.chrome.storage?"":"disabled";
 	}
 
 
@@ -896,7 +891,7 @@ call : function() {
 },
 load : function(nochrome) {
 	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","gallTab","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
-	if(BROWSER.chrome.storage && nochrome!==true) {
+	if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 		chrome.storage.sync.get(null,function(items) {
 			for(key in items) {
 				if(P.hasOwnProperty(key)) {
@@ -1019,7 +1014,7 @@ save : function() {
 
 	P.syncStore = $("DCL_syncStore").checked;
 
-	if(BROWSER.chrome.storage) {
+	if(BROWSER.chrome && BROWSER.chrome.storage) {
 		if(!P.syncStore)
 			chrome.storage.sync.clear();
 		else
@@ -1282,66 +1277,6 @@ function menuFunc() {
 			}
 		}
 	}
-}
-
-// 일간 베스트 생성
-function bestFunc() {
-	if(MODE.write) { // 글쓰기 모드가 아닌 경우만 베스트 목록 생성
-		return;
-	}
-	if(P.best) {
-		if(P.menuPos === "top") {
-			addStyle(
-				"div#DCL_menuDiv.DCL_bestOn {height:44px ; border-bottom:1px solid #999}" +
-				"ul#DCL_bestUl {position:absolute ; top:22px ; padding-top:6px}" +
-				"ul#DCL_bestUl:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
-				"ul#DCL_bestUl > li {float:left ; padding-left:6px; max-width:"+Math.floor((P.pageWidth-70)/5)+"px ; margin:0 4px 0 10px; font:8pt 돋움 ; white-space:nowrap ; overflow:hidden; background:url('data:image/png;base64,"+BASE64.bestIcon+"') no-repeat left center;}}" +
-				"ul#DCL_bestUl > li:last-child {background-image:none !important;}" +
-				"ul#DCL_bestUl a:visited {color:#999}"
-			);
-		} else {
-			addStyle(
-				"ul#DCL_bestUl {width:72px ; margin-top:5px ; border:1px solid #ccc ; -moz-border-radius:4px ; border-radius:4px ; padding:0 3px}" +
-				"ul#DCL_bestUl > li {padding:5px 0 ; border-bottom:1px dotted #ccc ; font:8pt 돋움 ; overflow:hidden}" +
-				"ul#DCL_bestUl > li:last-child {border-bottom-width:0}" +
-				"ul#DCL_bestUl a:visited {color:#999}"
-			);
-		}
-		simpleRequest(
-			"http://json.dcinside.com/ilbe/ilbe_json/ilbe_"+_ID+"_0.php",
-			function(response) {
-				var ilbelist = eval(response.responseText);
-				var bestUl = cElement("ul",P.menuPos==="top"?$("DCL_menuDiv"):$("DCL_menuWrapB"),{id:"DCL_bestUl"});
-				v=Math.floor(Math.random() * ilbelist.length);
-				vals=new Array();
-				for(i=0;i<4;i++) {
-					for(j=0;j<i;j++) {
-						while(v==vals[j] || v==null) {
-							v=Math.floor(Math.random() * ilbelist.length);
-						}
-					}
-					vals[i]=v;
-					li = cElement("li",bestUl);
-					cElement("a",li,{href:"http://" + location.innerhost + "/list.php?id=" + _ID + "&no=" + ilbelist[v].no,textContent:ilbelist[v].short_subject});
-					v=null;
-				}
-				li = cElement("li",bestUl);
-				li.style.backgroundImage="none";
-			}
-		);/*
-
-		var html = $("right_div").getElementsByTagName("table")[1].innerHTML;
-		var bestUl = cElement("ul",P.menuPos==="top"?$("DCL_menuDiv"):$("DCL_menuWrapB"),{id:"DCL_bestUl"});
-		var regexp = /<a class="ad" href="(.*)">(.*?) <\/a>/ig;
-		var exec,li;
-		while( (exec=regexp.exec(html)) ) {
-			li = cElement("li",bestUl);
-			cElement("a",li,{href:exec[1].replace(/&amp;/g,"&"),textContent:exec[2].replace(/&lt;/g,"<").replace(/&gt;/g,">")});
-		}*/
-	} else {
-		$("DCL_bestUl").parentNode.removeChild($("DCL_bestUl"));
-	}
-	cToggle($("DCL_menuDiv"),"DCL_bestOn");
 }
 
 function wideFunc() {
@@ -3224,17 +3159,28 @@ function cookieDelete() {
 	location.reload();
 }
 
+function shortkey(e) {
+	if(e.target.tagName != "BODY")
+		return;
+
+	console.log(e); 
+	// . => 190
+	// n =>  78
+	// r =>  82
+
+	if(e.keyCode == 190) {
+		ePrevent(e);
+		pageLoad(parseInt(document.querySelector('p.DCL_tbodyBtn').firstChild.textContent)-1);
+	} else if(e.keyCode == 78) {
+		location.href = "/board/write/?id=" + _ID;
+	}
+}
+
 // 실제 실행
 function DCINSIDE_LITE() {
-	if(document.getElementsByClassName('list_thead')[0].getElementsByTagName('th')[5]===undefined)
-		tabRecomm=false;
-	else
-		tabRecomm=true;
-
-	if(document.querySelector(".tab_menu")) document.querySelector(".tab_menu").style.display = P.gallTab?"block":"none";
-	if(document.querySelector(".tab_icon_menu")) document.querySelector(".tab_icon_menu").style.display = P.gallTab?"block":"none";
-
 	addStyle(
+		'@import url("https://raw.githubusercontent.com/koreapyj/hangul/master/nanumbarungothic.css");' +
+
 		'* { -webkit-text-size-adjust: none; }' +
 		"#dgn_gallery_right, .banner_box, #dgn_footer, #dgn_gallery_right_detail {display:none !important; }" +
 		'#dgn_gallery_detail, #dgn_gallery_left, .gallery_re_contents, #dgn_gallery_left .gallery_box, .re_gall_box_5, #dgn_gallery_list, .re_gall_box_5, .re_input { width: 100% !important; }' +
@@ -3244,15 +3190,18 @@ function DCINSIDE_LITE() {
 		'#dgn_gallery_detail { position: static; margin: 20px 0 0 0; }' +
 		'.appending_file { width:'+(P.pageWidth-10)+'px !important; }' +
 		'.resize_bar > div { left: 50px !important; }' +
-			
-		"#dgn_gallery_wrap .gallery_content { margin-top: 10px; }" + 
 
 		"#dgn_gallery_left { float: none; }" +
-		"#dgn_gallery_left .gallery_title { display: " + (P.title?"block":"none") + "; }" +
+		"#dgn_gallery_left .gallery_title { display: " + (P.title?"block":"none") + "; height: 37px !important; }" +
+		"#dgn_gallery_left .gallery_title > h1 { top: 0px !important; }" +
+		"#dgn_gallery_left .gallery_title > h1 > embed { display: none; }" +
+		"#dgn_gallery_left .gallery_title > h1 > a { font-family: 'Nanum Barun Gothic', 'Malgun Gothic', sans-serif; letter-spacing: -1px; font-size: 22px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 12px; }" +
+		"#dgn_gallery_left .gallery_title > h1 > a > span { text-shadow: 0 0 1px; }" +
+		"#dgn_gallery_left .gallery_title > h1 > a > span.gallery_str { color: #5B79C9; }" +
 		"#dgn_gallery_left .gallery_box { display: " + (P.best?"block":"none") + "; " + (P.title?"":"top: 0px !important;") + "}" +
 		"#dgn_gallery_left .gallery_box {position: static !important; margin-bottom: 10px; "+(!MODE.list?'':'height: 175px !important;')+"}" +
-		"#dgn_gallery_left .tab_menu {float: left;}" +
-		"#dgn_gallery_left .tab_icon_menu {float: right; position: static;}" +
+		"#dgn_gallery_left .tab_menu { float: left; display: "+ (P.gallTab?"block":"none") + "; }" +
+		"#dgn_gallery_left .tab_icon_menu {float: right; position: static; display: "+ (P.gallTab?"block":"none") + "; }" +
 		"#dgn_gallery_left .gallery_list {position: static !important; padding: 0 !important;}" +
 		"#dgn_gallery_left .list_table {margin-top: "+(P.gallTab?33:0)+"px;}" +
 		"#dgn_gallery_left .con_lately :after {clear:both; content: \" \";}" +
@@ -3260,6 +3209,7 @@ function DCINSIDE_LITE() {
 		"#dgn_gallery_left .select_div ul { left: 13px !important; }" +
 
 		"#dgn_popup_4 { top: 0px !important; }" +
+		"#dgn_gallery_write { top: 0px !important; }" +
 
 		"#dgn_header_gall, #dgn_gallery_wrap {width:"+P.pageWidth+"px !important; margin: 0 auto !important; background: none !important;}" +
 		".con_substance *, #writeForm * {max-width:"+P.pageWidth+"px !important}" +
@@ -3282,7 +3232,7 @@ function DCINSIDE_LITE() {
 		"#list_table > colgroup > col:nth-child(6) {display:none;}" +
 		"#list_table > .list_tbody > tr > td:nth-child(6) {display:none;}" +
 		"#list_table .list_tbody .tb td { padding-top: 3px; padding-bottom: 0; }" +
-		"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; }" +
+		"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
 
 		"td.DCL_tbodyTitle {text-align: left !important; padding: 0; background-color:#eee ; border-top:1px solid #dbdbdb}" +
 		"td.DCL_tbodyTitle > p:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
@@ -3362,6 +3312,14 @@ function DCINSIDE_LITE() {
 	// 메뉴 생성
 	menuFunc();
 
+	if(document.querySelector('#dgn_gallery_left .gallery_title > h1')) {
+		document.querySelector('#dgn_gallery_left .gallery_title > h1').innerHTML = '';
+		var title = cElement('a', document.querySelector('#dgn_gallery_left .gallery_title > h1'), null, function() { softLoad("/board/lists/?id="+_ID); });
+		cElement('span', title, {textContent:GALLERY,className:"gallery_name"});
+		cElement(null, title, " ");
+		cElement('span', title, {textContent:"갤러리",className:"gallery_str"});
+	}
+
 	// 글쓰기 모드
 	if(MODE.write) {
 		if($("edit_buts")!==null) {
@@ -3372,81 +3330,19 @@ function DCINSIDE_LITE() {
 		var editVisual = $("editVisual");
 		var editNomal = $("editNomal");
 
-		if(_ID=='singo' && parseQuery(location.search).singourl !== undefined && parseQuery(location.search).gallname !== undefined) {
-			$('target_bbs').value = decodeURIComponent(parseQuery(location.search).gallname);
-			$('text01').value = decodeURIComponent(parseQuery(location.search).singourl);
-			script = document.createElement("script");
-			script.innerHTML = "window.addEventListener('load',function() { setTimeout('edit()', 700); },false);";
-			document.body.appendChild(script);
-			$('memo').focus();
-		}
-
-		cElement("span",editP,"a 링크",
-			function() {
-				var href = prompt("삽입할 링크 주소를 입력하세요.","");
-				if(!href) {
-					return;
-				}
-				href = "<a href='" + href + "'>" + href.replace(/&(?!amp;)/g,"&amp;") + "</a>";
-				if(editNomal.style.display === "block") {
-					editNomal.value += href;
-				} else {
-					editVisual.contentDocument.body.innerHTML += href;
-				}
-			}
-		);
-		cElement("span",editP,"swf 링크",
-			function() {
-				var href = prompt("삽입할 링크 주소를 입력하세요.","");
-				if(!href) {
-					return;
-				}
-				var size = prompt("크기를 입력하세요.","가로/세로");
-				if(size && (size=size.match(/^(\d+)\/(\d+)$/))) {
-					size = " width='" + size[1] + "' height='" + size[2] + "'";
-				} else {
-					size = "";
-				}
-				href = "<embed src='"+href.replace(/&(?!amp;)/g,"&amp;")+"'"+size+" type='application/x-shockwave-flash' pluginspage='http://www.macromedia.com/go/getflashplayer' allowscriptaccess='always' bgcolor='#ffffff' quality='high' />";
-				if(editNomal.style.display === "block") {
-					editNomal.value += href;
-				} else {
-					editVisual.contentDocument.body.innerHTML += href;
-				}
-			}
-		);
-		cElement("span",editP,"wmp 링크",
-			function() {
-				var href = prompt("삽입할 링크 주소를 입력하세요.","");
-				if(!href) {
-					return;
-				}
-				var size = prompt("크기를 입력하세요.","가로/세로");
-				if(size && (size=size.match(/^(\d+)\/(\d+)$/))) {
-					size = " width='" + size[1] + "' height='" + size[2] + "'";
-				} else {
-					size = "";
-				}
-				href = "<embed src='"+href.replace(/&(?!amp;)/g,"&amp;")+"'"+size+" type='application/x-mplayer2' pluginspage='http://www.microsoft.com/windows/mediaplayer/' />";
-				if(editNomal.style.display === "block") {
-					editNomal.value += href;
-				} else {
-					editVisual.contentDocument.body.innerHTML += href;
-				}
-			}
-		);
-
 		// 자동입력
 		if(P.autoForm) {
 			var autoName = $("name");
 			var autoPassword = $("password");
 			if(autoName) {
 				autoName.value = P.autoName;
-				autoName.style.background = "";
+				autoName.style.background = "#FAFFBD";
+				autoName.addEventListener("keydown", function() { this.style.background = ""; });
 			}
 			if(autoPassword) {
 				autoPassword.value = P.autoPassword;
-				autoPassword.style.background = "";
+				autoPassword.style.background = "#FAFFBD";
+				autoPassword.addEventListener("keydown", function() { this.style.background = ""; });
 			}
 		}
 		
@@ -3465,20 +3361,36 @@ function DCINSIDE_LITE() {
 			},
 		false);
 
+	} else if(MODE.singo) {
+		// 자동입력
+		if(P.autoForm) {
+			var autoName = $("nonmember_id");
+			var autoPassword = $("nonmember_password");
+			if(autoName) {
+				autoName.value = P.autoName;
+				autoName.style.background = "#FAFFBD";
+				autoName.addEventListener("keydown", function() { this.style.background = ""; });
+			}
+			if(autoPassword) {
+				autoPassword.value = P.autoPassword;
+				autoPassword.style.background = "#FAFFBD";
+				autoPassword.addEventListener("keydown", function() { this.style.background = ""; });
+			}
+		}
+
+		if(parseQuery(location.search).gallname && parseQuery(location.search).singourl) {
+			$('singo_gallery').value = decodeURIComponent(parseQuery(location.search).gallname);
+			$('singo_url').value = decodeURIComponent(parseQuery(location.search).singourl);
+			$('singo_menu').focus();
+		}
+		else
+			$('singo_gallery').focus();
 	} else {
 		// 글쓰기 이외 모드
 
 		// 본문보기 모드
 		if(MODE.article) {
 			var bgRelaBig = document.querySelector(".s_write");
-
-/*			// 본문 내용에 작업할 id 가 포함되어 있는 경우 제거
-			var check = bgRelaBig.querySelectorAll("#list_table, #right_div, #testDiv, #share_name, #titleShare, #reply1, #rep_page, #name, #password, #memo");
-			for(var i=0,l=check.length ; i<l ; i+=1) {
-				check[i].removeAttribute("id");
-			}
-
-			bgRelaBig.parentNode.style.padding = "10px 0";*/
 
 			// 본문 내 이미지 작업
 			var articleImgs = getImgs(bgRelaBig);
@@ -3530,16 +3442,8 @@ function DCINSIDE_LITE() {
 		}
 		
 		if(MODE.list) {
-			try {
-				ilbeView();
-				document.getElementsByClassName('btn_bottom')[0].children[0].children[0].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
-				document.getElementsByClassName('btn_bottom')[0].children[0].children[1].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
-				document.getElementsByClassName('btn_bottom')[0].children[0].children[2].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
-			}
-			catch (e)
-			{
-				console.log(e);
-			}
+			ilbeView();
+			document.addEventListener("keydown",shortkey,false);
 		}
 
 		// 코멘트가 있는 경우
