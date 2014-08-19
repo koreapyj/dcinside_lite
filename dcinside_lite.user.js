@@ -86,7 +86,7 @@ if(navigator.userAgent.indexOf("Firefox") !== -1) {
 	BROWSER.firefox = true;
 } else if(navigator.userAgent.indexOf("Chrome") !== -1) {
 	BROWSER.chrome = true;
-	if(chrome) {
+	if(typeof chrome !=="undefined") {
 		BROWSER.chrome.google=true;
 		if(chrome.storage)
 			BROWSER.chrome.storage=true;
