@@ -33,14 +33,16 @@ allowCT : "",
 modTitle : 0,
 listTitle : "{G} - {P} 페이지",
 articleTitle : "{T} ({W}) - {G}",
-header : 0,
+header : 1,
 title : 1,
+sidebar : 1,
 pageWidth : 1200,
 wide : 0,
 wideWidth : 900,
-listNumber : 0,
-listDate : 0,
+listNumber : 1,
+listDate : 1,
 listCount : 1,
+listRecom : 1,
 listComment : 0,
 listTime : 1,
 menu : 1,
@@ -545,7 +547,7 @@ call : function() {
 			"");
 
 		var dclset={};
-		dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"});
+		dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"}, SET.close);
 		dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
 		dclset.head = cElement("div", dclset.wrap, {className:"head"});
 			cElement("button", dclset.head, {textContent:"닫기"}, SET.close);
@@ -623,6 +625,8 @@ call : function() {
 		dclset.body.layout = cElement("div", dclset.body);
 		cElement("h3", dclset.body.layout, "레이아웃 변경");
 		dclset.body.layout.innerList = cElement("ul", dclset.body.layout);
+			dclset.body.layout.innerList.info = cElement("li", dclset.body.layout.innerList);
+			cElement("div", dclset.body.layout.innerList.info, "페이지 레이아웃을 변형해서 목록을 보기 쉽게 합니다.");
 			dclset.body.layout.innerList.pageWidth = cElement("li", dclset.body.layout.innerList);
 			cElement("label", dclset.body.layout.innerList.pageWidth, {"for":"DCL_pageWidth", textContent:"페이지 폭"});
 			cElement("input", dclset.body.layout.innerList.pageWidth, {type:"text", id:"DCL_pageWidth", className:"number", size:"4"});
@@ -633,6 +637,9 @@ call : function() {
 			dclset.body.layout.innerList.kanban = cElement("li", dclset.body.layout.innerList);
 			cElement("input", dclset.body.layout.innerList.kanban, {type:"checkbox", id:"DCL_title"});
 			cElement("label", dclset.body.layout.innerList.kanban, {"for":"DCL_title",textContent:"갤러리 타이틀 표시"});
+			dclset.body.layout.innerList.sidebar = cElement("li", dclset.body.layout.innerList);
+			cElement("input", dclset.body.layout.innerList.sidebar, {type:"checkbox", id:"DCL_sidebar"});
+			cElement("label", dclset.body.layout.innerList.sidebar, {"for":"DCL_sidebar",textContent:"사이드바 표시"});
 			dclset.body.layout.innerList.best = cElement("li", dclset.body.layout.innerList);
 			cElement("input", dclset.body.layout.innerList.best, {type:"checkbox", id:"DCL_best"});
 			cElement("label", dclset.body.layout.innerList.best, {"for":"DCL_best",textContent:"갤러리 박스 표시"});
@@ -684,6 +691,9 @@ call : function() {
 			dclset.body.listSet.innerList.listCount = cElement("li", dclset.body.listSet.innerList);
 			cElement("input", dclset.body.listSet.innerList.listCount, {type:"checkbox", id:"DCL_listCount"});
 			cElement("label", dclset.body.listSet.innerList.listCount, {"for":"DCL_listCount",textContent:"조회수"});
+			dclset.body.listSet.innerList.listRecom = cElement("li", dclset.body.listSet.innerList);
+			cElement("input", dclset.body.listSet.innerList.listRecom, {type:"checkbox", id:"DCL_listRecom"});
+			cElement("label", dclset.body.listSet.innerList.listRecom, {"for":"DCL_listRecom",textContent:"추천수"});
 			dclset.body.listSet.innerList.listComment = cElement("li", dclset.body.listSet.innerList);
 			cElement("input", dclset.body.listSet.innerList.listComment, {type:"checkbox", id:"DCL_listComment"});
 			cElement("label", dclset.body.listSet.innerList.listComment, {"for":"DCL_listComment",textContent:"댓글이 없을 때도 댓글 수를 표시"});
@@ -886,7 +896,7 @@ call : function() {
 	}
 },
 load : function(nochrome) {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listComment","listTime","menu","menuFix","best","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","menu","menuFix","best","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","layoutEnabled"];
 	if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 		chrome.storage.sync.get(null,function(items) {
 			for(key in items) {
@@ -1077,7 +1087,7 @@ close : function() {
 function menuFunc() {
 	var css =
 		"div#DCL_menuDiv {position:relative; width:"+ P.pageWidth +"px; margin:0 auto; z-index:100}" +
-		"div#DCL_menuWrapB {position:" + (P.menuFix?"fixed" + (P.menuPos=='left'?'; left: ' + ((document.body.offsetWidth - P.pageWidth)/2 - 40) + 'px':''):"absolute") + "; background-color:#fff ; z-index:100}" +
+		"div#DCL_menuWrapB {position:" + (P.menuFix?"fixed" + (P.menuPos=='left'?'; top: 10px; left: ' + ((document.body.offsetWidth - P.pageWidth)/2 - 40) + 'px':''):"absolute") + "; background-color:#fff ; z-index:100}" +
 		"li.DCL_menuOn {color:#000 !important}"+
 		".hidden {display:none;}";
 
@@ -1348,7 +1358,7 @@ function pageFunc(mode) {
 			list = list.nextElementSibling;
 		}
 		if(!mode) {
-			cElement("tbody",$("list_table"),{innerHTML:"<tr><td colspan='5' class='DCL_tbodyTitle'></td></tr>",className:"list_tbody"});
+			cElement("tbody",$("list_table"),{innerHTML:"<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>",className:"list_tbody"});
 			pageLoad(i);
 		}
 	}
@@ -1376,7 +1386,7 @@ function pageLoad(p) {
 			var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7'\" onmouseout=\"this.style.backgroundColor=''\" class=\"tb\">");
 			var html = text.substring(startPos,text.indexOf("</tbody>"));
 			if(html) {
-				tbody.innerHTML = "<tr><td colspan='5' class='DCL_tbodyTitle'></td></tr>" + (startPos!="-1"?html:'');
+				tbody.innerHTML = "<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>" + (startPos!="-1"?html:'');
 				if(p===0) {
 					$('dgn_btn_paging').innerHTML = text.replace(/\n/g, '').match(/<!-- btn_paging -->[^<]+<div id=\"dgn_btn_paging\">(.*)<\/div>[^<]+<!-- \/\/btn_paging -->/)[1];
 					if(P.page)
@@ -1677,7 +1687,7 @@ function Layer(t,r,mode) {
 	this.row = tbody.rows[r];
 	cAdd(this.row,"DCL_layerTr");
 	
-	this.div = cElement("div",cElement('td', cElement('tr', [tbody.rows[r],"next"]), {colSpan:5}),{className:"DCL_layerDiv"});
+	this.div = cElement("div",cElement('td', cElement('tr', [tbody.rows[r],"next"]), {colSpan:6}),{className:"DCL_layerDiv"});
 
 	this.mode = mode?mode:"normal";
 	this.t = t;
@@ -1692,7 +1702,7 @@ Layer.init = function() {
 	var css =
 		"tr.DCL_layerTr > td {border-width:2px 0 1px ; border-style:solid ; border-color:#000}" +
 		"tr.DCL_layerTr > td" + (P.listNumber?":first-child":":nth-child(2)") + " {border-left-width:2px ; -moz-border-radius:5px 0 0 0 ; border-radius:5px 0 0 0}" +
-		"tr.DCL_layerTr > td:nth-child(5) {border-right-width:2px ; -moz-border-radius:0 5px 0 0 ; border-radius:0 5px 0 0}" +
+		"tr.DCL_layerTr > td:nth-child("+(P.listRecom?"6":P.listCount?"5":P.listDate?"4":"3")+") {border-right-width:2px ; -moz-border-radius:0 5px 0 0 ; border-radius:0 5px 0 0}" +
 		"tr.DCL_layerTr + tr > td {border-style:solid; border-color: #000 !important; background:none; border-width:0 2px 2px 2px !important; -moz-border-radius:0 0 0 5px; border-radius:0 0 5px 5px; text-align: left !important;}" +
 
 		"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto;}" +
@@ -2611,7 +2621,7 @@ Viewer.prototype.add = function(src,obj) {
 		src = src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 	this.list[i] = src;
 	cAdd(obj,"DCL_viewerItem");
-	obj.addEventListener("click",function(e){e.preventDefault();},false);
+	obj.addEventListener("click",ePrevent,false);
 	obj.addEventListener("click",function(instance){return function(){instance.run(i);};}(this),false);
 };
 Viewer.prototype.run = function(i) {
@@ -3178,16 +3188,18 @@ function DCINSIDE_LITE() {
 		'@import url("https://raw.githubusercontent.com/koreapyj/hangul/master/nanumbarungothic.css");' +
 
 		'* { -webkit-text-size-adjust: none; }' +
-		"#dgn_gallery_right, .banner_box, #dgn_footer, #dgn_gallery_right_detail {display:none !important; }" +
-		'#dgn_gallery_detail, #dgn_gallery_left, .gallery_re_contents, #dgn_gallery_left .gallery_box, .re_gall_box_5, #dgn_gallery_list, .re_gall_box_5, .re_input { width: 100% !important; }' +
-		'.menu_bg iframe { width: '+(P.pageWidth)+'px !important;}' +
+		".banner_box, #dgn_footer, #dgn_gallery_right_detail { display:none !important; }" +
+		"#dgn_gallery_right { " + (P.sidebar?'':'display:none !important; ') + "background-color: #F4F4F4; }" +
+		'#dgn_gallery_detail, .gallery_re_contents, #dgn_gallery_left .gallery_box, .re_gall_box_5, #dgn_gallery_list, .re_gall_box_5, .re_input { width: 100% !important; }' +
+		"#dgn_gallery_left { width: "+(P.sidebar?P.pageWidth-260:P.pageWidth)+"px !important; "+(P.sidebar?"":"float: none; ")+"}" +
+		'.menu_bg iframe, #dgn_globalmenu { width: '+(P.pageWidth)+'px !important;}' +
+		'#dgn_gallery_left .gallery_box { box-sizing: border-box; }' +
 		'.re_textarea { width: '+(P.pageWidth-350)+'px !important;}' +
 
 		'#dgn_gallery_detail { position: static; margin: 20px 0 0 0; }' +
 		'.appending_file { width:'+(P.pageWidth-10)+'px !important; }' +
 		'.resize_bar > div { left: 50px !important; }' +
 
-		"#dgn_gallery_left { float: none; }" +
 		"#dgn_gallery_left .gallery_title { display: " + (P.title?"block":"none") + "; height: 37px !important; }" +
 		"#dgn_gallery_left .gallery_title > h1 { top: 0px !important; }" +
 		"#dgn_gallery_left .gallery_title > h1 > embed { display: none; }" +
@@ -3199,7 +3211,8 @@ function DCINSIDE_LITE() {
 		"#dgn_gallery_left .gallery_list {position: static !important; padding: 0 !important;}" +
 		"#dgn_gallery_left .list_table {margin-top: 0px;}" +
 		"#dgn_gallery_left .con_lately :after {clear:both; content: \" \";}" +
-		"#dgn_gallery_left .select_div { z-index: 1000 !important; width: 100% !important; margin: 0 auto !important; }" +
+		"#dgn_gallery_left .select_div { width: 100% !important; margin: 0 auto !important; }" +
+		"#dgn_gallery_left .select_div ul { z-index: 1000; }" +
 
 		"#dgn_popup_4 { top: 0px !important; }" +
 		"#dgn_gallery_write { top: 0px !important; }" +
@@ -3224,18 +3237,10 @@ function DCINSIDE_LITE() {
 		"#list_table > colgroup > col:nth-child(3) {width:125px;}" +
 		"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?110:0)+"px;}" +
 		"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?35:0)+"px;}" +
-		"#list_table > colgroup > col:nth-child(6) {display:none;}" +
-		"#list_table > .list_tbody > tr > td:nth-child(6) {display:none;}" +
+		"#list_table > colgroup > col:nth-child(6) {width:"+(P.listRecom?35:0)+"px;}" +
 		"#list_table .list_tbody .tb td { padding-top: 3px; padding-bottom: 0; }" +
 		"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
 		"#list_table .list_tbody > tr.tb:hover { background-color: #eae9f7; }" +
-
-		"td.DCL_tbodyTitle {text-align: left !important; padding: 0; background-color:#eee ; border-top:1px solid #dbdbdb}" +
-		"td.DCL_tbodyTitle > p:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
-		"p.DCL_tbodyBtn {float:left; margin-top:0;margin-bottom:0;}" +
-		"p.DCL_tbodyBtn > span {font:9pt Tahoma,돋움 ; color:#333 ; margin:5px ; cursor:pointer}" +
-		"a.DCL_pageLink {color:#fa0 !important}" +
-		"span.DCL_tbodyLoad {margin:5px ; font:9pt Tahoma,돋움}" +
 
 		"#reply1 {width:auto !important}" +
 		"table.comment-table {table-layout:fixed; text-align: left !important;}" +
@@ -3249,22 +3254,34 @@ function DCINSIDE_LITE() {
 		"td.com_text > div {display:inline}" +
 		"td.com_text > em {color: #999; font-size: 11px !important; border-left: 0px solid #999; padding-left: 3px; margin-left: 1px;}" +
 
-		"p#DCL_writeBtn {text-align:left}" +
-		"p#DCL_writeBtn > span {border:1px solid #bbb ; -moz-border-radius:3px ; border-radius:3px ; padding:2px 7px 3px ; font:8pt Tahoma,돋움 ; background-color:#f9f9f9 ; cursor:pointer}" +
-
-		".DCL_viewerItem {cursor:pointer}" +
-
 		"#soea_areast { margin-left: "+(0-(P.pageWidth/2+150))+"px !important; }" +
 		".ad_left_wing_list_top, " +
 		".ad_left_wing_con_top { left: -150px !important; }" +
 
-		".best_img { background-image: url('data:image/png;base64,"+BASE64.transparentBg+"'); text-align: center; display: table-cell; vertical-align: middle; }" +
+		".best_img, .hit_img, .issue_img, .con_img { background-color: white; background-image: url('data:image/png;base64,"+BASE64.transparentBg+"'); text-align: center; display: table-cell; vertical-align: middle; }" +
 		".best_img img { width: auto; height: auto; max-width: 123px; max-height: 92px; }" + 
+		".hit_img img { width: auto; height: auto; max-width: 220px; max-height: 120px; }" + 
+		".issue_img img { width: auto !important; height: auto !important; max-width: 105px; max-height: 67px; }" + 
+		".con_img img { width: auto; height: auto; max-width: 85px; max-height: 60px; }" + 
 
 		// 로딩 오류시
 		"#dgn_wrap {width:"+P.pageWidth+"px !important;}" +
 		"#testDiv > table[width='200'], #right_div {display:none}"
-	);
+		);
+
+	addStyle(
+		"td.DCL_tbodyTitle {text-align: left !important; padding: 0; background-color:#eee ; border-top:1px solid #dbdbdb}" +
+		"td.DCL_tbodyTitle > p:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
+		"p.DCL_tbodyBtn {float:left; margin-top:0;margin-bottom:0;}" +
+		"p.DCL_tbodyBtn > span {font:9pt Tahoma,돋움 ; color:#333 ; margin:5px ; cursor:pointer}" +
+		"a.DCL_pageLink {color:#fa0 !important}" +
+		"span.DCL_tbodyLoad {margin:5px ; font:9pt Tahoma,돋움}" +
+
+		"p#DCL_writeBtn {text-align:left}" +
+		"p#DCL_writeBtn > span {border:1px solid #bbb ; -moz-border-radius:3px ; border-radius:3px ; padding:2px 7px 3px ; font:8pt Tahoma,돋움 ; background-color:#f9f9f9 ; cursor:pointer}" +
+
+		".DCL_viewerItem {cursor:pointer}"
+		);
 
 	if(P.listComment) {
 		addStyle("#list_table > tbody > tr > td:nth-of-type(3) > font > a:empty:after {content:'[0]'}");
@@ -3489,7 +3506,7 @@ function DCINSIDE_LITE() {
 		
 		var tr = cElement("tr",[tbody,0]);
 		list_table.id = "list_table";
-		cElement("td",tr,{className:"DCL_tbodyTitle",colSpan:"5"});
+		cElement("td",tr,{className:"DCL_tbodyTitle",colSpan:"6"});
 
 		listFunc(0);
 		Layer.add(0);
@@ -3514,11 +3531,11 @@ function DCINSIDE_LITE() {
 
 function ilbeView() {
 	// 일베 이미지 뷰어 등록
-	var ilbeImg = document.querySelectorAll('.best_img img');
-	if(ilbeImg.length<1) {
+	if(document.querySelectorAll('.best_img img').length<1) {
 		setTimeout(ilbeView, 100);
 		return;
 	}
+	var ilbeImg = document.querySelectorAll('.best_img img, .hit_img img, .issue_img img, .con_img img');
 	var viewer = new Viewer();
 	for(i=ilbeImg.length;ilbeImg[--i];) {
 		viewer.add(ilbeImg[i].src,ilbeImg[i]);
