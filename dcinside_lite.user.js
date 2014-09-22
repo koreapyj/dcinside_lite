@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        14115
-// @date           2014.08.06
+// @version        14116
+// @date           2014.09.22
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -10,7 +10,7 @@
 // @include        http://job.dcinside.com/*
 // ==/UserScript==
 
-var R_VERSION = "14115";	// 실제 버전
+var R_VERSION = "14116";	// 실제 버전
 var VERSION = "14114";		// 설정 내용 버전
 var P = {
 version : "",
@@ -594,7 +594,7 @@ call : function() {
 				cElement("option", dclset.body.filter.mdibody.selector, {value:"0",textContent:"게시물 작성자"});
 				cElement("option", dclset.body.filter.mdibody.selector, {value:"1",textContent:"게시물 제목"});
 				cElement("option", dclset.body.filter.mdibody.selector, {value:"2",textContent:"댓글 작성자"});
-				cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 제목"});
+				cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 내용"});
 				dclset.body.filter.mdibody.info = cElement("div", dclset.body.filter.mdibody, {id:"info"});
 				cElement("span", dclset.body.filter.mdibody.info, "차단");
 				cElement("span", dclset.body.filter.mdibody.info, "허용");
@@ -1624,7 +1624,7 @@ comment : function(table) {
 		name = cells[0].textContent.replace(/^\s+|\s+$/g,"");
 		idC = idCreg.test(cells[0].innerHTML) ? ("#" + RegExp.$1) : null;
 		title = cells[1].getElementsByTagName("div")[0] || cells[1];
-		titleC = title.firstChild.textContent.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+		titleC = title.textContent.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 		if(aCN && aCN.test(name) || aCNid && idC && aCNid.test(idC)) {
 			cAdd(rows[i],"DCL_allowComment");
 			cAdd(cells[0],"DCL_nameMatch");
@@ -2051,7 +2051,7 @@ Layer.prototype.call = function() {
 								var delExec;
 								for(var i=0,l=rows.length ; i<l ; i+=3) {
 									ip=null;
-									var ipReg = /(\d+\.\d+)(\*\.\*)/g;
+									var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
 									if(rows[i].cells[1].getElementsByClassName('etc_ip')[0]){
 										while( (ipExec=ipReg.exec(rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent)) ) {
 											ip = ipExec[1]+'.***.***';//+ipExec[2];
@@ -2114,7 +2114,7 @@ Layer.prototype.call = function() {
 				}
 
 		//		var ipReg = /(?:IP Address : (\d+\.\d+\.\*\*\*\.\*\*\*))?<br \/>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}) <br \/>/g;
-				var ipReg = /<li class="li_ip">[\s\n]*(\d+\.\d+)(\*\.\*)[\s\n]*<\/li>/g;
+				var ipReg = /<li class="li_ip">[\s\n]*(\d+\.\d+)(\.\*\.\*)[\s\n]*<\/li>/g;
 				var dateReg = /<li><b>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2})<\/b><\/li>/g;
 				var ipExec,ip,time;
 				while( (ipExec=ipReg.exec(text)) ) {
