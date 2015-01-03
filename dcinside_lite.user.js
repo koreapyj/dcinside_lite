@@ -46,7 +46,7 @@ listCount : 1,
 listRecom : 1,
 listComment : 0,
 listTime : 1,
-menuList : "즐겨찾기|이미지/베스트/개념글|갤로그/설정/로그인",
+menuList : "즐겨찾기|이미지/베스트/개념글|갤로그/구분선/설정/로그인",
 menuPos : "left",
 best : 1,
 linkList : "게시판@47\n김유식@yusik",
@@ -1123,6 +1123,7 @@ function menuFunc() {
 			"ul.DCL_menuUl > li > a:hover {color: #5b7ce5;}" +
 			"ul.DCL_menuUl > li > a:hover," +
 			"ul.DCL_menuUl > li > a.DCL_linkThis {height: 42px;}" +
+			"ul.DCL_menuUl > li > a.DCL_menuSep {display: none;}" +
 			"";
 	} else {
 		css +=
