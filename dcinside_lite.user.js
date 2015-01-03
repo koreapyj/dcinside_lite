@@ -1,17 +1,18 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        14116
+// @version        15001
 // @date           2014.09.22
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
 // @include        http://gall.dcgame.in/*
 // @include        http://job.dcinside.com/*
+// @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
-var R_VERSION = "14116";	// 실제 버전
-var VERSION = "14114";		// 설정 내용 버전
+var R_VERSION = "15001";	// 실제 버전
+var VERSION = "15001";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -45,12 +46,10 @@ listCount : 1,
 listRecom : 1,
 listComment : 0,
 listTime : 1,
-menu : 1,
-menuList : "로그인/설정/갤로그/갤러리/목록/와이드/박스/이미지/베스트/개념글",
-menuPos : "top",
-menuFix : 1,
+menuList : "즐겨찾기|이미지/베스트/개념글|갤로그/설정/로그인",
+menuPos : "left",
 best : 1,
-linkList : "",
+linkList : "게시판@47\n김유식@yusik",
 
 page : 0,
 pageCount : 5,
@@ -79,7 +78,8 @@ longExpires : 0,
 
 commentColor : 1,
 commentColorType : "gc",
-syncStore : 1
+syncStore : 1,
+fontList : "Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif"
 };
 
 // 기본 함수 및 상수, 변수
@@ -89,6 +89,7 @@ if(navigator.userAgent.indexOf("Firefox") !== -1) {
 } else if(navigator.userAgent.indexOf("Chrome") !== -1) {
 	BROWSER.chrome = true;
 	if(typeof chrome !=="undefined") {
+		BROWSER.chrome = {};
 		BROWSER.chrome.google=true;
 		if(chrome.storage)
 			BROWSER.chrome.storage=true;
@@ -138,6 +139,10 @@ switch(location.pathnameN) {
 		MODE = false;
 		break;
 }
+
+if(location.host == "gallog.dcinside.com")
+	MODE = false;
+
 if(parseQuery(location.search).keyword) {
 	MODE.search = true;
 }
@@ -336,6 +341,9 @@ function ePrevent(e) {
 	e.stopPropagation();
 	e.preventDefault();
 }
+function removeEventListenerAll(elem) {
+	elem.parentNode.replaceChild(elem.cloneNode(true), elem);
+}
 function cSearch(elem,search) {
 	return (new RegExp("(?:^|\\s+)"+search+"(?:\\s+|$)","")).test(elem.className);
 }
@@ -482,7 +490,7 @@ call : function() {
 			"div.DCL_set_wrap > div.head > h2," +
 			"div.DCL_set_mdi > div.head > h2{ padding:10px 20px; font-weight: normal; font-size: 120%;}" +
 
-			"div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: 'Segoe UI', 'Meiryo', 'MS PGothic', 'Malgun Gothic', 'Dotum', sans-serif; vertical-align:middle}" +
+			"div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: " + P.fontList + "; vertical-align:middle}" +
 			"div.DCL_set_wrap > div.body { overflow-y: scroll; height:570px; }" +
 			"div.DCL_set_wrap button, " +
 			"div.DCL_set_wrap input[type=button], " +
@@ -718,9 +726,6 @@ call : function() {
 		dclset.body.menuSet.innerList = cElement("ul", dclset.body.menuSet);
 			dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
 			cElement("div", dclset.body.menuSet.innerList.info, "메뉴의 위치와 표시할 항목을 선택하고 순서를 바꿉니다.");
-			dclset.body.menuSet.innerList.menuFix = cElement("li", dclset.body.menuSet.innerList);
-			cElement("input", dclset.body.menuSet.innerList.menuFix, {type:"checkbox", id:"DCL_menuFix"});
-			cElement("label", dclset.body.menuSet.innerList.menuFix, {"for":"DCL_menuFix",textContent:"메뉴 고정"});
 			dclset.body.menuSet.innerList.menu = cElement("li", dclset.body.menuSet.innerList);
 			dclset.body.menuSet.innerList.menu.selector = cElement("select", dclset.body.menuSet.innerList.menu, {id:"DCL_menuPos"});
 				cElement("option", dclset.body.menuSet.innerList.menu.selector, {id:"DCL_menuPosTop",value:"top",textContent:"위쪽"});
@@ -741,8 +746,10 @@ call : function() {
 				cElement("input", dclset.body.menuSet.mdifoot, {type:"submit", value:"닫기"}, function() { dclset.body.menuSet.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
 
 			dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
-			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력할 수 있습니다."});
-			cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 스크립트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기"});
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력하고, 메뉴를 위쪽으로 설정한 경우 |로 구분해서 순서대로 좌측 메뉴, 우측 메뉴, 프로필 메뉴를 입력합니다."});
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 구분선 : 구분선"});
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"즐겨찾기 링크는 따로따로 입력할 수도 있습니다."});
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"예) 미연시/게시판/김유식"});
 
 		dclset.body.multiPage = cElement("div", dclset.body);
 		cElement("h3", dclset.body.multiPage, "멀티 페이지");
@@ -871,7 +878,9 @@ call : function() {
 
 		dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 			cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
-		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled = BROWSER.chrome && BROWSER.chrome.storage?"":"disabled";
+
+		$("DCL_syncStore").disabled = !(BROWSER.chrome && BROWSER.chrome.storage);
+		dclset.body.dclInfo.innerList.syncStore.className = $("DCL_syncStore").disabled?"disabled":null;
 	}
 
 
@@ -896,10 +905,12 @@ call : function() {
 	}
 },
 load : function(nochrome) {
-	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","menu","menuFix","best","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","layoutEnabled"];
+	var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","best","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","albumFullsize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","layoutEnabled"];
 	if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 		chrome.storage.sync.get(null,function(items) {
 			for(key in items) {
+				if(P.version != "" && P.version < 15001 && key == "menuList")
+					continue;
 				if(P.hasOwnProperty(key)) {
 					if(items[key]=="undefined" || typeof(items[key])=="undefined") {
 						P[key]="";
@@ -934,6 +945,8 @@ load : function(nochrome) {
 		for(var i = 0; i < localStorage.length; i++)
 		{
 			key = localStorage.key(i);
+			if(P.version != "" && P.version < 15001 && key == "menuList")
+				continue;
 			if(P.hasOwnProperty(key)) {
 				if(localStorage[key]=="undefined" || typeof(localStorage[key])=="undefined") {
 					P[key]=""
@@ -946,20 +959,13 @@ load : function(nochrome) {
 			P[num[i]] = Number(P[num[i]]);
 		}
 
-	} else if(BROWSER.firefox) {
-		var listValues = GM_listValues();
-		for(var i=0,l=listValues.length ; i<l ; i+=1) {
-			if(P.hasOwnProperty(listValues[i])) {
-				P[listValues[i]] = GM_getValue(listValues[i]);
-			}
-		}
-		GM_registerMenuCommand("dcinside_lite Preferences",SET.call);
-		GM_registerMenuCommand("dcinside_lite Reset",SET.reset);
 	} else {
 		var cookie = /(?:^|; )dcinsidelitesetting=([^;]*)/.exec(document.cookie);
 		if(cookie) {
 			cookie = unescape(cookie[1]).split("\b");
 			for(var i=0,l=cookie.length ; i<l ; i+=2) {
+				if(P.version != "" && P.version < 15001 && cookie[i] == "menuList")
+					continue;
 				if(P.hasOwnProperty(cookie[i])) {
 					P[cookie[i]] = cookie[i+1];
 				}
@@ -975,14 +981,6 @@ load : function(nochrome) {
 			SET.save();
 			location.reload();
 			return ;
-		}
-
-		if(!P.menu || !/(^|\/)설정(\/|$)/.test(P.menuList)) { // 설정 버튼
-			addStyle(
-				"div#DCL_setCall {opacity:0 ; width:10px ; height:10px ; position:absolute ; top:0 ; right:0 ; background-color:#666 ; cursor:pointer}" +
-				"div#DCL_setCall:hover {opacity:1}"
-			);
-			cElement("div",document.body,{id:"DCL_setCall"},SET.call);
 		}
 	}
 	P.syncStore = 0;
@@ -1017,6 +1015,9 @@ update : function() {
 save : function() {
 	var input;
 	var dataStr='';
+
+	if(!$("DCL_menuList").value.match(/설정/))
+		return alert("메뉴 항목에 [설정] 버튼이 없으므로 설정을 저장할 수 없습니다.");
 
 	P.syncStore = $("DCL_syncStore").checked;
 
@@ -1087,29 +1088,64 @@ close : function() {
 function menuFunc() {
 	var css =
 		"div#DCL_menuDiv {position:relative; width:"+ P.pageWidth +"px; margin:0 auto; z-index:100}" +
-		"div#DCL_menuWrapB {position:" + (P.menuFix?"fixed" + (P.menuPos=='left'?'; top: 10px; left: ' + ((document.body.offsetWidth - P.pageWidth)/2 - 40) + 'px':''):"absolute") + "; background-color:#fff ; z-index:100}" +
+		"div#DCL_menuWrap {position: fixed; background-color:#fff ; z-index:100}" +
 		"li.DCL_menuOn {color:#000 !important}"+
 		".hidden {display:none;}";
-
+	
 	if(P.menuPos === "top") {
 		css +=
-			"div#DCL_menuDiv {height:22px}" +
-			"div#DCL_menuWrapB {width:"+P.pageWidth+"px ; height:21px ; border-bottom:1px solid #ccc ; background-image:-moz-linear-gradient(#fff,#eee) ; background-image:-webkit-gradient(linear, 0 top, 0 bottom, from(#fff),to(#eee)); background-image: linear-gradient(0deg, #eee, #fff);}" +
-			"h2#DCL_menuTitle {float:left ; margin:0 5px ; padding:0 5px ; font:bold 10pt/21px Tahoma,돋움 ; cursor:pointer}" +
-			"ul#DCL_menuUl {float:left ; margin-top:4px}" +
-			"ul#DCL_menuUl:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
-			"ul#DCL_menuUl > li {display:inline ; margin-left:5px ; font:9pt Tahoma,돋움 ; color:#888 ; cursor:pointer}" +
-			"ul#DCL_menuUl > li:hover {text-decoration:underline ; color:#000}";
+			"html > body {padding-top: 46px;}" +
+			"div#DCL_menuDiv {font-family: " + P.fontList + "; top: 0; left: 0; right: 0; width: auto; height: 46px; background: white; border-bottom: 1px solid rgba(0,0,0,0.15); position: fixed;}" +
+			"div#DCL_menuDiv a {text-decoration: none;}" +
+			"div#DCL_menuWrap {position: relative; margin: 0 auto; border: 0; background: transparent; width:"+P.pageWidth+"px; height: 46px;}" +
+			"div#DCL_menuWrap:before {content: 'DCinside Lite r" + R_VERSION + "'; display: block; position: absolute; z-index: -1; left: 0; right: 0; margin: 0 auto; text-align: center; color: black; line-height: 46px; opacity: .15;}" +
+			"h2#DCL_menuTitle {float: right; height: 46px;}" +
+			"h2#DCL_menuTitle > img.DCL_profileImage {display: block; box-sizing: border-box; margin-top: 3px; width: 40px; height: 40px; border: 2px solid white; border-radius: 20px; transition: all .15s;}" +
+			"h2#DCL_menuTitle:hover > img.DCL_profileImage {border-color: #5b7ce5;}" +
+			"h2#DCL_menuTitle > a," +
+			"h2#DCL_menuTitle > em {display: none;}" +
+			"ul.DCL_menuUl {overflow: hidden;}" +
+			"ul#DCL_menuUlLeft {float: left;}" +
+			"ul#DCL_menuUlRight {float: right;}" +
+			"ul#DCL_menuUlSub {position: absolute; top: 50px; right: -10px; background: white; padding: 10px 0; border-radius: 5px; box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 4px 0px; width: 180px; overflow: visible; display: none;}" +
+			"ul#DCL_menuUlSub:hover {display: block;}" +
+			"ul#DCL_menuUlSub:before {content: ''; position: absolute; right: 20px; top: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid rgba(0, 0, 0, 0.1); z-index: 0;}" +
+			"ul#DCL_menuUlSub > li:first-of-type {position: absolute; right: 21px; top: -9px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 9px solid white; z-index: 1;}" +
+			"ul#DCL_menuUlSub > li:not(:first-of-type) > a {display: block; padding: 5px 20px;}" +
+			"ul#DCL_menuUlSub > li:not(:first-of-type) > a.DCL_menuSep {font-size: 0; cursor: default; border-bottom: 1px solid #eee; height: 0; padding: 5px 0 0 0; margin: 0 0 5px 0;}" +
+			"ul#DCL_menuUlSub > li:not(:first-of-type) > a.DCL_profile {font-size: 14px;}" +
+			"ul#DCL_menuUlSub > li:not(:first-of-type) > a.DCL_profile > em {color: #aaa; font-size: 12px; display: block;}" +
+			"ul#DCL_menuUlSub > li:not(:first-of-type):hover > a:not(.DCL_menuSep)," +
+			"ul#DCL_menuUlSub > li:not(:first-of-type):hover > a.DCL_profile > em{background-color: #5b7ce5; color: white;}" +
+
+			"ul.DCL_menuUl > li {display: block; float: left; height: 46px; line-height: 46px; font-size: 13px;}" +
+			"ul.DCL_menuUl > li > a {display: block; height: 46px; padding: 0px 14px; border-bottom: 4px solid #5b7ce5; transition: all .15s ease-in-out;}" +
+			"ul.DCL_menuUl > li > a:hover {color: #5b7ce5;}" +
+			"ul.DCL_menuUl > li > a:hover," +
+			"ul.DCL_menuUl > li > a.DCL_linkThis {height: 42px;}" +
+			"";
 	} else {
 		css +=
-			"html > body {padding-left:85px}" +
-			"div#DCL_menuDiv {height:0 ; top:5px ; left:-85px}" +
-			"div#DCL_menuWrapB {width:80px}" +
-			"h2#DCL_menuTitle {margin-bottom:5px ; padding:1px 0 ; text-align:center ; font:10pt Tahoma,돋움 ; color:#666 ; background-image:-moz-linear-gradient(#fff,#eee) ; background-image:-webkit-gradient(linear, 0 top, 0 bottom, from(#fff),to(#eee)) ; border:1px solid #ccc ; -moz-border-radius:3px ; border-radius:3px ; cursor:pointer}" +
-			"ul#DCL_menuUl {color:#999 ; border:1px solid #999 ; -moz-border-radius:3px ; border-radius:3px}" +
-			"ul#DCL_menuUl:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
-			"ul#DCL_menuUl > li {float:left ; display:block ; width:39px ; height:11px ; padding:3px 0 ; font:11px/11px Tahoma,돋움 ; text-align:center ; color:#888 ; cursor:pointer ; white-space:nowrap}" +
-			"ul#DCL_menuUl > li:hover {text-decoration:underline ; color:#000}";
+			"html > body {padding-left: 190px; padding-right: 10px;}" +
+			"div#DCL_menuDiv {font-family: " + P.fontList + ";}" +
+			"div#DCL_menuWrap {top: 0; left: 0; bottom: 0; background-color: white; width: 180px; margin-left: 0px; box-shadow: 0 2px 10px rgba(0,0,0,.2); color: black;}" +
+			"ul.DCL_menuUl {border-color: #ddd; border-style: solid; border-width: 0; border-bottom: 1px dotted #ddd;}" +
+			"ul.DCL_menuUl > li {}" +
+			"ul.DCL_menuUl > li > a {display: block; line-height: 15px; padding: 10px 20px; font-size: 12px; text-align: left; cursor: pointer; white-space: nowrap; box-sizing: border-box; text-decoration: none;}" +
+			"ul.DCL_menuUl > li > a:hover {background: #eee;}" +
+			"ul.DCL_menuUl > li > a.DCL_menuSep {font-size: 0; height: 0; padding: 0; border-bottom: 1px dotted #ddd;}" +
+			"ul.DCL_menuUl > li > a.DCL_linkThis {position: relative; font-weight: bold;}" +
+			"ul.DCL_menuUl > li > a.DCL_linkThis:after {display: block; content: '›'; float: right; font-weight: normal; font-size: 15px; position: absolute; right: 20px; top: 0; line-height: 35px;}" +
+			"div#DCL_menuWrap:after {content: 'DCinside Lite r" + R_VERSION + "'; display: block; line-height: 15px; padding: 10px 20px; font-size: 12px; text-align: left; cursor: default; white-space: nowrap; color: #aaa;}" +
+			"h2#DCL_menuTitle:before {content: ''; display: block; position: fixed; top: 0; left: 0; width: inherit; height: inherit; background-color: #E7E7EA; background-image: url('http://zzbang.dcinside.com/" + _ID + "_temp.jpg'); background-position: center; background-size: cover; z-index: -1;}" +
+			"h2#DCL_menuTitle {box-sizing: border-box; padding: 55px 10px 0 20px; text-align: left; width: inherit; height: 95px; cursor: default; font-size: 15px; font-weight: normal; color: white; background-image: linear-gradient(rgba(0,0,0,.0),rgba(0,0,0,.9)); background-size: 100% 60%; background-repeat: no-repeat; background-position: bottom; z-index: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}" +
+			"h2#DCL_menuTitle > img.DCL_profileImage {float: left; width: 40px; height: 40px; margin-right: 7px; background-size: cover; border: 2px solid white; border-radius: 20px; box-sizing: border-box; margin-top: -7px; margin: -7px 7px 0 -10px;}" +
+			"h2#DCL_menuTitle > a {color: inherit; font-size: 15px; cursor: pointer; text-decoration: none;}" +
+			"h2#DCL_menuTitle > a:hover {text-decoration: underline;}" +
+			"h2#DCL_menuTitle > a > img.userType {margin-left: 3px;}" +
+			"h2#DCL_menuTitle > em {display: block; font-size: 12px; font-weight: normal; color: #ccc;}" +
+			"ul#DCL_menuUl:after {content: ''; display: block; clear: both; width: 0; height: 0; overflow: hidden;}" +
+			"ul#DCL_linkUl {border-top: 1px dotted #ddd;}";
 	}
 
 	if(MODE.list) {
@@ -1144,26 +1180,17 @@ function menuFunc() {
 	addStyle(css);
 
 	var menuDiv = cElement("div",[document.body,0],{id:"DCL_menuDiv"});
-	var menuWrap = cElement("div",menuDiv,{id:"DCL_menuWrapB"});
-
-	cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY+(P.menuPos==="top"?" 갤러리":"")},
-		function() {
-			softLoad("/board/lists/?id="+_ID);
-		}
-	);
-
-	var menuUl = cElement("ul",menuWrap,{id:"DCL_menuUl"});
-	var menuList = P.menuList.split("/");
+	var menuWrap = cElement("div",menuDiv,{id:"DCL_menuWrap"});
 	var funcList = {
 		login : function(){location.href="http://dcid.dcinside.com/join/log"+(_GID?"out":"in")+".php?s_url="+encodeURIComponent(location.href);},
-		gallog : function() {
-					if(_GID) {
-						window.open("http://gallog.dcinside.com/"+_GID);
-					} else if(confirm("로그인을 하지 않은 상태입니다.\n로그인 하시겠습니까?")) {
-						location.href = "http://dcid.dcinside.com/join/login.php?s_url="+encodeURIComponent(location.href);
+		gallog : function(e) {
+					if(!_GID) {
+						ePrevent(e);
+						if(confirm("로그인을 하지 않은 상태입니다.\n로그인 하시겠습니까?")) {
+							location.href = "http://dcid.dcinside.com/join/login.php?s_url="+encodeURIComponent(location.href);
+						}
 					}
 				},
-		gallery : function(){window.open("http://gall.dcinside.com/");},
 		page : function() {
 					setValue("page",!P.page);
 					cToggle(this,"DCL_menuOn");
@@ -1204,66 +1231,102 @@ function menuFunc() {
 				},
 		favview : function(){
 					softLoad("/board/lists/?id="+_ID+"&exception_mode=recommend");
+				},
+		refresh : function(){
+					softLoad("/board/lists/?id="+_ID);
+				},
+		menutoggle : function(){
+					if($("DCL_menuUlSub").style.display!=="block")
+						$("DCL_menuUlSub").style.display="block";
+					else
+						$("DCL_menuUlSub").style.display=null;
+				},
+		menuclose : function(e){
+					if(e.target === document.querySelector("h2#DCL_menuTitle > img.DCL_profileImage"))
+						return funcList.menutoggle();
+					$("DCL_menuUlSub").style.display=null;
 				}
 	};
-	for(var i=0,l=menuList.length ; i<l ; i+=1) {
-		var flag = menuList[i];
-		if(flag === "설정") {
-			cElement("li",menuUl,{textContent:"설정",id:"DCL_setBtn"},SET.call);
-		} else if(flag === "로그인") {
-			cElement("li",menuUl,{textContent:_GID?"로그아웃":"로그인",className:"DCL_menuOn"},funcList.login);
-		} else if(flag === "갤로그") {
-			cElement("li",menuUl,"갤로그",funcList.gallog);
-		} else if(flag === "갤러리") {
-			cElement("li",menuUl,"갤러리",funcList.gallery);
-		} else if(flag === "목록") {
-			cElement("li",menuUl,{textContent:"목록",className:P.page?"DCL_menuOn":""},funcList.page);
-		} else if(flag === "와이드") {
-			cElement("li",menuUl,{textContent:"와이드",className:P.wide?"DCL_menuOn":""},funcList.wide);
-		} else if(flag === "상단") {
-			cElement("li",menuUl,{textContent:"상단",className:P.header?"DCL_menuOn":""},funcList.header);
-		} else if(flag === "타이틀") {
-			cElement("li",menuUl,{textContent:"타이틀",className:P.title?"DCL_menuOn":""},funcList.title);
-		} else if(flag === "박스") {
-			cElement("li",menuUl,{textContent:"박스",className:P.best?"DCL_menuOn":""},funcList.best);
-		} else if(flag === "이미지") {
-			cElement("li",menuUl,"이미지",funcList.album);
-		} else if(flag === "베스트") {
-			cElement("li",menuUl,"베스트",funcList.ilbeview);
-		} else if(flag === "개념글") {
-			cElement("li",menuUl,"개념글",funcList.favview);
-		} else {
-			cElement("li",menuUl);
+	
+	var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},funcList.refresh);
+
+	// 즐겨찾기 링크 정리
+	var linkList = new Array();
+	if(P.linkList) {
+		var regexp = /([^@]+)(@{1,2})((http:\/\/)?.+)(?:\n|$)/ig;
+		var exec,href,className,li,a;
+		while( (exec=regexp.exec(P.linkList)) ) {
+			linkList[exec[1]] = {};
+			if(exec[4]) {
+				linkList[exec[1]].href = exec[3];
+				linkList[exec[1]].className = "DCL_linkHttp";
+			} else {
+				linkList[exec[1]].href = "/board/lists/?id=" + exec[3];
+				linkList[exec[1]].className = exec[3]===_ID?"DCL_linkThis":"";
+			}
+			linkList[exec[1]].target = exec[2].length === 2?"_blank":"";
 		}
 	}
-	
-	if(document.querySelector(".daily_best > a")) document.querySelector(".daily_best > a").addEventListener('click', function(e) { funcList.ilbeview(); e.preventDefault(); });
-	if(document.querySelector(".write_best > a")) document.querySelector(".write_best > a").addEventListener('click', function(e) { funcList.favview(); e.preventDefault(); });
 
-	if(P.menuFix) {
-		window.addEventListener("scroll",function(){menuWrap.style.marginLeft = "-"+SCROLL.scrollLeft+"px";},false);
+	var menuList = P.menuList.split("|");
+	var menuUlId = ["menuUlLeft","menuUlRight","menuUlSub"];
+
+	for(var mlc=0;mlc<menuList.length && mlc < 3;mlc+=1) {
+		if(menuList[mlc]=='')
+			continue;
+		var menuUl = cElement("ul",menuWrap,{id:"DCL_"+menuUlId[mlc]});
+		if(P.menuPos!=="top" || menuUlId[mlc]!=="menuUlSub")
+			menuUl.className="DCL_menuUl";
+		else
+			cElement("li",menuUl);
+		menuList[mlc] = menuList[mlc].split("/");
+		for(var j=0,l=menuList[mlc].length ; j<l ; j+=1) {
+			var flag = menuList[mlc][j];
+			if(flag === "설정") {
+				cElement("a",cElement("li",menuUl),{textContent:"설정",id:"DCL_setBtn"},SET.call);
+			} else if(flag === "로그인") {
+				cElement("a",cElement("li",menuUl),{textContent:_GID?"로그아웃":"로그인",className:"DCL_menuOn"},funcList.login);
+			} else if(flag === "갤로그") {
+				cElement("a",cElement("li",menuUl),{textContent:"갤로그",id:"DCL_profile",href:_GID?"//gallog.dcinside.com/"+_GID:'',target:"_blank"},funcList.gallog);
+			} else if(flag === "갤러리") {
+				cElement("a",cElement("li",menuUl),{textContent:"갤러리",href:"//gall.dcinside.com/",target:"_blank"});
+			} else if(flag === "목록") {
+				cElement("a",cElement("li",menuUl),{textContent:"멀티 페이지",className:P.page?"DCL_menuOn":""},funcList.page);
+			} else if(flag === "와이드") {
+				cElement("a",cElement("li",menuUl),{textContent:"와이드 레이아웃",className:P.wide?"DCL_menuOn":""},funcList.wide);
+			} else if(flag === "상단") {
+				cElement("a",cElement("li",menuUl),{textContent:"상단 메뉴",className:P.header?"DCL_menuOn":""},funcList.header);
+			} else if(flag === "타이틀") {
+				cElement("a",cElement("li",menuUl),{textContent:"갤러리 타이틀",className:P.title?"DCL_menuOn":""},funcList.title);
+			} else if(flag === "박스") {
+				cElement("a",cElement("li",menuUl),{textContent:"갤러리 박스",className:P.best?"DCL_menuOn":""},funcList.best);
+			} else if(flag === "이미지") {
+				cElement("a",cElement("li",menuUl),"이미지 모아보기",funcList.album);
+			} else if(flag === "베스트") {
+				cElement("a",cElement("li",menuUl),"일간베스트",funcList.ilbeview);
+			} else if(flag === "개념글") {
+				cElement("a",cElement("li",menuUl),"개념글",funcList.favview);
+			} else if(flag === "즐겨찾기") {
+				for(flag in linkList) {
+					if(typeof linkList[flag].href === "undefined")
+						continue;
+					var link = cElement("a",cElement("li",menuUl),{href:linkList[flag].href,target:linkList[flag].target,className:linkList[flag].className,textContent:flag});
+					if(linkList[flag].className == "DCL_linkThis")
+						link.addEventListener("click",function(e){ePrevent(e); softLoad(this.href);});
+				}
+			} else if(flag === "구분선") {
+				cElement("a",cElement("li",menuUl),{textContent:"구분선",className:"DCL_menuSep"});
+			} else if(typeof linkList[flag] !== "undefined"){
+				var link = cElement("a",cElement("li",menuUl),{href:linkList[flag].href,target:linkList[flag].target,className:linkList[flag].className,textContent:flag});
+				if(linkList[flag].className == "DCL_linkThis")
+					link.addEventListener("click",function(e){ePrevent(e); softLoad(this.href);});
+			}
+		}
 	}
 
 	// 즐겨찾기 링크 추가
-	if(P.linkList) {
+	if(P.linkList && false) {
 		var linkUl = cElement("ul",menuWrap,{id:"DCL_linkUl"});
-
-		if(P.menuPos === "top") {
-			addStyle(
-				"ul#DCL_linkUl {float:right ; margin-top:4px}" +
-				"ul#DCL_linkUl:after {content:'' ; display:block ; clear:both ; width:0 ; height:0 ; overflow:hidden}" +
-				"ul#DCL_linkUl > li {display:inline ; margin:0 5px ; font:10pt 돋움}" +
-				"ul#DCL_linkUl a {color:#666 ; text-decoration:none}" +
-				"ul#DCL_linkUl > li.DCL_linkThis {font-weight:bold}"
-			);
-		} else {
-			addStyle(
-				"ul#DCL_linkUl {margin-top:5px ; padding-top:1px}" +
-				"ul#DCL_linkUl > li {width:78px ; margin-top:-1px ; border:1px solid #ccc ; -moz-border-radius:3px ; border-radius:3px ; padding:2px 0 ; font:10pt 돋움 ; text-align:center}" +
-				"ul#DCL_linkUl a {color:#666 ; text-decoration:none}" +
-				"ul#DCL_linkUl > li.DCL_linkThis {background-image:-moz-linear-gradient(#fff,#eee) ; background-image:-webkit-gradient(linear, 0 top, 0 bottom, from(#fff),to(#eee))}"
-			);
-		}
 
 		var linkList = P.linkList;
 		var regexp = /([^@]+)(@{1,2})((http:\/\/)?.+)(?:\n|$)/ig;
@@ -1282,6 +1345,46 @@ function menuFunc() {
 				a.target = "_blank";
 			}
 		}
+	}
+	
+	var target = document.querySelectorAll('span.f_l > a');
+	for(i=target.length;i--;) {
+		target[i].addEventListener("click", function(e) { ePrevent(e); softLoad(this.href); });
+	}
+
+	if(_GID) {
+		simpleRequest("http://gallog.dcinside.com/" + _GID, function(e) {
+			var gallogHtml = e.responseText;
+			var nick = gallogHtml.match(/id='pfNickView'>(.+?)<\/span>/)[1];
+			if(isFNick = nick.match(/<U>(.+?)<\/U>/)) {
+				nick = isFNick[1];
+				isFNick = true;
+			}
+			var pfImg = gallogHtml.match(/<img src="([^"]+)" width="[^"]+" id="ProfileImg"/)[1];
+			var bgImg = gallogHtml.match(/background-image:url\('([^ ]+) \?>'\);"><\/div>/)[1];
+			$("DCL_menuTitle").textContent = "";
+			cElement("img",[$("DCL_menuTitle"),0],{src:pfImg,className:"DCL_profileImage",alt:"프로필"});
+			var glog = cElement("a",$("DCL_menuTitle"),{href:"//gallog.dcinside.com/" + _GID,target:"_blank",textContent:nick});
+			cElement("img",glog,{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
+			cElement("em",$("DCL_menuTitle"),_GID);
+			if(bgImg) addStyle("h2#DCL_menuTitle:before {background-image: url('" + bgImg + "') !important;}");
+			$("DCL_menuTitle").removeEventListener("click",funcList.refresh);
+
+			if(P.menuPos === "top" && $("DCL_profile")) {
+				$("DCL_profile").className = "DCL_profile";
+				$("DCL_profile").textContent = nick;
+				cElement("img",$("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
+				cElement("em",$("DCL_profile"),"갤로그 가기");
+			}
+		});
+	}
+	else if(P.menuPos === "top") {
+		$("DCL_menuTitle").textContent = "";
+		cElement("img",[$("DCL_menuTitle"),0],{src:"http://dcimg1.dcinside.com/glogProfileView.php?gid=26b2c223e4c221ac3e&type=main&mode=GL&dummyCode=242872037",className:"DCL_profileImage",alt:"프로필"});
+	}
+
+	if(P.menuPos === "top" && $("DCL_menuUlSub")) {
+		document.body.addEventListener("click",funcList.menuclose);
 	}
 }
 
@@ -1341,8 +1444,17 @@ function listFunc(p) {
 
 	var pager = $('dgn_btn_paging').children;
 	for(i=0,l=pager.length;i<l;i++) {
-		pager[i].addEventListener("click",function(e) { e.preventDefault(); softLoad(this.href); },false);
+		pager[i].addEventListener("click",function(e) { ePrevent(e); softLoad(this.href); },false);
 	}
+
+	removeEventListenerAll($("search_btn"));
+	$("search_input").addEventListener("keypress",function(e) { if(e.keyCode == 13) doSearch(e); });
+	$("search_btn").addEventListener("click",doSearch);
+}
+
+function doSearch(e) {
+	ePrevent(e);
+	softLoad("/board/lists/?id=" + _ID + "&s_type=" + $("search_type").value + "&s_keyword=" + $("search_input").value);
 }
 
 // 다중 목록
@@ -1381,7 +1493,7 @@ function pageLoad(p) {
 	cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... ("+(p+PAGE)+" 페이지)</span>";
 	
 	simpleRequest("/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
-		function(response) { // 전체 html을 직접 DOM으로 넣고 list_table을 찾는 것이 간단하겠지만 로딩이 길어지므로 목록 부분만 잘라서 직접 html로 집어넣음
+		function(response) {
 			var text = response.responseText;
 			var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7'\" onmouseout=\"this.style.backgroundColor=''\" class=\"tb\">");
 			var html = text.substring(startPos,text.indexOf("</tbody>"));
@@ -1398,6 +1510,8 @@ function pageLoad(p) {
 				if(P.filter) {
 					Filter.article(tbody);
 				}
+				if(typeof s_keyword == "undefined")
+					$("search_input").value = '';
 			} else {
 				cell.innerHTML = "";
 				cElement("span",cell,{textContent:"읽기 실패 ("+(p+PAGE)+" 페이지)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
@@ -1701,9 +1815,9 @@ Layer.init = function() {
 	var width = P.pageWidth;
 	var css =
 		"tr.DCL_layerTr > td {border-width:2px 0 1px ; border-style:solid ; border-color:#000}" +
-		"tr.DCL_layerTr > td" + (P.listNumber?":first-child":":nth-child(2)") + " {border-left-width:2px ; -moz-border-radius:5px 0 0 0 ; border-radius:5px 0 0 0}" +
-		"tr.DCL_layerTr > td:nth-child("+(P.listRecom?"6":P.listCount?"5":P.listDate?"4":"3")+") {border-right-width:2px ; -moz-border-radius:0 5px 0 0 ; border-radius:0 5px 0 0}" +
-		"tr.DCL_layerTr + tr > td {border-style:solid; border-color: #000 !important; background:none; border-width:0 2px 2px 2px !important; -moz-border-radius:0 0 0 5px; border-radius:0 0 5px 5px; text-align: left !important;}" +
+		"tr.DCL_layerTr > td" + (P.listNumber?":first-child":":nth-child(2)") + " {border-left-width:2px ; border-radius:5px 0 0 0}" +
+		"tr.DCL_layerTr > td:nth-child("+(P.listRecom?"6":P.listCount?"5":P.listDate?"4":"3")+") {border-right-width:2px ; border-radius:0 5px 0 0}" +
+		"tr.DCL_layerTr + tr > td {border-style:solid; border-color: #000 !important; background:none; border-width:0 2px 2px 2px !important; border-radius:0 0 5px 5px; text-align: left !important;}" +
 
 		"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto;}" +
 		".con_substance > *," +
@@ -1773,21 +1887,22 @@ Layer.init = function() {
 
 	if(MODE.list) {
 		css +=
-			"body.DCL_wideOn tr.DCL_layerActive > td {height:"+(BROWSER.chrome?44:50)+"px ; border-width:2px 0 ; border-style:solid ; -moz-border-radius:0 ; border-radius:0 ; background-color:#f5f5f5}" +
-			"body.DCL_wideOn tr.DCL_layerActive > td:first-child {border-left-width:2px ; -moz-border-radius:5px 0 0 5px ; border-radius:5px 0 0 5px}" +
+			"body.DCL_wideOn tr.DCL_layerActive > td {height:"+(BROWSER.chrome?44:50)+"px ; border-width:2px 0 ; border-style:solid ; border-radius:0 ; background-color:#f5f5f5}" +
+			"body.DCL_wideOn tr.DCL_layerActive > td:first-child {border-left-width:2px ; border-radius:5px 0 0 5px}" +
 			"body.DCL_wideOn tr.DCL_layerActive + tr > td {border-width:0 ; height:0}"+
-			"body.DCL_wideOn div.DCL_layerActive {position:absolute ; margin:-50px 0 0 "+(width-5)+"px ; width:"+(P.wideWidth-20)+"px ; min-height:50px ; "+(P.layerResize?"max-height:"+(document.documentElement.clientHeight-10)+"px ; ":"") + "padding:3px 8px ; border:2px solid #333 ; -moz-border-radius:0 5px 5px 5px ; border-radius:0 5px 5px 5px}" +
+			"body.DCL_wideOn div.DCL_layerActive {position:absolute ; margin:-50px 0 0 "+(width-5)+"px ; width:"+(P.wideWidth-20)+"px ; min-height:50px ; "+(P.layerResize?"max-height:"+(document.documentElement.clientHeight-10)+"px ; ":"") + "padding:3px 8px ; border:2px solid #333 ; border-radius:0 5px 5px 5px}" +
 			"body.DCL_wideOn div.DCL_layerActive ul.DCL_layerImage > li > img {max-width:"+(P.wideWidth-42)+"px}" + // scroll20 + layerDiv20 + border2
 			"body.DCL_wideOn div.DCL_layerActive div.DCL_layerText * {max-width:"+(P.wideWidth-40)+"px}"; // scroll20 + layerDiv20
 	}
 
 	if(P.layerResize) {
-		var resize = document.documentElement.clientHeight-(P.menuPos==="top"&&P.menuFix?22:0);
+		var resize = document.documentElement.clientHeight-(P.menuPos==="top"?46:0);
 		css += "div.DCL_layerDiv {max-height:"+(resize-34)+"px}";
 		if(MODE.list) {
 			css += "body.DCL_wideOn div.DCL_layerActive {max-height:"+(resize-10)+"px}";
 		}
 	}
+
 	addStyle(css);
 };
 
@@ -2163,7 +2278,7 @@ Layer.prototype.call = function() {
 	);
 };
 Layer.prototype.focus = function() {
-	var top = this.row.getBoundingClientRect().top - (P.menuPos==="top"&&P.menuFix?22:0);
+	var top = this.row.getBoundingClientRect().top - (P.menuPos==="top"?22:0);
 	var bottom = this.div.getBoundingClientRect().bottom;
 	var height = document.documentElement.clientHeight;
 	if(top<0 || bottom-top>height) { // layer 의 top 이 현재 화면 영역 위로 올라간 경우
@@ -2552,8 +2667,8 @@ Viewer.init = function() {
 		"div#DCL_viewerBtn > div > span { float: left; margin: 16px 8px; width: 40px; height: 40px; background-color: white; border-radius: 20px; background-repeat: no-repeat; background-position: center; color: transparent; background-size: 25px; opacity: 0.5; }" +
 		"div#DCL_viewerBtn > div > span:hover { opacity: 1; }" +
 		"div#DCL_viewerExif { position: absolute; top: 20px; left: 20px; cursor: default; }" +
-		"div#DCL_viewerExif > span { font-family: Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif; font-size: 12pt; color: white; text-shadow:0px 0px 10px #000; display: block; }" +
-		"div#DCL_viewerExif > span > a { font-family: Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif; font-size: 12pt; color: white; cursor: pointer; }" +
+		"div#DCL_viewerExif > span { font-family: " + P.fontList + "; font-size: 12pt; color: white; text-shadow:0px 0px 10px #000; display: block; }" +
+		"div#DCL_viewerExif > span > a { font-family: " + P.fontList + "; font-size: 12pt; color: white; cursor: pointer; }" +
 		"div#DCL_viewerBtnBack, div#DCL_viewerBtnForward {position: absolute; top: 50%; height: 100px; line-height: 100px; font-size: 70px; font-family: Tahoma; z-index: 9999989999; background-color: white; color: black; opacity: 0.5; padding: 5px 10px 15px 10px; margin-top: -50px; cursor: pointer}" +
 		"div#DCL_viewerBtnBack {left: 0;  border-radius: 0 10px 10px 0;}" +
 		"div#DCL_viewerBtnForward {right: 0; border-radius: 10px 0 0 10px;}" +
@@ -2681,7 +2796,7 @@ Album.init = function() {
 		"div#DCL_albumDiv {position:fixed ; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:101}" +
 		"div#DCL_albumBack {position:absolute; top:0; width:100%; height:100%; background-color:#000 ; opacity:0.6}" +
 		"div#DCL_albumWrap {position:absolute; top: 30px; bottom: 0px; width:100%; overflow:auto;}" +
-		"p#DCL_albumP {overflow:hidden; height:25px; padding-top: 5px; font: 15px Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif; color:#fff ; background-color:#333; position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1;}" +
+		"p#DCL_albumP {overflow:hidden; height:25px; padding-top: 5px; font: 15px " + P.fontList + "; color:#fff ; background-color:#333; position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1;}" +
 		"span.DCL_albumBtn {margin-left:10px ; cursor:pointer}" +
 		"span#DCL_albumPage {margin-left:15px}" +
 		"span#DCL_albumPage > span {margin:5px ; cursor:pointer}" +
@@ -2751,8 +2866,9 @@ Album.display = function(disp) {
 				Album.aCall(no);
 			}
 		}
-		albumLoad.textContent = "글 읽는 중... (" + Math.floor(load*100/l) + "%)";
+		//albumLoad.textContent = "글 읽는 중... (" + Math.floor(load*100/l) + "%)";
 		if(load < l) {
+			albumLoad.textContent = "글 읽는 중... (" + (l-load) + "개 남음)";
 			return;
 		}
 	} else {
@@ -2894,7 +3010,7 @@ Album.aCall = function(no) {
 			if(text.substr(0,9) === "<!DOCTYPE") {
 				var data = Album.aData[no];
 				data.no = no;
-				data.name = /<span class="user_layer" user_name='([^\']+)' user_id=/.exec(text);
+				data.name = /<span class="user_layer" user_name=[\'\"]?([^\'\"]+)[\'\"]? user_id=/.exec(text);
 				data.isdisplayed = false;
 				if(data.name===null) {
 					Album.rData[no] = (Album.rData[no] || 0) + 1;
@@ -2909,7 +3025,7 @@ Album.aCall = function(no) {
 				}
 				data.name = data.name[1];
 				try{
-					data.title = /<dt>제 목<\/dt><dd>([^<]+)</.exec(text)[1];
+					data.title = /<dt>제 목<\/dt><dd>([^<]+)<\/dd>/.exec(text)[1];
 				} catch(err) {
 					data.title = null;
 				}
@@ -3185,8 +3301,6 @@ function shortkey(e) {
 // 실제 실행
 function DCINSIDE_LITE() {
 	addStyle(
-		'@import url("https://raw.githubusercontent.com/koreapyj/hangul/master/nanumbarungothic.css");' +
-
 		'* { -webkit-text-size-adjust: none; }' +
 		".banner_box, #dgn_footer, #dgn_gallery_right_detail { display:none !important; }" +
 		"#dgn_gallery_right { " + (P.sidebar?'':'display:none !important; ') + "background-color: #F4F4F4; }" +
@@ -3203,7 +3317,7 @@ function DCINSIDE_LITE() {
 		"#dgn_gallery_left .gallery_title { display: " + (P.title?"block":"none") + "; height: 37px !important; }" +
 		"#dgn_gallery_left .gallery_title > h1 { top: 0px !important; }" +
 		"#dgn_gallery_left .gallery_title > h1 > embed { display: none; }" +
-		"#dgn_gallery_left .gallery_title > h1 > a { font-family: 'Nanum Barun Gothic', 'Malgun Gothic', sans-serif; letter-spacing: -1px; font-size: 22px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 12px; }" +
+		"#dgn_gallery_left .gallery_title > h1 > a { font-family: " + P.fontList + "; letter-spacing: -1px; font-size: 22px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 12px; }" +
 		"#dgn_gallery_left .gallery_title > h1 > a > span { text-shadow: 0 0 1px; }" +
 		"#dgn_gallery_left .gallery_title > h1 > a > span.gallery_str { color: #5B79C9; }" +
 		"#dgn_gallery_left .gallery_box { display: " + (P.best?"block":"none") + "; " + (P.title?"":"top: 0px !important;") + "}" +
@@ -3278,7 +3392,7 @@ function DCINSIDE_LITE() {
 		"span.DCL_tbodyLoad {margin:5px ; font:9pt Tahoma,돋움}" +
 
 		"p#DCL_writeBtn {text-align:left}" +
-		"p#DCL_writeBtn > span {border:1px solid #bbb ; -moz-border-radius:3px ; border-radius:3px ; padding:2px 7px 3px ; font:8pt Tahoma,돋움 ; background-color:#f9f9f9 ; cursor:pointer}" +
+		"p#DCL_writeBtn > span {border:1px solid #bbb ; border-radius:3px ; padding:2px 7px 3px ; font:8pt Tahoma,돋움 ; background-color:#f9f9f9 ; cursor:pointer}" +
 
 		".DCL_viewerItem {cursor:pointer}"
 		);
@@ -3327,7 +3441,7 @@ function DCINSIDE_LITE() {
 
 	if(document.querySelector('#dgn_gallery_left .gallery_title > h1')) {
 		document.querySelector('#dgn_gallery_left .gallery_title > h1').innerHTML = '';
-		var title = cElement('a', document.querySelector('#dgn_gallery_left .gallery_title > h1'), null, function() { softLoad("/board/lists/?id="+_ID); });
+		var title = cElement('a', document.querySelector('#dgn_gallery_left .gallery_title > h1'), {href:"/board/lists/?id="+_ID}, function(e) { ePrevent(e); softLoad("/board/lists/?id="+_ID); });
 		cElement('span', title, {textContent:GALLERY,className:"gallery_name"});
 		cElement(null, title, " ");
 		cElement('span', title, {textContent:"갤러리",className:"gallery_str"});
@@ -3550,7 +3664,6 @@ function time() {
 // 실행 ; 미지원 브라우저, 알 수 없는 상태, 내부 iframe 에서는 실행 안함
 if(BROWSER && MODE && !$('DCL_menuDiv')) {
 	location.innerhost = location.host;
-	P.menu=true;
 	if(window === window.top) {
 		SET.load();
 	}
