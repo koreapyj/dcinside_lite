@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15001
-// @date           2014.09.22
+// @version        15002
+// @date           2015.02.10
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -11,8 +11,8 @@
 // @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
-var R_VERSION = "15001";	// 실제 버전
-var VERSION = "15001";		// 설정 내용 버전
+var R_VERSION = "15002";	// 실제 버전
+var VERSION = "15002";		// 설정 내용 버전
 var P = {
 version : "",
 
@@ -195,10 +195,10 @@ var xmlhttpRequest = typeof GM_xmlhttpRequest!=='undefined'?GM_xmlhttpRequest:
 				}
 			}
 		};
-		try { //cannot do cross domain
+		try {
 			xmlhttp.open(details.method, details.url);
 		} catch(e) {
-			if( details.onerror ) { //simulate a real error
+			if( details.onerror ) {
 				details.onerror({responseXML:"",responseText:"",readyState:4,responseHeaders:"",status:403,statusText:"Forbidden"});
 			}
 			return;
@@ -524,7 +524,7 @@ call : function() {
 			"div.DCL_set_mdi > div.body { height:257px; padding: 0 20px; overflow: hidden; }" +
 			"div.DCL_set_mdi > div.body div#linkList { height: 100%; width: 100% }" +
 			"div.DCL_set_mdi > div.body div#linkList > textarea { height: 198px; width: 100%; border-radius: 2px 0 0 2px; }" +
-			"div.DCL_set_mdi > div.filter div[id^=textbox] { height: 210px; }" +
+			"div.DCL_set_mdi > div.filter div[id^=textbox] { height: 190px; }" +
 			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea { overflow-y: scroll; height: 100%; width: 249px; resize: none; }" +
 			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:248px; border-radius: 2px 0 0 2px; }" +
 			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
@@ -533,6 +533,10 @@ call : function() {
 			"div.DCL_set_mdi > div.filter div#textboxCT { display: none; }" +
 			"div.DCL_set_mdi > div.filter div#info { height: 20px; }" +
 			"div.DCL_set_mdi > div.filter div#info > span { display: inline-block; font-weight: bold; width: 50%; }" +
+			"div.DCL_set_mdi > div.tooltip { display: none; position: absolute; z-index: 1; background-color: white; padding: 10px 20px; border-radius: 3px; box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 4px 0px; }" +
+			"div.DCL_set_mdi > div.tooltip:before { content: ''; position: absolute; left: 18px; top: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid rgba(0, 0, 0, 0.1); z-index: 0; }" +
+      "div.DCL_set_mdi > div.tooltip > div:first-of-type { position: absolute; left: 19px; top: -9px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 9px solid white; z-index: 1; }" +
+      "div.DCL_set_mdi > div.tooltip .bold { font-weight: bold; }" +
 
 			"div#DCL_set > div { padding-left: 20px; padding-bottom: 10px; }" +
 			"div#DCL_set > div > h3 { font-size: 120%; font-weight: normal; }" +
@@ -619,6 +623,19 @@ call : function() {
 				dclset.body.filter.mdibody.textbox[3] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCT"});
 				cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_blockCT"});
 				cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_allowCT"});
+				dclset.body.filter.mdibody.help = cElement("div", dclset.body.filter.mdibody);
+				dclset.body.filter.mdibody.help.button = cElement("a", dclset.body.filter.mdibody.help, {href:"",textContent:"도움말..."},ePrevent);
+        dclset.body.filter.mdibody.help.button.addEventListener("mousemove", function() { dclset.body.filter.tooltip.style.display="block"; });
+        dclset.body.filter.mdibody.help.button.addEventListener("mouseout", function() { dclset.body.filter.tooltip.style.display=""; });
+			dclset.body.filter.tooltip = cElement("div", dclset.body.filter.mdiwrap, {className:"tooltip",style:"left: 10px; margin-top: 5px;"});
+        cElement("div", dclset.body.filter.tooltip);
+        cElement("div", dclset.body.filter.tooltip, {className:"bold",textContent:"특수 패턴 문자"});
+        cElement("div", dclset.body.filter.tooltip, {textContent:"\\ : 이스케이프 문자"});
+        cElement("div", dclset.body.filter.tooltip, {textContent:"* : 와일드카드 (0문자 이상)"});
+        cElement("div", dclset.body.filter.tooltip, {textContent:"+ : 와일드카드 (1문자 이상)"});
+        cElement("div", dclset.body.filter.tooltip, {textContent:"? : 와일드카드 (0문자 또는 1문자)"});
+        cElement("div", dclset.body.filter.tooltip, {textContent:"#(null) : 비회원"});
+        cElement("div", dclset.body.filter.tooltip, {textContent:"#갤로그ID : 특정 갤로거"});
 			dclset.body.filter.mdifoot = cElement("div", dclset.body.filter.mdiwrap, {className:"foot"});
 				cElement("input", dclset.body.filter.mdifoot, {type:"submit", value:"닫기"}, function() { dclset.body.filter.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
 
@@ -747,7 +764,7 @@ call : function() {
 
 			dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
 			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력하고, 메뉴를 위쪽으로 설정한 경우 |로 구분해서 순서대로 좌측 메뉴, 우측 메뉴, 프로필 메뉴를 입력합니다."});
-			cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 구분선 : 구분선"});
+			cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 현재갤 : 현재 갤러리 링크 / 구분선 : 구분선"});
 			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"즐겨찾기 링크는 따로따로 입력할 수도 있습니다."});
 			cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"예) 미연시/게시판/김유식"});
 
@@ -929,8 +946,9 @@ load : function(nochrome) {
 			P.syncStore = 1;
 			if(localStorage['version'])
 				localStorage.clear();
-
-			SET.update();
+      
+      if(!BROWSER.chrome.google)
+  			SET.update();
 			if(P.version !== VERSION) {
 				alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
 				addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
@@ -984,7 +1002,8 @@ load : function(nochrome) {
 		}
 	}
 	P.syncStore = 0;
-	SET.update();
+  if(!BROWSER.chrome.google)
+    SET.update();
 	if(P.version !== VERSION) {
 		alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
 		addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
@@ -995,7 +1014,7 @@ load : function(nochrome) {
 update : function() {
 	if(P.updUse && !BROWSER.msie) {
 		simpleRequest(
-			"http://lite.dcmys.kr/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
+			"https://lite.dcmys.jp/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
 			function(response) {
 				nVer = parseInt(response.responseText.split('<>')[0]);
 				if(response.responseText.split('<>')[1]!=undefined) {
@@ -1254,18 +1273,26 @@ function menuFunc() {
 	// 즐겨찾기 링크 정리
 	var linkList = new Array();
 	if(P.linkList) {
-		var regexp = /([^@]+)(@{1,2})((http:\/\/)?.+)(?:\n|$)/ig;
+		var regexp = /(?:(\[현재갤\])|([^@]+)(@{1,2})((http:\/\/)?.+))(?:\n|$)/ig;
 		var exec,href,className,li,a;
 		while( (exec=regexp.exec(P.linkList)) ) {
-			linkList[exec[1]] = {};
-			if(exec[4]) {
-				linkList[exec[1]].href = exec[3];
-				linkList[exec[1]].className = "DCL_linkHttp";
-			} else {
-				linkList[exec[1]].href = "/board/lists/?id=" + exec[3];
-				linkList[exec[1]].className = exec[3]===_ID?"DCL_linkThis":"";
-			}
-			linkList[exec[1]].target = exec[2].length === 2?"_blank":"";
+      switch(exec[1]) {
+        case '[현재갤]':
+          linkList[GALLERY] = {};
+          linkList[GALLERY].href = "/board/lists/?id=" + _ID;
+          linkList[GALLERY].className = "DCL_linkThis";
+          break;
+        default:
+          linkList[exec[2]] = {};
+          if(exec[5]) {
+            linkList[exec[2]].href = exec[4];
+            linkList[exec[2]].className = "DCL_linkHttp";
+          } else {
+            linkList[exec[2]].href = "/board/lists/?id=" + exec[4];
+            linkList[exec[2]].className = exec[4]===_ID?"DCL_linkThis":"";
+          }
+          linkList[exec[2]].target = exec[3].length === 2?"_blank":"";
+      }
 		}
 	}
 
@@ -1615,12 +1642,12 @@ name : function(value) {
 			}
 		}
 	}
-	normal = normal.length ? (new RegExp("^("+normal.join("\n").replace(/([\/\\()\[\]{}?*+.|$\^])/g,"\\$1").replace(/\n/g,"|").replace(/＊/g,".*")+")$")) : null;
-	id = id.length ? (new RegExp("^("+id.join("\n").replace(/([\/\\()\[\]{}?*+.|$\^])/g,"\\$1").replace(/\n/g,"|").replace(/＊/g,".*")+")$")) : null;
+	normal = normal.length ? (new RegExp("^("+normal.join("\n").replace(/([\/()\[\]{}.|$\^])/g,"\\$1").replace(/\n/g,"|").replace(/\\\\/g,"[backslash]").replace(/([^\\]|^)([*+?])/g,"$1.$2").replace(/\[backslash\]/g,"\\\\")+")$")) : null;
+	id = id.length ? (new RegExp("^("+id.join("\n").replace(/([\/()\[\]{}.|$\^])/g,"\\$1").replace(/\n/g,"|").replace(/\\\\/g,"[backslash]").replace(/([^\\]|^)([*+?])/g,"$1.$2").replace(/\[backslash\]/g,"\\\\").replace(/\\\(null\\\)/g,"")+")$")) : null;
 	return [normal,id];
 },
 title : function(value) {
-	return value ? (new RegExp(("("+value.replace(/([\/\\()\[\]{}?*+.|$\^])/g,"\\$1").replace(/\n/g,"|")+")").replace(/</g,"&lt;").replace(/>/g,"&gt;"),"g")) : null;
+	return value ? (new RegExp(("("+value.replace(/([\/()\[\]{}?+.|$\^])/g,"\\$1").replace(/\n/g,"|")+")").replace(/</g,"&lt;").replace(/>/g,"&gt;"),"g")) : null;
 },
 article : function(tbody) {
 	if(!Filter.inited) {
@@ -1656,11 +1683,10 @@ article : function(tbody) {
 		var aANid = Filter.aANid;
 		var aAT = Filter.aAT;
 		var cells,name,idC,title,titleC;
-		var idCreg = /window\.open\('http:\/\/gallog\.dcinside\.com\/(\w+)'\)/;
 		for( ; i<l ; i++) {
 			cells = rows[i].cells;
-			name = cells[2].textContent.replace(/^\s+|\s+$/g,"");
-			idC = idCreg.test(cells[2].innerHTML) ? ("#" + RegExp.$1) : null;
+			name = cells[2].getAttribute('user_name');
+      idC =  "#" + cells[2].getAttribute('user_id');
 			title = cells[1].children[1];
 			titleC = title.innerHTML;
 
@@ -1732,12 +1758,11 @@ comment : function(table) {
 	var blockCnt = {};
 
 	var cells,name,idC,title,titleC;
-	var idCreg = /window\.open\('http:\/\/gallog\.dcinside\.com\/(\w+)'\)/;
 	var fMode = MODE.article || MODE.comment;
 	for(var i=0,l=rows.length ; i<l ; i+=(fMode?4:1)) {
 		cells = rows[i].cells;
-		name = cells[0].textContent.replace(/^\s+|\s+$/g,"");
-		idC = idCreg.test(cells[0].innerHTML) ? ("#" + RegExp.$1) : null;
+		name = cells[0].getAttribute('user_name');
+    idC =  "#" + cells[0].getAttribute('user_id');
 		title = cells[1].getElementsByTagName("div")[0] || cells[1];
 		titleC = title.textContent.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 		if(aCN && aCN.test(name) || aCNid && idC && aCNid.test(idC)) {
@@ -2193,7 +2218,7 @@ Layer.prototype.call = function() {
 									value	= rows[i].cells[1].innerHTML;
 									date	= rows[i].cells[2].textContent;
 									ktr = cElement('tr', commentTable);
-									tnm = cElement('td', ktr, {innerHTML:name,className:'com_name'});
+									tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
 									cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
 									cElement('td', ktr, {innerHTML:date,className:'com_ip'});
 									btn = cElement('td', ktr, {className:'com_btn'});
