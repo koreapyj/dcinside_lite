@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15002
-// @date           2015.02.10
+// @version        15003
+// @date           2015.02.11
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -11,7 +11,7 @@
 // @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
-var R_VERSION = "15002";	// 실제 버전
+var R_VERSION = "15003";	// 실제 버전
 var VERSION = "15002";		// 설정 내용 버전
 var P = {
 version : "",
@@ -947,7 +947,7 @@ load : function(nochrome) {
 			if(localStorage['version'])
 				localStorage.clear();
       
-      if(!BROWSER.chrome.google)
+      if(BROWSER.chrome && !BROWSER.chrome.google)
   			SET.update();
 			if(P.version !== VERSION) {
 				alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
@@ -1002,7 +1002,7 @@ load : function(nochrome) {
 		}
 	}
 	P.syncStore = 0;
-  if(!BROWSER.chrome.google)
+  if(BROWSER.chrome && !BROWSER.chrome.google)
     SET.update();
 	if(P.version !== VERSION) {
 		alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
