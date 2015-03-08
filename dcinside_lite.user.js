@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15003
-// @date           2015.02.11
+// @version        15004
+// @date           2015.03.09
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -11,7 +11,7 @@
 // @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
-var R_VERSION = "15003";	// 실제 버전
+var R_VERSION = "15004";	// 실제 버전
 var VERSION = "15002";		// 설정 내용 버전
 var P = {
 version : "",
@@ -112,19 +112,24 @@ var MODE = {};
 location.pathnameN = location.pathname.replace(/\/+$/, '');
 switch(location.pathnameN) {
 	case "/board/write":
+    MODE.gall = true;
 		MODE.write = true;
 		break;
 	case "/board/view":
+    MODE.gall = true;
 		MODE.article = true;
 		break;
 	case "/board/comment_view":
+    MODE.gall = true;
 		MODE.comment = true;
 		break;
 	case "/board/lists":
+    MODE.gall = true;
 		MODE.list = true;
 		break;
 	case "/singo/singo_write":
 	case "/singo/singo_nonmember":
+    MODE.gall = true;
 		MODE.singo= true;
 		document.title = "신고 게시물";
 		break;
@@ -135,6 +140,13 @@ switch(location.pathnameN) {
 			location.replace("http://"+location.innerhost+"/board/lists/"+location.search);
 		MODE = false;
 		break;
+	case "/options.html":
+    if(location.protocol==="chrome-extension:") {
+      MODE.settings=true;
+      if(location.search==="?v2")
+        MODE.settingsv2=true;
+    }
+    break;
 	default:
 		MODE = false;
 		break;
@@ -147,7 +159,7 @@ if(parseQuery(location.search).keyword) {
 	MODE.search = true;
 }
 
-if(MODE!=false) {
+if(MODE!=false && MODE.gall) {
 	var WINDOW = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 	var SCROLL = BROWSER.firefox || BROWSER.opera ? document.documentElement : document.body;
 	var _ID = parseQuery(location.search).id; // 갤러리 id
@@ -477,93 +489,118 @@ var BASE64 = { // base64 (data:image/png;base64,)
 var SET = {
 call : function() {
 	if(!$("DCL_set_wrap")) {
-		addStyle(
-			"div#DCL_set_bg { position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; z-index: 101; }" +
-			"div.DCL_set_wrap,"+
-			"div.DCL_set_mdi { box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0,0,0,0.15); border-radius: 3px; background-color:rgba(255,255,255,.9); }" +
-			"div.DCL_set_wrap {z-index: 102; position: fixed; top: 50%; left: 50%; margin-top: -330px; margin-left: -320px; width: 640px; height: 660px; }" +
-
-			"div.DCL_set_wrap > div.head > button," +
-			"div.DCL_set_mdi > div.head > button {height: 14px; width: 14px; float: right; border: 0; border-radius: 7px; margin: 10px 10px; font-size: 0px; background:url('data:image/png;base64,"+BASE64.dialogClose+"'); padding: 0; box-shadow: none; text-shadow: none; }" +
-			"div.DCL_set_wrap > div.head > button:hover," +
-			"div.DCL_set_mdi > div.head > button:hover{ background:url('data:image/png;base64,"+BASE64.dialogClose_H+"'); }" + 
-			"div.DCL_set_wrap > div.head > h2," +
-			"div.DCL_set_mdi > div.head > h2{ padding:10px 20px; font-weight: normal; font-size: 120%;}" +
-
-			"div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: " + P.fontList + "; vertical-align:middle}" +
-			"div.DCL_set_wrap > div.body { overflow-y: scroll; height:570px; }" +
-			"div.DCL_set_wrap button, " +
-			"div.DCL_set_wrap input[type=button], " +
-			"div.DCL_set_wrap select, " +
-			"div.DCL_set_wrap input[type=submit] { padding: 2px 10px; border-radius: 2px; background-image: linear-gradient(0deg, #dedede, #ededed); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.25); text-shadow: 0 1px 0 rgb(240, 240, 240); color: #444; outline: none; margin: 0 4px 0 0; }" +
-
-			"div.DCL_set_wrap input[type=text]," +
-			"div.DCL_set_wrap input[type=number] { border: 1px solid #CCC; cursor: auto; outline: none; border-radius: 2px; padding: 2px 5px; margin: 0 4px 0 0; }" +
-			"div.DCL_set_wrap textarea { border: 1px solid #CCC; cursor: auto; font-family: monospace; outline: none; }" +
-
-			"div.DCL_set_wrap button:hover, " +
-			"div.DCL_set_wrap input[type=button]:hover, " +
-			"div.DCL_set_wrap select:hover, " +
-			"div.DCL_set_wrap input[type=submit]:hover, " +
-			"div.DCL_set_wrap input[type=text]:hover, " +
-			"div.DCL_set_wrap input[type=number]:hover { border: 1px solid rgba(0, 0, 0, 0.45); }" +
-
-			"div.DCL_set_wrap button:focus, " +
-			"div.DCL_set_wrap input[type=button]:focus, " +
-			"div.DCL_set_wrap select:focus, " +
-			"div.DCL_set_wrap input[type=submit]:focus, " +
-			"div.DCL_set_wrap input[type=text]:focus," +
-			"div.DCL_set_wrap input[type=number]:focus { border: 1px solid #09E; }" +
-
-			"div.DCL_set_wrap > div.foot > input[type=submit]," +
-			"div.DCL_set_mdi > div.foot > input[type=submit] { float: right; margin: 10px 15px; }" +
-			"div.DCL_set_wrap ::selection { background: inherit; }" +
-
-			"div#DCL_set_mdibg { z-index: 103; position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; }" +
-			"div.DCL_set_mdi { z-index: 104; position: fixed; top: 50%; left: 50%; margin-top: -173px; margin-left: -270px; height: 346px; width: 540px; display: none; }" +
-			"div.DCL_set_mdi > div.body { height:257px; padding: 0 20px; overflow: hidden; }" +
-			"div.DCL_set_mdi > div.body div#linkList { height: 100%; width: 100% }" +
-			"div.DCL_set_mdi > div.body div#linkList > textarea { height: 198px; width: 100%; border-radius: 2px 0 0 2px; }" +
-			"div.DCL_set_mdi > div.filter div[id^=textbox] { height: 190px; }" +
-			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea { overflow-y: scroll; height: 100%; width: 249px; resize: none; }" +
-			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:248px; border-radius: 2px 0 0 2px; }" +
-			"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
-			"div.DCL_set_mdi > div.filter div#textboxAT," +
-			"div.DCL_set_mdi > div.filter div#textboxCN," +
-			"div.DCL_set_mdi > div.filter div#textboxCT { display: none; }" +
-			"div.DCL_set_mdi > div.filter div#info { height: 20px; }" +
-			"div.DCL_set_mdi > div.filter div#info > span { display: inline-block; font-weight: bold; width: 50%; }" +
-			"div.DCL_set_mdi > div.tooltip { display: none; position: absolute; z-index: 1; background-color: white; padding: 10px 20px; border-radius: 3px; box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 4px 0px; }" +
-			"div.DCL_set_mdi > div.tooltip:before { content: ''; position: absolute; left: 18px; top: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid rgba(0, 0, 0, 0.1); z-index: 0; }" +
-      "div.DCL_set_mdi > div.tooltip > div:first-of-type { position: absolute; left: 19px; top: -9px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 9px solid white; z-index: 1; }" +
-      "div.DCL_set_mdi > div.tooltip .bold { font-weight: bold; }" +
-
-			"div#DCL_set > div { padding-left: 20px; padding-bottom: 10px; }" +
-			"div#DCL_set > div > h3 { font-size: 120%; font-weight: normal; }" +
-			"div#DCL_set > div ul > li { padding: 5px 0 5px 28px; }" +
-			"div#DCL_set > div ul > li.info + li { padding-top: 0; }" +
-			"div#DCL_set > div ul > li.disabled { color: gray; }" +
-
-			"div#DCL_set > div input[type=text]::-webkit-input-placeholder, " +
-			"div#DCL_set > div input[type=text]:-moz-placeholder { color:black; }" +
-			"div#DCL_set > div input[type=text].number { text-align: right; }" +
-				
-			"div#DCL_set > div:first-of-type > ul:first-of-type.disabled { height: 55px; overflow: hidden; }" +
-			"div#DCL_set > div a { cursor: auto; text-decoration: underline; color: blue; }" +
-			"div#DCL_set > div div.small { font-size: 10px; }" +
-			"div#DCL_set > div div.br { font-size: 10px; margin-top: 12px; }" +
-			"div#DCL_set > div div.copyable { cursor:auto; }" +
-			"div#DCL_set > div div.copyable::selection," +
-			"div#DCL_set > div input::selection," +
-			"div#DCL_set > div textarea::selection" + "{ background: #0BF; color: white; }" +
-			"");
-
 		var dclset={};
-		dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"}, SET.close);
-		dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
-		dclset.head = cElement("div", dclset.wrap, {className:"head"});
-			cElement("button", dclset.head, {textContent:"닫기"}, SET.close);
-			cElement("h2", dclset.head, {textContent:"디시라이트 설정"});
+      addStyle(
+        "div#DCL_set_bg { position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; z-index: 101; }" +
+        "div.DCL_set_wrap,"+
+        "div.DCL_set_mdi { box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0,0,0,0.15); border-radius: 3px; background-color:rgba(255,255,255,.9); }" +
+        "div.DCL_set_wrap {z-index: 102; position: fixed; }" +
+
+        "div.DCL_set_wrap > div.head > button," +
+        "div.DCL_set_mdi > div.head > button {height: 14px; width: 14px; float: right; border: 0; border-radius: 7px; margin: 10px 10px; font-size: 0px; background:url('data:image/png;base64,"+BASE64.dialogClose+"'); padding: 0; box-shadow: none; text-shadow: none; }" +
+        "div.DCL_set_wrap > div.head > button:hover," +
+        "div.DCL_set_mdi > div.head > button:hover{ background:url('data:image/png;base64,"+BASE64.dialogClose_H+"'); }" + 
+        "div.DCL_set_wrap > div.head > h2," +
+        "div.DCL_set_mdi > div.head > h2{ padding:10px 20px; font-weight: normal; font-size: 120%;}" +
+
+        "div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: " + P.fontList + "; vertical-align:middle}" +
+        "div.DCL_set_wrap textarea { border: 1px solid #CCC; cursor: auto; font-family: monospace; outline: none; }" +
+
+        "div.DCL_set_wrap > div.foot > input[type=submit]," +
+        "div.DCL_set_mdi > div.foot > input[type=submit] { float: right; margin: 10px 15px; }" +
+        "div.DCL_set_wrap ::selection { background: inherit; }" +
+
+        "div#DCL_set_mdibg { z-index: 103; position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; }" +
+        "div.DCL_set_mdi { z-index: 104; position: fixed; top: 50%; left: 50%; margin-top: -173px; margin-left: -270px; height: 346px; width: 540px; display: none; }" +
+        "div.DCL_set_mdi > div.body { height:257px; padding: 0 20px; overflow: hidden; }" +
+        "div.DCL_set_mdi > div.body div#linkList { height: 100%; width: 100% }" +
+        "div.DCL_set_mdi > div.body div#linkList > textarea { height: 198px; width: 100%; border-radius: 2px 0 0 2px; }" +
+        "div.DCL_set_mdi > div.filter div[id^=textbox] { height: 190px; }" +
+        "div.DCL_set_mdi > div.filter div[id^=textbox] > textarea { overflow-y: scroll; height: 100%; width: 249px; resize: none; }" +
+        "div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:248px; border-radius: 2px 0 0 2px; }" +
+        "div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
+        "div.DCL_set_mdi > div.filter div#textboxAT," +
+        "div.DCL_set_mdi > div.filter div#textboxCN," +
+        "div.DCL_set_mdi > div.filter div#textboxCT { display: none; }" +
+        "div.DCL_set_mdi > div.filter div#info { height: 20px; }" +
+        "div.DCL_set_mdi > div.filter div#info > span { display: inline-block; font-weight: bold; width: 50%; }" +
+        "div.DCL_set_mdi > div.tooltip { display: none; position: absolute; z-index: 1; background-color: white; padding: 10px 20px; border-radius: 3px; box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 4px 0px; }" +
+        "div.DCL_set_mdi > div.tooltip:before { content: ''; position: absolute; left: 18px; top: -10px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid rgba(0, 0, 0, 0.1); z-index: 0; }" +
+        "div.DCL_set_mdi > div.tooltip > div:first-of-type { position: absolute; left: 19px; top: -9px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 9px solid white; z-index: 1; }" +
+        "div.DCL_set_mdi > div.tooltip .bold { font-weight: bold; }" +
+
+        "div#DCL_set > div { padding-left: 20px; padding-bottom: 10px; }" +
+        "div#DCL_set > div > h3 { font-size: 120%; font-weight: normal; }" +
+        "div#DCL_set > div ul > li { padding: 5px 0 5px 28px; }" +
+        "div#DCL_set > div ul > li.info + li { padding-top: 0; }" +
+        "div#DCL_set > div ul > li.disabled { color: gray; }" +
+
+        "div#DCL_set > div input[type=text]::-webkit-input-placeholder, " +
+        "div#DCL_set > div input[type=text]:-moz-placeholder { color:black; }" +
+        "div#DCL_set > div input[type=text].number { text-align: right; }" +
+          
+        "div#DCL_set > div:first-of-type > ul:first-of-type.disabled { height: 55px; overflow: hidden; }" +
+        "div#DCL_set > div a { cursor: auto; text-decoration: underline; color: blue; }" +
+        "div#DCL_set > div div.small { font-size: 10px; }" +
+        "div#DCL_set > div div.br { font-size: 10px; margin-top: 12px; }" +
+        "div#DCL_set > div div.copyable { cursor:auto; }" +
+        "div#DCL_set > div div.copyable::selection," +
+        "div#DCL_set > div input::selection," +
+        "div#DCL_set > div textarea::selection" + "{ background: #0BF; color: white; }" +
+        "");
+
+    if(!MODE.settingsv2) {
+      addStyle(
+        "div.DCL_set_wrap { top: 50%; left: 50%; margin-top: -330px; margin-left: -320px; width: 640px; height: 660px; }" +
+        "div.DCL_set_wrap > div.body { overflow-y: scroll; height:570px; }" +
+
+        "div.DCL_set_wrap button, " +
+        "div.DCL_set_wrap input[type=button], " +
+        "div.DCL_set_wrap select, " +
+        "div.DCL_set_wrap input[type=submit] { padding: 2px 15px; border-radius: 2px; background-image: linear-gradient(0deg, #dedede, #ededed); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.25); text-shadow: 0 1px 0 rgb(240, 240, 240); color: #444; outline: none; margin: 0 4px 0 0; }" +
+
+        "div.DCL_set_wrap input[type=text]," +
+        "div.DCL_set_wrap input[type=number] { border: 1px solid #CCC; cursor: auto; outline: none; border-radius: 2px; padding: 2px 5px; margin: 0 4px 0 0; }" +
+
+        "div.DCL_set_wrap button:hover, " +
+        "div.DCL_set_wrap input[type=button]:hover, " +
+        "div.DCL_set_wrap select:hover, " +
+        "div.DCL_set_wrap input[type=submit]:hover, " +
+        "div.DCL_set_wrap input[type=text]:hover, " +
+        "div.DCL_set_wrap input[type=number]:hover { border: 1px solid rgba(0, 0, 0, 0.45); }" +
+
+        "div.DCL_set_wrap button:focus, " +
+        "div.DCL_set_wrap input[type=button]:focus, " +
+        "div.DCL_set_wrap select:focus, " +
+        "div.DCL_set_wrap input[type=submit]:focus, " +
+        "div.DCL_set_wrap input[type=text]:focus," +
+        "div.DCL_set_wrap input[type=number]:focus { border: 1px solid #09E; }" +
+        ""
+      );
+      dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"}, SET.close);
+      dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
+      dclset.head = cElement("div", dclset.wrap, {className:"head"});
+        cElement("button", dclset.head, {textContent:"닫기"}, SET.close);
+        cElement("h2", dclset.head, {textContent:"디시라이트 설정"});
+    }
+    else {
+      addStyle(
+        "div#DCL_set:before { margin-top: 10px; content: ''; display: block; }" +
+        "div.DCL_set_wrap { top: auto; left: auto; margin-top: auto; margin-left: auto; width: 640px; height: 570px; }" +
+        "div.DCL_set_wrap > div.body { overflow-y: scroll; height: 527px; }" +
+        "div.DCL_set_wrap select { padding-right: 20px; }" + 
+
+        "div.DCL_set_wrap button, " +
+        "div.DCL_set_wrap input[type=button], " +
+        "div.DCL_set_wrap select, " +
+        "div.DCL_set_wrap input[type=submit] { padding: 2px 15px; margin: 0 4px 0 0; }" +
+
+        "div.DCL_set_wrap input[type=text]," +
+        "div.DCL_set_wrap input[type=number] { padding: 2px 5px; margin: 0 4px 0 0; }" +
+        ""
+      );
+      dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
+    }
 
 		dclset.body = cElement("div", dclset.wrap, {id:"DCL_set", className:"body"});
 		dclset.body.mdibg = cElement("div", dclset.body, {id:"DCL_set_mdibg"});
@@ -880,7 +917,7 @@ call : function() {
 			cElement("label", dclset.body.dclInfo.innerList.updUse, {"for":"DCL_updUse",textContent:"업데이트 알림"});
 			dclset.body.dclInfo.innerList.syncStore = cElement("li", dclset.body.dclInfo.innerList);
 			cElement("input", dclset.body.dclInfo.innerList.syncStore, {type:"checkbox", id:"DCL_syncStore"});
-			cElement("label", dclset.body.dclInfo.innerList.syncStore, {"for":"DCL_syncStore",textContent:"데이터를 Google 계정으로 동기화"});
+			cElement("label", dclset.body.dclInfo.innerList.syncStore, {"for":"DCL_syncStore",textContent:"Google Sync 저장소 사용"});
 
 			dclset.body.dclInfo.innerList.info = cElement("li", dclset.body.dclInfo.innerList);
 			dclset.body.dclInfo.innerList.info.copyright = cElement("div", dclset.body.dclInfo.innerList.info);
@@ -902,9 +939,11 @@ call : function() {
 
 
 	$("DCL_set_wrap").style.display = "block";
-	$("DCL_set_bg").style.display = "block";
-	document.body.style.overflow = "hidden";
-	$("DCL_set").scrollTop=0;
+  if(!MODE.settingsv2) {
+    $("DCL_set_bg").style.display = "block";
+    document.body.style.overflow = "hidden";
+    $("DCL_set").scrollTop=0;
+  }
 
 	var input,value;
 	for(var i in P) {
@@ -1073,8 +1112,11 @@ save : function() {
 	setValue("version",VERSION);
 	if(BROWSER.dataMigration)
 		document.cookie = "dcinsidelitesetting=;path=/;";
-
-	location.reload();
+  
+  if(MODE.settings)
+    window.close();
+  else
+  	location.reload();
 	return;
 },
 reset : function() {
@@ -2660,26 +2702,6 @@ Viewer.init = function() {
 			imgbox.style.top = Math.round(y_) + "px";
 		}
 	};
-	cboxshow = function() {
-		if(btn.showstop)
-			return;
-		if(parseFloat(btn.style.opacity)>=0.9) {
-			exif.style.opacity=btn.style.opacity = 0.9;
-			return;
-		}
-		exif.style.opacity=btn.style.opacity=parseFloat(btn.style.opacity) + 0.08;
-		setTimeout(cboxshow, 20);
-	}
-	cboxhide = function() {
-		if(btn.hidestop)
-			return;
-		if(parseFloat(btn.style.opacity)<=0.05) {
-			exif.style.opacity=btn.style.opacity = 0;
-			return;
-		}
-		exif.style.opacity=btn.style.opacity=parseFloat(btn.style.opacity) - 0.08;
-		setTimeout(cboxhide, 20);
-	}
 
 	addStyle(
 		"div#DCL_viewerDiv {position:fixed; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:102 ; display:none}" +
@@ -2687,12 +2709,12 @@ Viewer.init = function() {
 		"div#DCL_viewerImg {position:absolute; display: inline-block; }" +
 		"div#DCL_viewerImg > img { cursor:all-scroll; }" +
 		"div#DCL_viewerBtn {position:absolute; bottom: 0px; left: 0px; right: 0px; }" +
-		"div#DCL_viewerBtn > div { margin: 0 auto 20px auto; text-align: center; background-color: #292929; width: 408px; height: 72px; border-radius: 36px; opacity: 0.9; cursor: default; overflow: hidden; box-shadow: 0 0 50px black; background-image: linear-gradient(0deg, #222, #333); }" +
+		"div#DCL_viewerBtn > div { opacity: .9; transition: opacity .15s ease-in-out; margin: 0 auto 20px auto; text-align: center; background-color: #292929; width: 408px; height: 72px; border-radius: 36px; cursor: default; overflow: hidden; box-shadow: 0 0 50px black; background-image: linear-gradient(0deg, #222, #333); }" +
 		"div#DCL_viewerBtn > div > span:first-of-type { margin-left: 16px; }" +
 		"div#DCL_viewerBtn > div > span:last-of-type { margin-right: 16px; }" +
 		"div#DCL_viewerBtn > div > span { float: left; margin: 16px 8px; width: 40px; height: 40px; background-color: white; border-radius: 20px; background-repeat: no-repeat; background-position: center; color: transparent; background-size: 25px; opacity: 0.5; }" +
 		"div#DCL_viewerBtn > div > span:hover { opacity: 1; }" +
-		"div#DCL_viewerExif { position: absolute; top: 20px; left: 20px; cursor: default; }" +
+		"div#DCL_viewerExif { opacity: .9; transition: opacity .15s ease-in-out; position: absolute; top: 20px; left: 20px; cursor: default; }" +
 		"div#DCL_viewerExif > span { font-family: " + P.fontList + "; font-size: 12pt; color: white; text-shadow:0px 0px 10px #000; display: block; }" +
 		"div#DCL_viewerExif > span > a { font-family: " + P.fontList + "; font-size: 12pt; color: white; cursor: pointer; }" +
 		"div#DCL_viewerBtnBack, div#DCL_viewerBtnForward {position: absolute; top: 50%; height: 100px; line-height: 100px; font-size: 70px; font-family: Tahoma; z-index: 9999989999; background-color: white; color: black; opacity: 0.5; padding: 5px 10px 15px 10px; margin-top: -50px; cursor: pointer}" +
@@ -2723,9 +2745,8 @@ Viewer.init = function() {
 	btnct.addEventListener("mousedown",ePrevent,false); // drag 방지
 	btnct.addEventListener("mouseup",ePrevent,false); // 닫기 방지
 	btn = cElement("div",btnct);
-	btn.addEventListener("mouseover",function() { btn.hidestop=true; btn.showstop=false; cboxshow(); },false);
-	btn.addEventListener("mouseout",function() { btn.hidestop=false; btn.showstop=true; cboxhide(); },false);
-	btn.style.opacity = 0.9;
+	btn.addEventListener("mouseover",function() { exif.style.opacity = btn.style.opacity = 0.9; },false);
+	btn.addEventListener("mouseout",function() { exif.style.opacity = btn.style.opacity = 0; },false);
 
 	cElement("span",btn,{textContent:"이전",style:"background-image: url('data:image/gif;base64," + BASE64.viewerPrev + "');"},function(){open(index-1);});
 	cElement("span",btn,{textContent:"다음",style:"background-image: url('data:image/gif;base64," + BASE64.viewerNext + "');"},function(){open(index+1);});
@@ -2738,15 +2759,14 @@ Viewer.init = function() {
 	cElement("span",btn,{textContent:"닫기",style:"background-image: url('data:image/gif;base64," + BASE64.viewerClose + "');"},close);
 
 	exif = cElement("div", box, {id:"DCL_viewerExif"});
-	exif.addEventListener("mouseover",function() { btn.hidestop=true; btn.showstop=false; cboxshow(); },false);
-	exif.addEventListener("mouseout",function() { btn.hidestop=false; btn.showstop=true; cboxhide(); },false);
+	exif.addEventListener("mouseover",function() { exif.style.opacity = btn.style.opacity = 0.9; },false);
+	exif.addEventListener("mouseout",function() { exif.style.opacity = btn.style.opacity = 0; },false);
 	urlSpan = cElement("span",exif, "파일 주소: ");
 	addrSpan = cElement("a", urlSpan, {target:"_blank"});
 	indexSpan = cElement("span",urlSpan,"[0/0]");
 	ratioSpan = cElement("span",exif,"확대/축소: 100%");
 	infoSpan = cElement("span",exif,"이미지 정보: ");
 	sizeSpan = cElement("span",infoSpan,"로드 중...");
-//	dateSpan = cElement("span",exif,"로드 중...");
 
 	backbtn = cElement("div",box,{id:"DCL_viewerBtnBack",textContent:"‹"},function(){open(index-1);});
 	fwdbtn  = cElement("div",box,{id:"DCL_viewerBtnForward",textContent:"›"},function(){open(index+1);});
@@ -3036,7 +3056,7 @@ Album.aCall = function(no) {
 			if(text.substr(0,9) === "<!DOCTYPE") {
 				var data = Album.aData[no];
 				data.no = no;
-				data.name = /<span class="user_layer" user_name=[\'\"]?([^\'\"]+)[\'\"]? user_id=/.exec(text);
+				data.name = /<span class="user_layer" user_name=\"([^\"]+)\" user_id=/.exec(text);
 				data.isdisplayed = false;
 				if(data.name===null) {
 					Album.rData[no] = (Album.rData[no] || 0) + 1;
@@ -3326,6 +3346,8 @@ function shortkey(e) {
 
 // 실제 실행
 function DCINSIDE_LITE() {
+  if(MODE.settings)
+    return SET.call();
 	addStyle(
 		'* { -webkit-text-size-adjust: none; }' +
 		".banner_box, #dgn_footer, #dgn_gallery_right_detail { display:none !important; }" +
