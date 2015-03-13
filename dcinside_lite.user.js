@@ -585,8 +585,9 @@ call : function() {
     }
     else {
       addStyle(
+        "body { margin: 0px; }" +
         "div#DCL_set:before { margin-top: 10px; content: ''; display: block; }" +
-        "div.DCL_set_wrap { top: auto; left: auto; margin-top: auto; margin-left: auto; width: 640px; height: 570px; }" +
+        "div.DCL_set_wrap { top: auto; left: auto; margin-top: auto; margin-left: auto; width: 640px; height: 570px; box-shadow: none; border-radius: 0px; }" +
         "div.DCL_set_wrap > div.body { overflow-y: scroll; height: 527px; }" +
         "div.DCL_set_wrap select { padding-right: 20px; }" + 
 
