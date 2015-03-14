@@ -1537,7 +1537,8 @@ function pageFunc(mode) {
 
 	var list = $("dgn_btn_paging").getElementsByClassName("on")[0].nextElementSibling;
 	for(var i=1,l=P.pageCount ; i<l ; i+=1) { // 페이징 목록에 다중 목록 스타일 추가
-		if(list.textContent.indexOf("..") === -1) {
+		//if(list.textContent.indexOf("..") === -1) {
+		if(list.nextElementSibling) {
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 		}
