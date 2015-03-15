@@ -1537,7 +1537,8 @@ function pageFunc(mode) {
 
 	var list = $("dgn_btn_paging").getElementsByClassName("on")[0].nextElementSibling;
 	for(var i=1,l=P.pageCount ; i<l ; i+=1) { // 페이징 목록에 다중 목록 스타일 추가
-		if(list.textContent.indexOf("..") === -1) {
+		//if(list.textContent.indexOf("..") === -1) {
+		if(list.nextElementSibling) {
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 		}
@@ -2315,7 +2316,7 @@ Layer.prototype.call = function() {
 				var file = fileReg.exec(response.responseText.replace(/\n/g,''));
 				if(file) {
 					file = file[1].split("</li><li");
-					fileReg = /<a.*href=\"(.+)\".*>(.+)<\/a>/;
+					fileReg = /<a.*href=\"(.+)\".*>(.+)?<\/a>/;
 					var fileExec;
 					var fileHTML = "";
 					var attachviewer = new Viewer();
@@ -2323,7 +2324,7 @@ Layer.prototype.call = function() {
 					attach = cElement("span",topBtn,{className:"DCL_layerFile",textContent:"첨부파일("+l+")"});
 					for(var i=0; i<l ; i+=1) {
 						fileExec = fileReg.exec(file[i]);
-						attachviewer.add(fileExec[1], cElement("a",attach,{href:fileExec[1],textContent:fileExec[2]}));
+						attachviewer.add(fileExec[1], cElement("a",attach,{href:fileExec[1],textContent:fileExec[2]||"　"}));
 //						fileHTML += "<a href='"+fileExec[1]+"'>"+fileExec[2]+"</a>";
 					}
 				}
