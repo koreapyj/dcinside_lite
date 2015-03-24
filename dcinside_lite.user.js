@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15004
-// @date           2015.03.09
+// @version        15005
+// @date           2015.03.14
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -11,7 +11,7 @@
 // @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
-var R_VERSION = "15004";	// 실제 버전
+var R_VERSION = "15005";	// 실제 버전
 var VERSION = "15002";		// 설정 내용 버전
 var P = {
 version : "",
@@ -585,8 +585,9 @@ call : function() {
     }
     else {
       addStyle(
+        "body { margin: 0px; }" +
         "div#DCL_set:before { margin-top: 10px; content: ''; display: block; }" +
-        "div.DCL_set_wrap { top: auto; left: auto; margin-top: auto; margin-left: auto; width: 640px; height: 570px; }" +
+        "div.DCL_set_wrap { top: auto; left: auto; margin-top: auto; margin-left: auto; width: 640px; height: 570px; box-shadow: none; border-radius: 0px; }" +
         "div.DCL_set_wrap > div.body { overflow-y: scroll; height: 527px; }" +
         "div.DCL_set_wrap select { padding-right: 20px; }" + 
 
@@ -1450,6 +1451,7 @@ function menuFunc() {
 	}
 	else if(P.menuPos === "top") {
 		$("DCL_menuTitle").textContent = "";
+		$("DCL_menuTitle").removeEventListener("click",funcList.refresh);
 		cElement("img",[$("DCL_menuTitle"),0],{src:"http://dcimg1.dcinside.com/glogProfileView.php?gid=26b2c223e4c221ac3e&type=main&mode=GL&dummyCode=242872037",className:"DCL_profileImage",alt:"프로필"});
 	}
 
@@ -1535,7 +1537,8 @@ function pageFunc(mode) {
 
 	var list = $("dgn_btn_paging").getElementsByClassName("on")[0].nextElementSibling;
 	for(var i=1,l=P.pageCount ; i<l ; i+=1) { // 페이징 목록에 다중 목록 스타일 추가
-		if(list.textContent.indexOf("..") === -1) {
+		//if(list.textContent.indexOf("..") === -1) {
+		if(list.nextElementSibling) {
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 		}
@@ -2313,7 +2316,7 @@ Layer.prototype.call = function() {
 				var file = fileReg.exec(response.responseText.replace(/\n/g,''));
 				if(file) {
 					file = file[1].split("</li><li");
-					fileReg = /<a.*href=\"(.+)\".*>(.+)<\/a>/;
+					fileReg = /<a.*href=\"(.+)\".*>(.+)?<\/a>/;
 					var fileExec;
 					var fileHTML = "";
 					var attachviewer = new Viewer();
@@ -2321,7 +2324,7 @@ Layer.prototype.call = function() {
 					attach = cElement("span",topBtn,{className:"DCL_layerFile",textContent:"첨부파일("+l+")"});
 					for(var i=0; i<l ; i+=1) {
 						fileExec = fileReg.exec(file[i]);
-						attachviewer.add(fileExec[1], cElement("a",attach,{href:fileExec[1],textContent:fileExec[2]}));
+						attachviewer.add(fileExec[1], cElement("a",attach,{href:fileExec[1],textContent:fileExec[2]||"　"}));
 //						fileHTML += "<a href='"+fileExec[1]+"'>"+fileExec[2]+"</a>";
 					}
 				}
