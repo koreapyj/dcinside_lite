@@ -1929,7 +1929,7 @@ Layer.init = function() {
 		"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 10pt; font-family: 굴림; }" +
 
 		"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
-		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left}" +
+		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto;}" +
 		"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
 		"table.DCL_layerComment td { height: auto; vertical-align: middle !important;}" +
 		"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
