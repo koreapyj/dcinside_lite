@@ -155,7 +155,7 @@ switch(location.pathnameN) {
 if(location.host == "gallog.dcinside.com")
 	MODE = false;
 
-if(parseQuery(location.search).keyword) {
+if(parseQuery(location.search)["s_keyword"]) {
 	MODE.search = true;
 }
 
@@ -1528,7 +1528,7 @@ function listFunc(p) {
 		pager[i].addEventListener("click",function(e) { ePrevent(e); softLoad(this.href); },false);
 	}
 
-	removeEventListenerAll($("search_btn"));
+	removeEventListenerAll($("search_input"), $("search_btn"));
 	$("search_input").addEventListener("keypress",function(e) { if(e.keyCode == 13) doSearch(e); });
 	$("search_btn").addEventListener("click",doSearch);
 }
@@ -1540,17 +1540,14 @@ function doSearch(e) {
 
 // 다중 목록
 function pageFunc(mode) {
-	if( P.pageCount < 2 || MODE.search) { // 검색모드에서는 그냥 리턴
+	if( P.pageCount < 2) {
 		return;
 	}
 
 	var list = $("dgn_btn_paging").getElementsByClassName("on")[0].nextElementSibling;
 	for(var i=1,l=P.pageCount ; i<l ; i+=1) { // 페이징 목록에 다중 목록 스타일 추가
-		//if(list.textContent.indexOf("..") === -1) {
-		if(list.nextElementSibling) {
-			cAdd(list,"DCL_pageLink");
-			list = list.nextElementSibling;
-		}
+		cAdd(list,"DCL_pageLink");
+		list = list.nextElementSibling;
 		if(!mode) {
 			cElement("tbody",$("list_table"),{innerHTML:"<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>",className:"list_tbody"});
 			pageLoad(i);
@@ -1929,7 +1926,7 @@ Layer.init = function() {
 		"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 10pt; font-family: 굴림; }" +
 
 		"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
-		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left}" +
+		"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto;}" +
 		"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
 		"table.DCL_layerComment td { height: auto; vertical-align: middle !important;}" +
 		"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
