@@ -46,7 +46,7 @@ listCount : 1,
 listRecom : 1,
 listComment : 0,
 listTime : 1,
-menuList : "즐겨찾기|이미지/베스트/개념글|갤로그/구분선/설정/로그인",
+menuList : "즐겨찾기||갤로그/구분선/이미지/베스트/개념글/구분선/설정/로그인",
 menuPos : "left",
 best : 1,
 linkList : "게시판@47\n김유식@yusik",
@@ -383,6 +383,10 @@ function cToggle(elem,toggle) {
 	} else {
 		cAdd(elem,toggle);
 	}
+}
+function ipColorize(ip) {
+	var ipN = /(\d+)\.(\d+)/g.exec(ip);
+	return "hsl(" + Math.floor(Math.abs(Math.sin(ipN[1]))*360) + "," + Math.floor(Math.abs(Math.sin(ipN[2]))*100) + "%," + (P.commentColorType=="bg"?"80%":"40%") + ")";
 }
 function parseQuery(str) {
 	str = str.substr(str.indexOf("?")+1);
@@ -1569,6 +1573,14 @@ function pageLoad(p) {
 		PAGE=parseInt(parseQuery(location.search).page);
 	else
 		PAGE=1;
+	
+	var buttons = document.querySelectorAll('div.btn_bottom a[href^="/board/"], div.btn_bottom a[href^="http://gall.dcinside.com/board/"]');
+	for(i=buttons.length;i--;) {
+		buttons[i].href = buttons[i].href.replace(/([?&]id=)[^&]+/,'$1'+_ID);
+	}
+
+	console.log(buttons);
+
 	cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... ("+(p+PAGE)+" 페이지)</span>";
 	
 	simpleRequest("/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
@@ -2280,8 +2292,7 @@ Layer.prototype.call = function() {
 									if(delbox)btn.appendChild(delbox);
 
 									if (ip && P.commentColor) {
-										var ipN = /(\d+)\.(\d+)/g.exec(ip);
-										var color = "hsl(" + Math.floor(Math.abs(Math.sin(ipN[1]))*360) + "," + Math.floor(Math.abs(Math.sin(ipN[2]))*100) + "%," + (P.commentColorType=="bg"?"80%":"40%") + ")";
+										var color = ipColorize(ip);
 										if (P.commentColorType=="bg")
 											ktr.style.backgroundColor = color;
 										else if(P.commentColorType=="fg")
