@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15005
-// @date           2015.03.14
+// @version        15006
+// @date           2015.06.02
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -111,10 +111,10 @@ else
 var MODE = {};
 location.pathnameN = location.pathname.replace(/\/+$/, '');
 switch(location.pathnameN) {
-	case "/board/write":
+/*	case "/board/write":
 		MODE.gall = true;
 		MODE.write = true;
-		break;
+		break;*/
 	case "/board/view":
 		MODE.gall = true;
 		MODE.article = true;
@@ -143,7 +143,7 @@ switch(location.pathnameN) {
 	case "/options.html":
 		if(location.protocol==="chrome-extension:") {
 			MODE.settings=true;
-			if(location.search==="?v2")
+			if(location.search=="?v2")
 				MODE.settingsv2=true;
 		}
 		break;
@@ -182,6 +182,24 @@ var addStyle = typeof GM_addStyle!=='undefined'?GM_addStyle:
 		style.appendChild(textNode);
 		parent.insertBefore(style, document.head.childNodes[0]);
 	};
+
+String.prototype.toDomElement = function () {
+	var wrapper = document.createElement('div');
+	wrapper.innerHTML = this;
+	var df= document.createDocumentFragment();
+	df.appendChild(wrapper);
+//	for (var i = 0; i < wrapper.children.length; i += 1) { df.appendChild(wrapper.children[i]); };
+	return df;
+};
+
+var formWalk = function(form) {
+	var data='';
+	for(var i=(target=form.querySelectorAll('input,textarea')).length;i--;) {
+		if(!target[i].name)continue;
+		data+=encodeURIComponent(target[i].name) + '=' + encodeURIComponent(target[i].value) + '&';
+	}
+	return data;
+};
 
 var xmlhttpRequest = typeof GM_xmlhttpRequest!=='undefined'?GM_xmlhttpRequest:
 	function(details) {
@@ -500,6 +518,60 @@ var SET = {
 call : function() {
 	if(!$("DCL_set_wrap")) {
 		var dclset={};
+
+		if(!MODE.settingsv2) {
+			addStyle(
+				"div.DCL_set_wrap { top: 50%; left: 50%; margin-top: -330px; margin-left: -320px; width: 640px; height: 660px; }" +
+				"div.DCL_set_wrap > div.body { overflow-y: scroll; height:570px; }" +
+
+				"div.DCL_set_wrap button, " +
+				"div.DCL_set_wrap input[type=button], " +
+				"div.DCL_set_wrap select, " +
+				"div.DCL_set_wrap input[type=submit] { padding: 2px 15px; border-radius: 2px; background-image: linear-gradient(0deg, #dedede, #ededed); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.25); text-shadow: 0 1px 0 rgb(240, 240, 240); color: #444; outline: none; margin: 0 4px 0 0; }" +
+
+				"div.DCL_set_wrap input[type=text]," +
+				"div.DCL_set_wrap input[type=number] { border: 1px solid #CCC; cursor: auto; outline: none; border-radius: 2px; padding: 2px 5px; margin: 0 4px 0 0; }" +
+
+				"div.DCL_set_wrap button:hover, " +
+				"div.DCL_set_wrap input[type=button]:hover, " +
+				"div.DCL_set_wrap select:hover, " +
+				"div.DCL_set_wrap input[type=submit]:hover, " +
+				"div.DCL_set_wrap input[type=text]:hover, " +
+				"div.DCL_set_wrap input[type=number]:hover { border: 1px solid rgba(0, 0, 0, 0.45); }" +
+
+				"div.DCL_set_wrap button:focus, " +
+				"div.DCL_set_wrap input[type=button]:focus, " +
+				"div.DCL_set_wrap select:focus, " +
+				"div.DCL_set_wrap input[type=submit]:focus, " +
+				"div.DCL_set_wrap input[type=text]:focus," +
+				"div.DCL_set_wrap input[type=number]:focus { border: 1px solid #09E; }" +
+				""
+			);
+			dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"}, SET.close);
+			dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
+			dclset.head = cElement("div", dclset.wrap, {className:"head"});
+				cElement("button", dclset.head, {textContent:"닫기"}, SET.close);
+				cElement("h2", dclset.head, {textContent:"디시라이트 설정"});
+		}
+		else {
+			addStyle(
+				"html,body { margin: 0px; overflow: hidden; }" +
+				"div#DCL_set:before { margin-top: 10px; content: ''; display: block; }" +
+				"div.DCL_set_wrap { position: static; top: auto; left: auto; margin: 0; padding: 0; width: 640px; height: 540px; box-shadow: none; border-radius: 0px; }" +
+				"div.DCL_set_wrap > div.body { overflow-y: scroll; height: 500px; }" +
+				"div.DCL_set_wrap select { padding-right: 20px; }" + 
+
+				"div.DCL_set_wrap button, " +
+				"div.DCL_set_wrap input[type=button], " +
+				"div.DCL_set_wrap select, " +
+				"div.DCL_set_wrap input[type=submit] { padding: 2px 15px; margin: 0 4px 0 0; }" +
+
+				"div.DCL_set_wrap input[type=text]," +
+				"div.DCL_set_wrap input[type=number] { padding: 2px 5px; margin: 0 4px 0 0; }" +
+				""
+			);
+			dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
+		}
 			addStyle(
 				"div#DCL_set_bg { position: fixed; left: 0; right: 0; bottom: 0; top: 0; background-color: white; opacity: .6; z-index: 101; }" +
 				"div.DCL_set_wrap,"+
@@ -558,60 +630,6 @@ call : function() {
 				"div#DCL_set > div input::selection," +
 				"div#DCL_set > div textarea::selection" + "{ background: #0BF; color: white; }" +
 				"");
-
-		if(!MODE.settingsv2) {
-			addStyle(
-				"div.DCL_set_wrap { top: 50%; left: 50%; margin-top: -330px; margin-left: -320px; width: 640px; height: 660px; }" +
-				"div.DCL_set_wrap > div.body { overflow-y: scroll; height:570px; }" +
-
-				"div.DCL_set_wrap button, " +
-				"div.DCL_set_wrap input[type=button], " +
-				"div.DCL_set_wrap select, " +
-				"div.DCL_set_wrap input[type=submit] { padding: 2px 15px; border-radius: 2px; background-image: linear-gradient(0deg, #dedede, #ededed); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.75); border: 1px solid rgba(0, 0, 0, 0.25); text-shadow: 0 1px 0 rgb(240, 240, 240); color: #444; outline: none; margin: 0 4px 0 0; }" +
-
-				"div.DCL_set_wrap input[type=text]," +
-				"div.DCL_set_wrap input[type=number] { border: 1px solid #CCC; cursor: auto; outline: none; border-radius: 2px; padding: 2px 5px; margin: 0 4px 0 0; }" +
-
-				"div.DCL_set_wrap button:hover, " +
-				"div.DCL_set_wrap input[type=button]:hover, " +
-				"div.DCL_set_wrap select:hover, " +
-				"div.DCL_set_wrap input[type=submit]:hover, " +
-				"div.DCL_set_wrap input[type=text]:hover, " +
-				"div.DCL_set_wrap input[type=number]:hover { border: 1px solid rgba(0, 0, 0, 0.45); }" +
-
-				"div.DCL_set_wrap button:focus, " +
-				"div.DCL_set_wrap input[type=button]:focus, " +
-				"div.DCL_set_wrap select:focus, " +
-				"div.DCL_set_wrap input[type=submit]:focus, " +
-				"div.DCL_set_wrap input[type=text]:focus," +
-				"div.DCL_set_wrap input[type=number]:focus { border: 1px solid #09E; }" +
-				""
-			);
-			dclset.bg = cElement("div", document.body, {id:"DCL_set_bg"}, SET.close);
-			dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
-			dclset.head = cElement("div", dclset.wrap, {className:"head"});
-				cElement("button", dclset.head, {textContent:"닫기"}, SET.close);
-				cElement("h2", dclset.head, {textContent:"디시라이트 설정"});
-		}
-		else {
-			addStyle(
-				"body { margin: 0px; }" +
-				"div#DCL_set:before { margin-top: 10px; content: ''; display: block; }" +
-				"div.DCL_set_wrap { top: auto; left: auto; margin-top: auto; margin-left: auto; width: 640px; height: 570px; box-shadow: none; border-radius: 0px; }" +
-				"div.DCL_set_wrap > div.body { overflow-y: scroll; height: 527px; }" +
-				"div.DCL_set_wrap select { padding-right: 20px; }" + 
-
-				"div.DCL_set_wrap button, " +
-				"div.DCL_set_wrap input[type=button], " +
-				"div.DCL_set_wrap select, " +
-				"div.DCL_set_wrap input[type=submit] { padding: 2px 15px; margin: 0 4px 0 0; }" +
-
-				"div.DCL_set_wrap input[type=text]," +
-				"div.DCL_set_wrap input[type=number] { padding: 2px 5px; margin: 0 4px 0 0; }" +
-				""
-			);
-			dclset.wrap = cElement("div", document.body, {id:"DCL_set_wrap", className:"DCL_set_wrap"});
-		}
 
 		dclset.body = cElement("div", dclset.wrap, {id:"DCL_set", className:"body"});
 		dclset.body.mdibg = cElement("div", dclset.body, {id:"DCL_set_mdibg"});
@@ -1245,33 +1263,34 @@ function menuFunc() {
 	}
 
 	if(MODE.list) {
-		css +=
-			".btn_voice_ps{display:inline-block;position:relative;width:166px;height:20px;z-index:0;background:url(http://wstatic.dcinside.com/gallery/images/voice/btn_voice_web.gif) 0 0 no-repeat;}" +
-			".btn_voice_ps a.btn_voice_play{display:inline-block;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_play.gif) 12px 5px no-repeat;color:#5964f4;width:141px;height:20px;line-height:20px;text-align:left;padding-left:25px;font-size:11px;font-family:Dotum,'돋움';text-decoration:none;}" +
-			".btn_voice_ps a.btn_voice_stop{display:inline-block;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_stop.gif) 12px 6px no-repeat;color:#666666;width:141px;height:20px;line-height:20px;text-align:left;padding-left:25px;font-size:11px;font-family:Dotum,'돋움';text-decoration:none;}" +
-			".btn_voice_ps a.btn_voice_stop span{margin-left:40px}" +
-			".btn_voice_ps a.btn_voice_play span{margin-left:40px}" +
-			".btn_voice_info{display:inline-block;width:25px;height:20px;position:absolute;top:0;right:0;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_info.gif) center center no-repeat}" +
-			"#dgn_voice_pop_info{position:absolute;z-index:9999;top:50%;left:" + (document.body.offsetWidth / 2 - 167) + "px;font-size:12px;font-family:Dotum,'돋움'}" +
-			"#dgn_voice_pop_info div,#dgn_voice_pop_info p{margin:0;padding:0}" +
-			"#dgn_voice_pop_info .pop_info_top{display:block;width:335px;height:15px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_top.png) 0 bottom no-repeat;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_top.png', sizingMethod='crop');}" +
-			"#dgn_voice_pop_info .pop_info_con{display:block;width:335px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_center.png) ;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_center.png', sizingMethod='crop');background-repeat: 0 repeat-y}" +
-			"#dgn_voice_pop_info .pop_info_bottom{display:block;width:335px;height:19px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_bottom.png) 0 0 no-repeat;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_bottom.png', sizingMethod='crop');}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_1{position:relative;margin:0px 18px;padding:3px 0 6px 0;border-bottom:1px solid #d9d9d9;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_1 span{background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_info1.gif) 0 center no-repeat;padding:2px 0 0px 20px}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_1 span img{vertical-align:middle}" +
-			"#dgn_voice_pop_info .pop_info_con .btn_close{position:absolute;top:0px;right:5px;*top:3px;_right:20px;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_2{position:relative;margin:0px 18px;padding:10px 0 6px 0;font-size:11px;color:#3f3f3f;line-height:16px}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_2 p{text-decoration:underline;color:#707070;margin:5px 0;font-size:11px;letter-spacing:0}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_2 p a{color:#707070;text-decoration:underline;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3{position:relative;margin:0px 18px;padding:10px;background:#f2f2f2;font-size:11px;color:#3f3f3f;line-height:16px}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 p{color:#4a65ef;font-size:11px;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url{margin-top:3px;font-size:12px}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url span{padding-left:5px;color:#4c4c4c;font-size:12px}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url a{color:#4c4c4c;font-size:12px;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_txt{position:relative;margin-top:8px;width:200px;font-size:12px;height:70px;color:#817f7f;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_txt span{font-size:12px;}" +
-			"#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_qr{position:absolute;top:50px;right:10px;_right:25px;}";
+		css += ''
+				+ ".btn_voice_ps{display:inline-block;position:relative;width:166px;height:20px;z-index:0;background:url(http://wstatic.dcinside.com/gallery/images/voice/btn_voice_web.gif) 0 0 no-repeat;}"
+				+ ".btn_voice_ps a.btn_voice_play{display:inline-block;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_play.gif) 12px 5px no-repeat;color:#5964f4;width:141px;height:20px;line-height:20px;text-align:left;padding-left:25px;font-size:11px;font-family:Dotum,'돋움';text-decoration:none;}"
+				+ ".btn_voice_ps a.btn_voice_stop{display:inline-block;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_stop.gif) 12px 6px no-repeat;color:#666666;width:141px;height:20px;line-height:20px;text-align:left;padding-left:25px;font-size:11px;font-family:Dotum,'돋움';text-decoration:none;}"
+				+ ".btn_voice_ps a.btn_voice_stop span{margin-left:40px}"
+				+ ".btn_voice_ps a.btn_voice_play span{margin-left:40px}"
+				+ ".btn_voice_info{display:inline-block;width:25px;height:20px;position:absolute;top:0;right:0;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_info.gif) center center no-repeat}"
+				+ "#dgn_voice_pop_info{position:absolute;z-index:9999;top:50%;left:" + (document.body.offsetWidth / 2 - 167) + "px;font-size:12px;font-family:Dotum,'돋움'}"
+				+ "#dgn_voice_pop_info div,#dgn_voice_pop_info p{margin:0;padding:0}"
+				+ "#dgn_voice_pop_info .pop_info_top{display:block;width:335px;height:15px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_top.png) 0 bottom no-repeat;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_top.png', sizingMethod='crop');}"
+				+ "#dgn_voice_pop_info .pop_info_con{display:block;width:335px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_center.png) ;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_center.png', sizingMethod='crop');background-repeat: 0 repeat-y}"
+				+ "#dgn_voice_pop_info .pop_info_bottom{display:block;width:335px;height:19px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_bottom.png) 0 0 no-repeat;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_bottom.png', sizingMethod='crop');}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_1{position:relative;margin:0px 18px;padding:3px 0 6px 0;border-bottom:1px solid #d9d9d9;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_1 span{background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_info1.gif) 0 center no-repeat;padding:2px 0 0px 20px}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_1 span img{vertical-align:middle}"
+				+ "#dgn_voice_pop_info .pop_info_con .btn_close{position:absolute;top:0px;right:5px;*top:3px;_right:20px;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_2{position:relative;margin:0px 18px;padding:10px 0 6px 0;font-size:11px;color:#3f3f3f;line-height:16px}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_2 p{text-decoration:underline;color:#707070;margin:5px 0;font-size:11px;letter-spacing:0}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_2 p a{color:#707070;text-decoration:underline;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3{position:relative;margin:0px 18px;padding:10px;background:#f2f2f2;font-size:11px;color:#3f3f3f;line-height:16px}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 p{color:#4a65ef;font-size:11px;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url{margin-top:3px;font-size:12px}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url span{padding-left:5px;color:#4c4c4c;font-size:12px}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url a{color:#4c4c4c;font-size:12px;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_txt{position:relative;margin-top:8px;width:200px;font-size:12px;height:70px;color:#817f7f;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_txt span{font-size:12px;}"
+				+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_qr{position:absolute;top:50px;right:10px;_right:25px;}"
+				+ ''
 	}
 	addStyle(css);
 
@@ -1471,6 +1490,100 @@ function menuFunc() {
 	if(P.menuPos === "top" && $("DCL_menuUlSub")) {
 		document.body.addEventListener("click",funcList.menuclose);
 	}
+
+	// 간단 글쓰기 폼
+	document.querySelector('span.f_r > a').addEventListener('click', function(e) {
+		if(writeForm = document.querySelector('form#DCL_writeForm')) removeElement(writeForm);
+		e.preventDefault();
+		simpleRequest('/board/write/?id=' + _ID, function(e) {
+			var writeBody = e.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)<\/body>/)[1].toDomElement();
+
+			addStyle(''
+						+ 'form#DCL_writeForm { position: fixed; width: 640px; height: 480px; background-color: white; border: 1px solid rgba(0,0,0,.3); bottom: 60px; right: 30px; z-index: 120; padding-top: 111px; padding-bottom: 41px; box-sizing: border-box; /*visibility: hidden;*/ }'
+						+ 'form#DCL_writeForm * { font-family: "Segoe UI", "Meiryo UI", "Malgun Gothic", "Dotum", sans-serif; }'
+
+						+ 'div#DCL_writeFormTitle { background-color: #444; color: white; font-size: 15px; font-weight: normal; padding: 10px 15px; }'
+						+ 'div#DCL_writeFormTitle > h1 { font-size: 15px; font-weight: normal; }'
+
+						+ 'div#DCL_writeInfoDiv { position: absolute; top: 0; left: 0; right: 0; }'
+						+ 'div#DCL_writeInfoDiv > div[name="name"] { font-weight: bold; }'
+						+ 'div#DCL_writeInfoDiv > input,'
+						+ 'div#DCL_writeInfoDiv > div[name="name"] { display: block; width: 100%; border: 0; border-bottom: 1px solid #aaa; padding: 10px; font-size: 13px; height: 38px; box-sizing: border-box; }'
+						+ 'div#DCL_writeInfoDiv > input[name="name"] { border-right: 1px solid #aaa; }'
+						+ 'div#DCL_writeInfoDiv > input[name="name"],'
+						+ 'div#DCL_writeInfoDiv > input[name="password"] { float: left; width: 50%; }'
+
+	/*					+ 'form#DCL_writeForm > div#dccon-textarea { width: 100%; height: 100%; padding: 10px; font-size: 13px; font-weight: normal; box-sizing: border-box; }'
+						+ 'form#DCL_writeForm > div#dccon-textarea[contentEditable=true]:empty:before{ content:attr(data-ph); color: silver; }'*/
+
+						+ 'form#DCL_writeForm > textarea { width: 100%; height: 100%; padding: 10px; border: 0; font-size: 13px; font-weight: normal; box-sizing: border-box; }'
+
+						+ 'div#DCL_writeBottomDiv { position: absolute; bottom: 0; left: 0; right: 0; height: 41px; border-top: 1px solid #aaa; background-color: #eee; padding: 3px; box-sizing: border-box; }'
+						+ 'div#DCL_writeBottomDiv > input[type="button"],'
+						+ 'div#DCL_writeBottomDiv > input[type="submit"] { font-size: 13px; line-height: 20px; padding: 3px 20px; border-radius: 3px; margin: 3px; background-color: white; background-image: linear-gradient(0deg,#eee,#fff); border: 1px solid #aaa; }'
+						+ 'div#DCL_writeBottomDiv > input[type="submit"] { background-color: #5b7ce5; background-image: linear-gradient(0deg,#5b7ce5,#6987e8); border: 1px solid #2049cf; color: white; }'
+						+ 'div#DCL_writeBottomDiv > a { font-weight: normal; color: blue; font-size: 12px; line-height: 20px; margin: 3px; padding: 3px; display: inline-block; float: right; }'
+				);
+
+			var writeForm = cElement('form',document.querySelector('div.btn_bottom'),{id:'DCL_writeForm',action:'http://gall.dcinside.com/forms/article_submit',method:'post'/*,enctype:'multipart/form-data'*/});
+			var writeInfoDiv = cElement('div',writeForm,{id:'DCL_writeInfoDiv'});
+				var writeFormTitle = cElement('div',writeInfoDiv,{id:'DCL_writeFormTitle'});
+				cElement('h1',writeFormTitle,{textContent:'간단 글쓰기'});
+				if(_GID) {
+					cElement('div',writeInfoDiv,{textContent:_GID,name:'name'});
+				} else {
+					cElement('input',writeInfoDiv,{type:'text',name:'name',placeholder:'닉네임',required:'required'});
+					cElement('input',writeInfoDiv,{type:'password',name:'password',placeholder:'비밀번호',required:'required'});
+				}
+				cElement('input',writeInfoDiv,{type:'text',name:'subject',placeholder:'제목',required:'required'}).focus();
+				for(var i=(target = writeBody.querySelector('form#write').querySelectorAll('input[type="hidden"]')).length;i--;) {
+					cElement('input',writeInfoDiv,{type:'hidden',name:target[i].name,value:target[i].value});
+				}
+				
+			cElement('textarea',writeForm,{name:'memo',required:'required'});
+			
+			var writeBottomDiv = cElement('div',writeForm,{id:'DCL_writeBottomDiv'});
+				cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
+					e.preventDefault();
+					simpleRequest("/block/block",
+						function(r) {
+							console.log(r.responseText);
+							if(writeForm.querySelector('input[name="block_key"]'))
+								writeForm.querySelector('input[name="block_key"]').value = r.responseText;
+							else
+								cElement('input',writeInfoDiv,{type:'hidden',name:'block_key',value:r.responseText});
+							
+							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/\n/g,'<br>');
+							var data = formWalk(writeForm);
+							data = data.slice(0,data.length-1);
+							bfloc = location.toString();
+							history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/write/?id='+_ID);
+							simpleRequest('/forms/article_submit',function(r) {
+								history.pushState(bfloc, bfloc, bfloc);
+								console.log(r.responseText);
+								if((reply = r.responseText.split('||')).length>1) {
+									if(reply[0] == 'true') {
+										softLoad('/board/view/?id='+_ID+'&no='+reply[1]);
+										removeElement(writeForm);
+									}
+									else
+										alert(reply[1]);
+								}
+								else
+									alert(r.responseText);
+							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},data);
+						},
+						"POST",{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
+							''
+						+ 'ci_t=' + writeForm.querySelector('input[name="ci_t"]').value + '&'
+						+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
+						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
+					);
+				});
+				cElement('input',writeBottomDiv,{type:'button',value:'취소'},function(){ if(confirm('작성하신 내용이 손실됩니다.\n\n계속하시겠습니까?')) removeElement(writeForm); });
+				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
+		});
+	});
 }
 
 function wideFunc() {
@@ -1578,8 +1691,6 @@ function pageLoad(p) {
 	for(i=buttons.length;i--;) {
 		buttons[i].href = buttons[i].href.replace(/([?&]id=)[^&]+/,'$1'+_ID);
 	}
-
-	console.log(buttons);
 
 	cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... ("+(p+PAGE)+" 페이지)</span>";
 	
@@ -2354,8 +2465,53 @@ Layer.prototype.call = function() {
 				cElement("span",bottomBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
 				cElement("span",bottomBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
 				cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('http://'+location.host+'/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
-				cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"});
-				cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"});
+				cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn",target:"_blank"});
+				cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"},function(e) {
+					e.preventDefault();
+					simpleRequest('/board/delete/?id='+_ID+'&no='+layer.no, function(r) {
+						var rBody = r.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)(\<\!\-\- \/\/dgn_gallery_wrap \-\-\>|<\/body>)/)[1].toDomElement();
+
+						if(delForm = rBody.querySelector('form#delete')) {
+							if(!confirm('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하시겠습니까?'))
+								return;
+							simpleRequest('/forms/delete_submit',function(r) {
+									if((reply = r.responseText.split('||')).length>1) {
+										if(reply[0] == 'true')
+											softLoad('/board/lists/?id='+_ID);
+										else
+											alert(reply[1]);
+									}
+									else
+										alert(r.responseText);
+								},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+						} else if(delForm = rBody.querySelector('form#password_confirm')) {
+							if(!(delForm.querySelector('input[name="password"]').value=prompt('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하려면 비밀번호를 입력해 주세요.')))
+								return;
+							
+							simpleRequest('/forms/delete_password_submit',function(r) {
+									if((reply = r.responseText.split('||')).length>1) {
+										if(reply[0] == 'true') {
+											cElement('input',delForm,{type:'hidden',name:'key',value:reply[1]});
+											simpleRequest('/forms/delete_submit',function(r) {
+												if((reply = r.responseText.split('||')).length>1) {
+													if(reply[0] == 'true')
+														softLoad('/board/lists/?id='+_ID);
+													else
+														alert(reply[1]);
+												}
+												else
+													alert(r.responseText);
+											},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+										}
+										else
+											alert(reply[1]);
+									}
+									else
+										alert(r.responseText);
+								},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+						}
+					});
+				});
 				cElement("span",bottomBtn,{className:"DCL_layerLoad"});
 				div.appendChild(fragment);
 			} else { // 로드 에러
