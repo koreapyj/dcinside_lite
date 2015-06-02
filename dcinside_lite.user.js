@@ -1554,6 +1554,7 @@ function menuFunc() {
 								cElement('input',writeInfoDiv,{type:'hidden',name:'block_key',value:r.responseText});
 							
 							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/\n/g,'<br>');
+							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/ /g,'&nbsp;');
 							var data = formWalk(writeForm);
 							data = data.slice(0,data.length-1);
 							bfloc = location.toString();
