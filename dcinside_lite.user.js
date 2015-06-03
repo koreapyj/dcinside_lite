@@ -1210,17 +1210,17 @@ function titleFunc() {
 // 기능 사용 버튼 추가
 function menuFunc() {
 	var css =
-		"div#DCL_menuDiv {position:relative; width:"+ P.pageWidth +"px; margin:0 auto; z-index:100}" +
+		"div#DCL_menuDiv {position:relative; margin:0 auto; z-index:100}" +
 		"div#DCL_menuWrap {position: fixed; background-color:#fff ; z-index:100}" +
 		"li.DCL_menuOn {color:#000 !important}"+
 		".hidden {display:none;}";
 	
 	if(P.menuPos === "top") {
 		css +=
-			"html > body {padding-top: 46px;}" +
+			"html > body { padding-top: 46px; max-width:"+P.pageWidth+"px; width: 100%; }" +
 			"div#DCL_menuDiv {font-family: " + P.fontList + "; top: 0; left: 0; right: 0; width: auto; height: 46px; background: white; border-bottom: 1px solid rgba(0,0,0,0.15); position: fixed;}" +
 			"div#DCL_menuDiv a {text-decoration: none;}" +
-			"div#DCL_menuWrap {position: relative; margin: 0 auto; border: 0; background: transparent; width:"+P.pageWidth+"px; height: 46px;}" +
+			"div#DCL_menuWrap {position: relative; margin: 0 auto; border: 0; background: transparent; max-width:"+P.pageWidth+"px; width: 100%; height: 46px;}" +
 			"div#DCL_menuWrap:before {content: 'DCinside Lite r" + R_VERSION + "'; display: block; position: absolute; z-index: -1; left: 0; right: 0; margin: 0 auto; text-align: center; color: black; line-height: 46px; opacity: .15;}" +
 			"h2#DCL_menuTitle {float: right; height: 46px;}" +
 			"h2#DCL_menuTitle > img.DCL_profileImage {display: block; box-sizing: border-box; margin-top: 3px; width: 40px; height: 40px; border: 2px solid white; border-radius: 20px; transition: all .15s;}" +
@@ -1247,7 +1247,48 @@ function menuFunc() {
 			"ul.DCL_menuUl > li > a:hover," +
 			"ul.DCL_menuUl > li > a.DCL_linkThis {height: 42px;}" +
 			"ul.DCL_menuUl > li > a.DCL_menuSep {display: none;}" +
+			
+			"div#DCL_writeBtn { float: right; margin: 7px 0 7px 15px; }" +
+			"div#DCL_writeBtn > a { padding: 8px 15px; display: inline-block; background-color: #5b7ce5; background-image: linear-gradient(0deg,#5b7ce5,#6987e8); border: 1px solid #2049cf; color: white; border-radius: 3px; box-sizing: border-box; }" +
 			"";
+
+		css +=''
+				+ '@media screen and (max-width: 700px) {'
+					+ 'div.list_table { border: none !important; }'
+					+ '#list_table,'
+					+ '#list_table > tbody { display: block; }'
+					+ '#list_table > thead,'
+					+ '#list_table > colgroup { display: none; }'
+					+ '#list_table > tbody > tr:first-of-type:after { content: ""; display: block; clear: both; }'
+					+ '#list_table > tbody > tr:first-of-type > td { display: block; padding: 5px; }'
+					+ '#list_table > tbody > tr:first-of-type > td:after { content: ""; display: block; clear: both; }'
+					+ '#list_table > tbody > tr { display: block; }'
+					+ '#list_table > tbody > tr > td { display: block; height: initial !important; }'
+					+ '#list_table > tbody > tr > td:nth-of-type(3) { border-right: 1px solid #ddd; border-left: 1px solid #ddd; padding: 0 7px !important; }'
+					+ '#list_table > tbody > tr.tb > td:nth-of-type(5),'
+					+ '#list_table > tbody > tr.tb > td:nth-of-type(6) { display: none; }'
+					+ '#list_table > tbody > tr > td:nth-of-type(2) { font-size: 16px !important; }'
+					+ '#list_table > tbody > tr.tb { padding: 10px; border-bottom: 1px solid #ddd; }'
+					+ '#list_table > tbody > tr.tb > td { display: inline; border-bottom: none !important; padding: 0; margin: 0; line-height: initial !important; }'
+					+ '#list_table > tbody > tr.tb > td:first-of-type { display: none; }'
+					+ 'div.DCL_layerDiv { max-height: none !important; }'
+					+ 'div.DCL_layerActive,'
+					+ 'tr.DCL_layerActive > td,'
+					+ 'tr.DCL_layerActive+tr > td { border-top: none; }'
+					+ 'tr.DCL_layerTr > td { border-top: none !important; }'
+					+ 'tr.DCL_layerActive { border-top: 2px solid black; }'
+					+ 'tr.DCL_layerActive { border-left: 2px solid black; border-right: 2px solid black; box-sizing: border-box; border-top-left-radius: 5px; border-top-right-radius: 5px; }'
+					+ 'table.DCL_layerComment { display: block; }'
+					+ 'table.DCL_layerComment > caption { display: block; font: inherit; }'
+					+ 'table.DCL_layerComment > tr { display: block; border-bottom: 1px solid #ddd; position: relative; padding: 10px 28px 25px 10px; }'
+					+ 'table.DCL_layerComment > tr > td { display: inline; border-bottom: none !important; height: auto !important; }'
+					+ 'table.DCL_layerComment > tr > td:nth-of-type(1) { position: absolute; bottom: 5px; left: 5px; }'
+					+ 'table.DCL_layerComment > tr > td:nth-of-type(3) { position: absolute; bottom: 5px; right: 0px; }'
+					+ 'table.DCL_layerComment > tr > td:nth-of-type(4) { position: absolute; top: 10px; right: 5px; }'
+
+					+ 'div.DCL_layerContent img { max-width: 100% !important; }'
+				+ '}'
+				+	'';
 	} else {
 		css +=
 			"html > body {padding-left: 190px; padding-right: 10px;}" +
@@ -1260,7 +1301,7 @@ function menuFunc() {
 			"ul.DCL_menuUl > li > a.DCL_menuSep {font-size: 0; height: 0; padding: 0; border-bottom: 1px dotted #ddd;}" +
 			"ul.DCL_menuUl > li > a.DCL_linkThis {position: relative; font-weight: bold;}" +
 			"ul.DCL_menuUl > li > a.DCL_linkThis:after {display: block; content: '›'; float: right; font-weight: normal; font-size: 15px; position: absolute; right: 20px; top: 0; line-height: 35px;}" +
-			"div#DCL_menuWrap:after {content: 'DCinside Lite r" + R_VERSION + "'; display: block; line-height: 15px; padding: 10px 20px; font-size: 12px; text-align: left; cursor: default; white-space: nowrap; color: #aaa;}" +
+//			"div#DCL_menuWrap:after {content: 'DCinside Lite r" + R_VERSION + "'; display: block; line-height: 15px; padding: 10px 20px; font-size: 12px; text-align: left; cursor: default; white-space: nowrap; color: #aaa;}" +
 			"h2#DCL_menuTitle:before {content: ''; display: block; position: fixed; top: 0; left: 0; width: inherit; height: inherit; background-color: #E7E7EA; background-image: url('http://zzbang.dcinside.com/" + _ID + "_temp.jpg'); background-position: center; background-size: cover; z-index: -1;}" +
 			"h2#DCL_menuTitle {box-sizing: border-box; padding: 55px 10px 0 20px; text-align: left; width: inherit; height: 95px; cursor: default; font-size: 15px; font-weight: normal; color: white; background-image: linear-gradient(rgba(0,0,0,.0),rgba(0,0,0,.9)); background-size: 100% 60%; background-repeat: no-repeat; background-position: bottom; z-index: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}" +
 			"h2#DCL_menuTitle > img.DCL_profileImage {float: left; width: 40px; height: 40px; margin-right: 7px; background-size: cover; border: 2px solid white; border-radius: 20px; box-sizing: border-box; margin-top: -7px; margin: -7px 7px 0 -10px;}" +
@@ -1269,7 +1310,10 @@ function menuFunc() {
 			"h2#DCL_menuTitle > a > img.userType {margin-left: 3px;}" +
 			"h2#DCL_menuTitle > em {display: block; font-size: 12px; font-weight: normal; color: #ccc;}" +
 			"ul#DCL_menuUl:after {content: ''; display: block; clear: both; width: 0; height: 0; overflow: hidden;}" +
-			"ul#DCL_linkUl {border-top: 1px dotted #ddd;}";
+			"ul#DCL_linkUl {border-top: 1px dotted #ddd;}" +
+
+			"div#DCL_writeBtn { display: none; }" +
+			"";
 	}
 
 	if(MODE.list) {
@@ -1373,6 +1417,7 @@ function menuFunc() {
 				}
 	};
 	
+	cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
 	var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},funcList.refresh);
 
 	// 즐겨찾기 링크 정리
@@ -1557,164 +1602,166 @@ function menuFunc() {
 
 	// 간단 글쓰기 폼
 	$('span.f_r > a').addEventListener('click', function(e) {
-		simpleRequest('/board/write/?id=' + _ID, function(e) {
-
-			function uploadCallback(e) {
-				console.log(JSON.parse(e.responseText));
-				var r = JSON.parse(e.responseText)['files'];
-				writeForm.imgHtml='';
-				for(i=0;i<r.length;i++) {
-					if(!r[i].url)
-						continue;
-					writeForm.imgHtml+='<img src="' + r[i].url + '" class="txc-image" />\n';
-					cElement('input',writeForm,{name:'file_write['+(writeForm.fileIdx++)+'][file_no]',value:r[i].file_temp_no});
-				}
-				writeForm.querySelector('div.textarea').innerHTML = writeForm.imgHtml + writeForm.querySelector('div.textarea').innerHTML;
-				$('div#DCL_writeBottomDiv input[type="submit"]').disabled=null;
-			}
-
-			if(writeForm = $('form#DCL_writeForm')) removeElement(writeForm);
-			var writeBody = e.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)<\/body>/)[1].toDomElement();
-			var writeForm = cElement('form',[document.body,0],{id:'DCL_writeForm',action:'http://gall.dcinside.com/forms/article_submit',method:'post'/*,enctype:'multipart/form-data'*/});
-			writeForm.fileIdx = 0;
-			var writeInfoDiv = cElement('div',writeForm,{id:'DCL_writeInfoDiv'});
-				var writeFormTitle = cElement('div',writeInfoDiv,{id:'DCL_writeFormTitle'});
-					cElement('h1',writeFormTitle,{textContent:'간단 글쓰기'});
-					var writeFormButtons = cElement('ul',writeFormTitle);
-						cElement('a',cElement('li',writeFormButtons),{textContent:'×'},function(){ if(confirm('작성하신 내용이 손실됩니다.\n\n계속하시겠습니까?')) removeElement(writeForm); });
-				
-				if(_GID) {
-					cElement('div',writeInfoDiv,{textContent:_GID,name:'name'});
-				} else {
-					cElement('input',writeInfoDiv,{type:'text',name:'name',placeholder:'닉네임',required:'required'});
-					cElement('input',writeInfoDiv,{type:'password',name:'password',placeholder:'비밀번호',required:'required'});
-				}
-				cElement('input',writeInfoDiv,{type:'text',name:'subject',placeholder:'제목',required:'required'}).focus();
-				for(var i=(target = writeBody.querySelector('form#write').querySelectorAll('input[type="hidden"]')).length;i--;) {
-					cElement('input',writeInfoDiv,{type:'hidden',name:target[i].name,value:target[i].value});
-				}
-				
-			cElement('textarea',writeForm,{name:'memo',required:'required'});
-			writeFormEditor = cElement('div',writeForm,{className:'textarea','contenteditable':'true'});
-			
-			var writeBottomDiv = cElement('div',writeForm,{id:'DCL_writeBottomDiv'});
-				cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
-					e.preventDefault();
-					this.disabled='disabled';
-					simpleRequest("/block/block",
-						function(r) {
-							if(writeForm.querySelector('input[name="block_key"]'))
-								writeForm.querySelector('input[name="block_key"]').value = r.responseText;
-							else
-								cElement('input',writeInfoDiv,{type:'hidden',name:'block_key',value:r.responseText});
-/*							if(writeForm.imgHtml)
-								writeForm.querySelector('textarea').value = writeForm.imgHtml + writeForm.querySelector('textarea').value;
-							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/\n/g,'<br>');
-							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/ /g,'&nbsp;');*/
-							writeForm.querySelector('textarea').value = writeForm.querySelector('div.textarea').innerHTML;
-							var data = formWalk(writeForm);
-							data = data.slice(0,data.length-1);
-							bfloc = location.toString();
-							history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/write/?id='+_ID);
-							simpleRequest('/forms/article_submit',function(r) {
-								history.pushState(bfloc, bfloc, bfloc);
-								if((reply = r.responseText.split('||')).length>1) {
-									if(reply[0] == 'true') {
-										softLoad('/board/view/?id='+_ID+'&no='+reply[1]);
-										removeElement(writeForm);
-									}
-									else
-										alert(reply[1]);
-								}
-								else
-									alert(r.responseText);
-							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},data);
-						},
-						"POST",{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
-							''
-						+ 'ci_t=' + writeForm.querySelector('input[name="ci_t"]').value + '&'
-						+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
-						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
-					);
-				});
-				var writeToolbox = cElement('ul',writeBottomDiv);
-					cElement('a',cElement('li',writeToolbox),{title:'굵게',textContent:'B',className:'DCL_editor_bold'});
-					cElement('a',cElement('li',writeToolbox),{title:'기울임',textContent:'I',className:'DCL_editor_italic'});
-					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
-					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});
-
-					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'File'},function() {$('input#DCL_fileSelectDlg').click();});
-
-				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
-
-			var fileSelectDlg = cElement('input',writeForm,{type:'file',id:'DCL_fileSelectDlg','multiple':'multiple'})
-			fileSelectDlg.style.display='none';
-			fileSelectDlg.addEventListener('change',function(e) {
-				$('div#DCL_writeBottomDiv input[type="submit"]').disabled='disabled';
-				fileUpload(e.target.files,writeForm.querySelector('input[name="r_key"]')?writeForm.querySelector('input[name="r_key"]').value:null,uploadCallback);
-			});
-			
-			var dropzoneDiv = cElement('div',writeForm,{className:'DCL_dropzoneDiv'});
-			cElement('span', dropzoneDiv);
-
-			writeForm.addEventListener("dragover", function(e) {
-				e.stopPropagation();
-				e.preventDefault();
-				e.dataTransfer.dropEffect = 'copy';
-				dropzoneDiv.style.visibility = 'visible';
-			});
-			writeForm.addEventListener("dragleave", function(e) {
-				dropzoneDiv.style.visibility = null;
-			});
-			writeForm.addEventListener("drop", function(e) {
-				e.stopPropagation();
-				e.preventDefault();
-				dropzoneDiv.style.visibility = null;
-
-				if(e.dataTransfer.files.length>0) {
-					$('div#DCL_writeBottomDiv input[type="submit"]').disabled='disabled';
-					fileUpload(e.dataTransfer.files,writeForm.querySelector('input[name="r_key"]')?writeForm.querySelector('input[name="r_key"]').value:null,uploadCallback);
-				}
-			});
-		});
+		openSimpleWriteForm();
 		e.preventDefault();
 	});
 }
 
-function fileUpload(files,r_key,callback) {
-	function filePush(f) {
-		_this.segments[this.idx]+=f.target.result + '\r\n';
-		_this.now--;
-		isDone();
-	}
+function openSimpleWriteForm() {
+	simpleRequest('/board/write/?id=' + _ID, function(e) {
+		function uploadCallback(e) {
+			console.log(JSON.parse(e.responseText));
+			var r = JSON.parse(e.responseText)['files'];
+			writeForm.imgHtml='';
+			for(i=0;i<r.length;i++) {
+				if(!r[i].url)
+					continue;
+				writeForm.imgHtml+='<img src="' + r[i].url + '" class="txc-image" />\n';
+				cElement('input',writeForm,{name:'file_write['+(writeForm.fileIdx++)+'][file_no]',value:r[i].file_temp_no});
+			}
+			writeForm.querySelector('div.textarea').innerHTML = writeForm.imgHtml + writeForm.querySelector('div.textarea').innerHTML;
+			$('div#DCL_writeBottomDiv input[type="submit"]').disabled=null;
+		}
 
-	function isDone() {
-		if(_this.now>0) return;
-		done();
-	}
+		if(writeForm = $('form#DCL_writeForm')) removeElement(writeForm);
+		var writeBody = e.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)<\/body>/)[1].toDomElement();
+		var writeForm = cElement('form',[document.body,0],{id:'DCL_writeForm',action:'http://gall.dcinside.com/forms/article_submit',method:'post'/*,enctype:'multipart/form-data'*/});
+		writeForm.fileIdx = 0;
+		var writeInfoDiv = cElement('div',writeForm,{id:'DCL_writeInfoDiv'});
+			var writeFormTitle = cElement('div',writeInfoDiv,{id:'DCL_writeFormTitle'});
+				cElement('h1',writeFormTitle,{textContent:'간단 글쓰기'});
+				var writeFormButtons = cElement('ul',writeFormTitle);
+					cElement('a',cElement('li',writeFormButtons),{textContent:'×'},function(){ if(confirm('작성하신 내용이 손실됩니다.\n\n계속하시겠습니까?')) removeElement(writeForm); });
+			
+			if(_GID) {
+				cElement('div',writeInfoDiv,{textContent:_GID,name:'name'});
+			} else {
+				cElement('input',writeInfoDiv,{type:'text',name:'name',placeholder:'닉네임',required:'required'});
+				cElement('input',writeInfoDiv,{type:'password',name:'password',placeholder:'비밀번호',required:'required'});
+			}
+			cElement('input',writeInfoDiv,{type:'text',name:'subject',placeholder:'제목',required:'required'}).focus();
+			for(var i=(target = writeBody.querySelector('form#write').querySelectorAll('input[type="hidden"]')).length;i--;) {
+				cElement('input',writeInfoDiv,{type:'hidden',name:target[i].name,value:target[i].value});
+			}
+			
+		cElement('textarea',writeForm,{name:'memo',required:'required'});
+		writeFormEditor = cElement('div',writeForm,{className:'textarea','contenteditable':'true'});
+		
+		var writeBottomDiv = cElement('div',writeForm,{id:'DCL_writeBottomDiv'});
+			cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
+				e.preventDefault();
+				this.disabled='disabled';
+				simpleRequest("/block/block",
+					function(r) {
+						if(writeForm.querySelector('input[name="block_key"]'))
+							writeForm.querySelector('input[name="block_key"]').value = r.responseText;
+						else
+							cElement('input',writeInfoDiv,{type:'hidden',name:'block_key',value:r.responseText});
+/*						if(writeForm.imgHtml)
+							writeForm.querySelector('textarea').value = writeForm.imgHtml + writeForm.querySelector('textarea').value;
+						writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/\n/g,'<br>');
+						writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/ /g,'&nbsp;');*/
+						writeForm.querySelector('textarea').value = writeForm.querySelector('div.textarea').innerHTML;
+						var data = formWalk(writeForm);
+						data = data.slice(0,data.length-1);
+						bfloc = location.toString();
+						history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/write/?id='+_ID);
+						simpleRequest('/forms/article_submit',function(r) {
+							history.pushState(bfloc, bfloc, bfloc);
+							if((reply = r.responseText.split('||')).length>1) {
+								if(reply[0] == 'true') {
+									softLoad('/board/view/?id='+_ID+'&no='+reply[1]);
+									removeElement(writeForm);
+								}
+								else
+									alert(reply[1]);
+							}
+							else
+								alert(r.responseText);
+						},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},data);
+					},
+					"POST",{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
+						''
+					+ 'ci_t=' + writeForm.querySelector('input[name="ci_t"]').value + '&'
+					+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
+					+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
+				);
+			});
+			var writeToolbox = cElement('ul',writeBottomDiv);
+				cElement('a',cElement('li',writeToolbox),{title:'굵게',textContent:'B',className:'DCL_editor_bold'});
+				cElement('a',cElement('li',writeToolbox),{title:'기울임',textContent:'I',className:'DCL_editor_italic'});
+				cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
+				cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});
 
-	function done() {
-		console.log(_this.segments);
-		bfloc = location.toString();
-		history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');
-		simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
-	}
+				cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'File'},function() {$('input#DCL_fileSelectDlg').click();});
 
+			cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
 
-	var _this = this;
-	this.now = 0;
-	this.boundary = "----DCLiteFormBoundary" + Date.now().toString(16);
-	this.segments = [];
-	this.segments.push('Content-Disposition: form-data; name="r_key"\r\n\r\n'+r_key+'\r\n');
+		var fileSelectDlg = cElement('input',writeForm,{type:'file',id:'DCL_fileSelectDlg','multiple':'multiple'})
+		fileSelectDlg.style.display='none';
+		fileSelectDlg.addEventListener('change',function(e) {
+			$('div#DCL_writeBottomDiv input[type="submit"]').disabled='disabled';
+			fileUpload(e.target.files,writeForm.querySelector('input[name="r_key"]')?writeForm.querySelector('input[name="r_key"]').value:null,uploadCallback);
+		});
+		
+		var dropzoneDiv = cElement('div',writeForm,{className:'DCL_dropzoneDiv'});
+		cElement('span', dropzoneDiv);
 
-	for(i=files.length;i--;) {
-		f = files[i];
-		reader = new FileReader();
-		reader.idx = this.segments.length;
-		reader.onload = filePush;
-		this.segments.push('Content-Disposition: form-data; name="files[]"; filename="' + f.name.replace(/[\s\=\\"]/g,'\\$0') + '"\r\nContent-Type: ' + f.type + '\r\n\r\n');
-		this.now++;
-		reader.readAsBinaryString(f);
+		writeForm.addEventListener("dragover", function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			e.dataTransfer.dropEffect = 'copy';
+			dropzoneDiv.style.visibility = 'visible';
+		});
+		writeForm.addEventListener("dragleave", function(e) {
+			dropzoneDiv.style.visibility = null;
+		});
+		writeForm.addEventListener("drop", function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			dropzoneDiv.style.visibility = null;
+
+			if(e.dataTransfer.files.length>0) {
+				$('div#DCL_writeBottomDiv input[type="submit"]').disabled='disabled';
+				fileUpload(e.dataTransfer.files,writeForm.querySelector('input[name="r_key"]')?writeForm.querySelector('input[name="r_key"]').value:null,uploadCallback);
+			}
+		});
+	});
+
+	function fileUpload(files,r_key,callback) {
+		function filePush(f) {
+			_this.segments[this.idx]+=f.target.result + '\r\n';
+			_this.now--;
+			isDone();
+		}
+
+		function isDone() {
+			if(_this.now>0) return;
+			done();
+		}
+
+		function done() {
+			console.log(_this.segments);
+			bfloc = location.toString();
+			history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');
+			simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
+		}
+
+		var _this = this;
+		this.now = 0;
+		this.boundary = "----DCLiteFormBoundary" + Date.now().toString(16);
+		this.segments = [];
+		this.segments.push('Content-Disposition: form-data; name="r_key"\r\n\r\n'+r_key+'\r\n');
+
+		for(i=files.length;i--;) {
+			f = files[i];
+			reader = new FileReader();
+			reader.idx = this.segments.length;
+			reader.onload = filePush;
+			this.segments.push('Content-Disposition: form-data; name="files[]"; filename="' + f.name.replace(/[\s\=\\"]/g,'\\$0') + '"\r\nContent-Type: ' + f.type + '\r\n\r\n');
+			this.now++;
+			reader.readAsBinaryString(f);
+		}
 	}
 }
 
@@ -2153,9 +2200,9 @@ Layer.init = function() {
 		"tr.DCL_layerTr > td {border-width:2px 0 1px ; border-style:solid ; border-color:#000}" +
 		"tr.DCL_layerTr > td" + (P.listNumber?":first-child":":nth-child(2)") + " {border-left-width:2px ; border-radius:5px 0 0 0}" +
 		"tr.DCL_layerTr > td:nth-child("+(P.listRecom?"6":P.listCount?"5":P.listDate?"4":"3")+") {border-right-width:2px ; border-radius:0 5px 0 0}" +
-		"tr.DCL_layerTr + tr > td {border-style:solid; border-color: #000 !important; background:none; border-width:0 2px 2px 2px !important; border-radius:0 0 5px 5px; text-align: left !important;}" +
+		"tr.DCL_layerTr + tr > td {border-style:solid; background:none; border-width:0 2px 2px 2px !important; border-radius:0 0 5px 5px; text-align: left !important;}" +
 
-		"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto;}" +
+		"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto; }" +
 		".con_substance > *," +
 		"#dgn_gallery_left .list_table .list_tbody td > div table td {font-family: Gulim, sans-serif; font-size: 13px; line-height: 24px; color: #1e1e1e; font-weight: normal; border:0; text-align: left;}" +
 
@@ -2205,7 +2252,8 @@ Layer.init = function() {
 		"input.DCL_replyPassword {position:absolute ; bottom:0 ; right:40px ; width:75px}" +
 		"input.DCL_replySubmit {position: absolute; bottom: 0; right: 5px; width:35px ; height:20px !important ; font:8pt 돋움; padding: 0;}" +
 
-		"div.DCL_layerActive, tr.DCL_layerActive > td, tr.DCL_layerActive+tr > td {border-color:#333 !important}";
+		"tr.DCL_layerActive > td, tr.DCL_layerActive+tr > td { border-bottom-color: #333 !important; }" +
+		"";
 
 	if(P.layerThumb) {
 		var tw = P.thumbWidth;
@@ -2340,319 +2388,334 @@ Layer.prototype.call = function() {
 	cAdd(document.body,"DCL_layerOn");
 	Layer.now = this;
 	
-	simpleRequest("/board/view/?id="+_ID+"&no="+this.no,
-		function(response) {
-			if(!Layer.list[layer.t][layer.r]) {
-				return;
-			}
-			var text = response.responseText.replace(/^\s+/,"");
-			if(text.substr(0,9) === "<!DOCTYPE") {
-				text = text.substring(text.indexOf("<!-- dgn_content_de  -->"),text.lastIndexOf("<!-- //dgn_content_de -->"));
+	var topMenu = document.createDocumentFragment(); { // 레이어 상단 메뉴
+		var topBtn = cElement("p",topMenu,{className:"DCL_layerTop"});
+		cElement("span",topBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
+		cElement("span",topBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
+	}
 
-				var imgHTML = text.substring(text.indexOf("<div class=\"s_write\">"),text.indexOf("<!-- //con_substance -->"));
-				if(!imgHTML) { // 삭제된 게시물
-					loadSpan.textContent = "삭제된 글입니다.";
+	var bottomMenu = document.createDocumentFragment(),bottomBtn; { // 레이어 하단 메뉴
+		bottomBtn = cElement("p",bottomMenu,{className:"DCL_layerBottom"});
+		cElement("span",bottomBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
+		cElement("span",bottomBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
+		cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('http://'+location.host+'/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
+		cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn",target:"_blank"});
+		cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"},function(e) {
+			e.preventDefault();
+			simpleRequest('/board/delete/?id='+_ID+'&no='+layer.no, function(r) {
+				var rBody = r.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)(\<\!\-\- \/\/dgn_gallery_wrap \-\-\>|<\/body>)/)[1].toDomElement();
+
+				if(delForm = rBody.querySelector('form#delete')) {
+					if(!confirm('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하시겠습니까?'))
+						return;
+					simpleRequest('/forms/delete_submit',function(r) {
+							if((reply = r.responseText.split('||')).length>1) {
+								if(reply[0] == 'true')
+									softLoad('/board/lists/?id='+_ID);
+								else
+									alert(reply[1]);
+							}
+							else
+								alert(r.responseText);
+						},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+				} else if(delForm = rBody.querySelector('form#password_confirm')) {
+					if(!(delForm.querySelector('input[name="password"]').value=prompt('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하려면 비밀번호를 입력해 주세요.')))
+						return;
+					
+					simpleRequest('/forms/delete_password_submit',function(r) {
+							if((reply = r.responseText.split('||')).length>1) {
+								if(reply[0] == 'true') {
+									cElement('input',delForm,{type:'hidden',name:'key',value:reply[1]});
+									simpleRequest('/forms/delete_submit',function(r) {
+										if((reply = r.responseText.split('||')).length>1) {
+											if(reply[0] == 'true')
+												softLoad('/board/lists/?id='+_ID);
+											else
+												alert(reply[1]);
+										}
+										else
+											alert(r.responseText);
+									},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+								}
+								else
+									alert(reply[1]);
+							}
+							else
+								alert(r.responseText);
+						},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+				}
+			});
+		});
+		cElement("span",bottomBtn,{className:"DCL_layerLoad"});
+	}
+	var docFrag = document.createDocumentFragment();
+	var commFrag = document.createDocumentFragment();
+	var readytogo = (layer.mode!=='comment'?(P.layerComment?2:1):1);
+	if(layer.mode!=='comment') {
+		simpleRequest("/board/view/?id="+_ID+"&no="+this.no,
+			function(response) {
+				if(!Layer.list[layer.t][layer.r]) {
 					return;
 				}
+				readytogo--;
+				var text = response.responseText.replace(/^\s+/,"");
+				if(text.substr(0,9) === "<!DOCTYPE") {
+					text = text.substring(text.indexOf("<!-- dgn_content_de  -->"),text.lastIndexOf("<!-- //dgn_content_de -->"));
 
-				div.innerHTML = "";
-				var fragment = document.createDocumentFragment();
+					var imgHTML = text.substring(text.indexOf("<div class=\"s_write\">"),text.indexOf("<!-- //con_substance -->"));
+					if(!imgHTML) { // 삭제된 게시물
+						loadSpan.textContent = "삭제된 글입니다.";
+						return;
+					}
 
-				var topBtn = cElement("p",fragment,{className:"DCL_layerTop"});
-				cElement("span",topBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
-				cElement("span",topBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
+					if(layer.mode === "normal" && (P.layerText || P.layerImage)) {
+						var contentDiv = cElement("div",docFrag,{className:"DCL_layerContent"});
 
-				if(layer.mode === "normal" && (P.layerText || P.layerImage)) {
-					var contentDiv = cElement("div",fragment,{className:"DCL_layerContent"});
-
-					if(P.layerImage) {/*
-						var imgReg = /src=[\"\']*(http:\/\/[a-z0-9]+.dcinside.com\/viewimage\.php\?[^\"\' ]+)/g;
-						var imgExec = imgReg.exec(imgHTML);
-						if(imgExec) {
-							var imgUl = cElement("ul",contentDiv,{className:"DCL_layerImage"});
-							var imgLi;
-							var img,src;
-							do {
-								src = imgExec[1] || imgExec[2];
-								imgLi = cElement("li",imgUl);
-								img = cElement("img",imgLi,{src:src});
-								viewer.add(src,img);
-							} while( (imgExec=imgReg.exec(imgHTML)) );
-
-						}*/
-
-						var flashReg = /src=\'(http:\/\/mediafile\.dcinside\.com[^\']+)|insertFlash\(\"(http:\/\/flvs\.daum\.net[^\"]+)\", (\d+), (\d+)/g;
-						var flashExec = flashReg.exec(imgHTML);
-						var iframeReg = /width=\"(\d+)\"[^>]+height=\"(\d+)\"[^>]+src=\"(http:\/\/videofarm\.daum\.net[^\"]+)\"/g;
-						var iframeExec = iframeReg.exec(imgHTML);
-						if(flashExec || iframeExec) {
-							var flashUl = cElement("ul",contentDiv,{className:"DCL_layerFlash"});
-							if(flashExec) {
-								var flashLi;
+						if(P.layerImage) {/*
+							var imgReg = /src=[\"\']*(http:\/\/[a-z0-9]+.dcinside.com\/viewimage\.php\?[^\"\' ]+)/g;
+							var imgExec = imgReg.exec(imgHTML);
+							if(imgExec) {
+								var imgUl = cElement("ul",contentDiv,{className:"DCL_layerImage"});
+								var imgLi;
+								var img,src;
 								do {
-									flashLi = cElement("li",flashUl);
-									cElement("object",flashLi,{type:"application/x-shockwave-flash",data:flashExec[1]||flashExec[2],width:flashExec[3]||400,height:flashExec[4]||300});
-								} while( (flashExec=flashReg.exec(imgHTML)) );
-							}
-							if(iframeExec) {
-								var iframeLi;
-								do {
-									flashLi = cElement("li",flashUl);
-									cElement("iframe",flashLi,{src:iframeExec[3],width:iframeExec[1]||400,height:iframeExec[2]});
-								} while( (iframeExec=iframeReg.exec(imgHTML)) );
-							}
-						}
-					}
+									src = imgExec[1] || imgExec[2];
+									imgLi = cElement("li",imgUl);
+									img = cElement("img",imgLi,{src:src});
+									viewer.add(src,img);
+								} while( (imgExec=imgReg.exec(imgHTML)) );
 
-					if(P.layerText) {
-						var bfloc = document.location.toString();
-//						history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no);
-						var DivHtml = text.substring(text.indexOf("<!-- con_substance -->"),text.lastIndexOf('<!-- //con_substance -->'));
-						DivHtml= DivHtml.replace(/(<|<\/)(iframe|script)[^>]+>/g, "");
+							}*/
 
-						var textDiv = cElement("div",contentDiv,{className:"DCL_layerText",innerHTML:DivHtml});
-						var textImgs = getImgs(textDiv);
-						var textImg;
-						var imagePopUrl = "http://image.dcinside.com/viewimagePop.php";
-						for(var i=0,l=textImgs.length ; i<l ; i+=1) {
-							textImg = textImgs[i];
-
-							if(P.albumFullsize)
-								textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
-							if(textImg.getAttribute('onclick')) {
-								origUrl = textImg.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-							}
-							else if(textImg.parentNode.getAttribute('onclick')) {
-								origUrl = textImg.parentNode.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-							}
-							else
-								origUrl = ' ';
-
-							if(textImg.parentNode.tagName=="A") {
-								nImg = cElement("img", [textImg.parentNode,"next"], {src:textImg.src});
-								textImg.parentNode.parentNode.removeChild(textImg.parentNode);
-								textImg = nImg;
-							}
-							else {
-								nImg = cElement("img", [textImg,"next"], {src:textImg.src});
-								textImg.parentNode.removeChild(textImg);
-								textImg = nImg;
-							}
-
-							textImg.removeAttribute("width");
-							textImg.removeAttribute("height");
-							textImg.removeAttribute("href");
-							textImg.removeAttribute("onclick");
-							eRemove(textImg,"onclick");
-
-							if(origUrl.substr(0, imagePopUrl.length) === imagePopUrl)
-								viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
-							else
-								viewer.add(textImg.src,textImg);
-						}
-						autoLink(textDiv);
-//						history.pushState(bfloc, bfloc, bfloc);
-					}
-
-					if(P.hide) {
-						Hide.apply(contentDiv);
-					}
-				}
-
-				if(P.layerComment || layer.mode === "comment") {
-					var commentTable = cElement("table",fragment,{className:"DCL_layerComment"});
-
-					var replyP = cElement("p",[commentTable,"next"],{className:"DCL_replyP"});
-					var rMemo = cElement("input",replyP,{type:"text",className:"DCL_replyMemo2"});
-					rMemo.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
-					layer.rMemo = rMemo;
-					if(!_GID) {
-						var rName = cElement("input",[replyP,0],{type:"text",className:"DCL_replyName"}); // name
-						var rPassword = cElement("input",replyP,{type:"password",className:"DCL_replyPassword"}); // password
-						rPassword.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
-						if(P.autoForm) {
-							rName.value = P.autoName;
-							rPassword.value = P.autoPassword;
-						}
-					}
-					cElement("input",replyP,{type:"button",className:"DCL_replySubmit",value:"확인"},function(){layer.reply();});
-					cElement("span",topBtn,{textContent:"댓글",className:"DCL_layerBtn"},function(){rMemo.focus();});
-
-					var bfloc = document.location.toString();
-					simpleRequest('/comment/view', 
-						function(response) {
-							commentText=response.responseText.replace(/<\/td><tr>/g, '</td></tr>');
-							var ci = commentText.lastIndexOf("<table class=\"gallery_re_contents\">");
-							var si = commentText.indexOf("<tr class=\"reply_line\">",ci);
-							var ei = commentText.indexOf("</table>",ci);
-
-							if(si > -1 && ei > -1 && si < ei) {
-								var proc = document.createDocumentFragment();
-								var procTable = cElement("table",proc,{innerHTML:commentText.substring(si,ei)});
-								var caption = cElement("caption",commentTable);
-								var rows = procTable.rows;
-								var lc = 4;
-								var btn,onclick;
-								var name,cc=0;
-								var reg1 = /del_comment_orgin\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\',\'([^\']+)\'\);/;
-								var reg2 = /del_comment\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\'\);/;
-								var reg3 = /nomember_comment\((\d+)\);/;
-								var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
-								var delExec;
-								for(var i=0,l=rows.length ; i<l ; i+=3) {
-									ip=null;
-									var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
-									if(rows[i].cells[1].getElementsByClassName('etc_ip')[0]){
-										while( (ipExec=ipReg.exec(rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent)) ) {
-											ip = ipExec[1]+'.***.***';//+ipExec[2];
-										}
-										rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent='';
-									}									
-									if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
-										delbox = delbox.children[0];
-										if( delExec=reg3.exec(onclick) ) {
-											delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
-											delbox.setAttribute("DCL_del_password",1);
-										}
-										else if( !(delExec=reg1.exec(onclick)) && !(delExec=reg2.exec(onclick)) ) {
-											console.log('삭제 버튼 없음');
-										}
-										delbox.addEventListener("click",function(e){ layer.delComment(e);});
-										delbox.setAttribute("DCL_del_no",delExec[1]);
-										delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
-									}
-									else { delbox=null; }
-
-									name	= rows[i].cells[0].innerHTML;
-									value	= rows[i].cells[1].innerHTML;
-									date	= rows[i].cells[2].textContent;
-									ktr = cElement('tr', commentTable);
-									tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
-									cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
-									cElement('td', ktr, {innerHTML:date,className:'com_ip'});
-									btn = cElement('td', ktr, {className:'com_btn'});
-									if(delbox)btn.appendChild(delbox);
-
-									if (ip && P.commentColor) {
-										var color = ipColorize(ip);
-										if (P.commentColorType=="bg")
-											ktr.style.backgroundColor = color;
-										else if(P.commentColorType=="fg")
-											tnm.style.color = color;
-										else if(P.commentColorType=="gc")
-											cElement('span', tnm, "■").style.color = color;
-									}
+							var flashReg = /src=\'(http:\/\/mediafile\.dcinside\.com[^\']+)|insertFlash\(\"(http:\/\/flvs\.daum\.net[^\"]+)\", (\d+), (\d+)/g;
+							var flashExec = flashReg.exec(imgHTML);
+							var iframeReg = /width=\"(\d+)\"[^>]+height=\"(\d+)\"[^>]+src=\"(http:\/\/videofarm\.daum\.net[^\"]+)\"/g;
+							var iframeExec = iframeReg.exec(imgHTML);
+							if(flashExec || iframeExec) {
+								var flashUl = cElement("ul",contentDiv,{className:"DCL_layerFlash"});
+								if(flashExec) {
+									var flashLi;
+									do {
+										flashLi = cElement("li",flashUl);
+										cElement("object",flashLi,{type:"application/x-shockwave-flash",data:flashExec[1]||flashExec[2],width:flashExec[3]||400,height:flashExec[4]||300});
+									} while( (flashExec=flashReg.exec(imgHTML)) );
 								}
-								l/=3;
-								if(P.filter) {
-									Filter.comment(commentTable);
+								if(iframeExec) {
+									var iframeLi;
+									do {
+										flashLi = cElement("li",flashUl);
+										cElement("iframe",flashLi,{src:iframeExec[3],width:iframeExec[1]||400,height:iframeExec[2]});
+									} while( (iframeExec=iframeReg.exec(imgHTML)) );
 								}
-								caption.textContent = "[댓글 " + l + "개]";
-								layer.row.cells[1].children[2].children[0].textContent = "["+l+"]";
-							} else {
-								layer.row.cells[1].children[2].textContent = "";
 							}
-							if(Layer.now === layer) {
-								layer.focus();
-							}
-						},
-						"POST", 
-						{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
-				}
-
-		//		var ipReg = /(?:IP Address : (\d+\.\d+\.\*\*\*\.\*\*\*))?<br \/>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}) <br \/>/g;
-				var ipReg = /<li class="li_ip">[\s\n]*(\d+\.\d+)(\.\*\.\*)[\s\n]*<\/li>/g;
-				var dateReg = /<li><b>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2})<\/b><\/li>/g;
-				var ipExec,ip,time;
-				while( (ipExec=ipReg.exec(text)) ) {
-					ip = ipExec[1]+'.***.***';//+ipExec[2];
-				}
-				while( (ipExec=dateReg.exec(text)) ) {
-					time = ipExec[1];
-				}
-
-				cElement("span",topBtn,{textContent:"[시간 "+time+(ip?" / IP "+ip:"")+"]",className:"DCL_layerData"});
-
-				var fileReg = /\t<ul class="appending_file"[^>]+>(.+)<\/ul>/m;
-				var file = fileReg.exec(response.responseText.replace(/\n/g,''));
-				if(file) {
-					file = file[1].split("</li><li");
-					fileReg = /<a.*href=\"(.+)\".*>(.+)?<\/a>/;
-					var fileExec;
-					var fileHTML = "";
-					var attachviewer = new Viewer();
-					l=file.length;
-					attach = cElement("span",topBtn,{className:"DCL_layerFile",textContent:"첨부파일("+l+")"});
-					for(var i=0; i<l ; i+=1) {
-						fileExec = fileReg.exec(file[i]);
-						attachviewer.add(fileExec[1], cElement("a",attach,{href:fileExec[1],textContent:fileExec[2]||"　"}));
-//						fileHTML += "<a href='"+fileExec[1]+"'>"+fileExec[2]+"</a>";
-					}
-				}
-
-				var bottomBtn = cElement("p",fragment,{className:"DCL_layerBottom"});
-				cElement("span",bottomBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
-				cElement("span",bottomBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
-				cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('http://'+location.host+'/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
-				cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn",target:"_blank"});
-				cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"},function(e) {
-					e.preventDefault();
-					simpleRequest('/board/delete/?id='+_ID+'&no='+layer.no, function(r) {
-						var rBody = r.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)(\<\!\-\- \/\/dgn_gallery_wrap \-\-\>|<\/body>)/)[1].toDomElement();
-
-						if(delForm = rBody.querySelector('form#delete')) {
-							if(!confirm('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하시겠습니까?'))
-								return;
-							simpleRequest('/forms/delete_submit',function(r) {
-									if((reply = r.responseText.split('||')).length>1) {
-										if(reply[0] == 'true')
-											softLoad('/board/lists/?id='+_ID);
-										else
-											alert(reply[1]);
-									}
-									else
-										alert(r.responseText);
-								},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
-						} else if(delForm = rBody.querySelector('form#password_confirm')) {
-							if(!(delForm.querySelector('input[name="password"]').value=prompt('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하려면 비밀번호를 입력해 주세요.')))
-								return;
-							
-							simpleRequest('/forms/delete_password_submit',function(r) {
-									if((reply = r.responseText.split('||')).length>1) {
-										if(reply[0] == 'true') {
-											cElement('input',delForm,{type:'hidden',name:'key',value:reply[1]});
-											simpleRequest('/forms/delete_submit',function(r) {
-												if((reply = r.responseText.split('||')).length>1) {
-													if(reply[0] == 'true')
-														softLoad('/board/lists/?id='+_ID);
-													else
-														alert(reply[1]);
-												}
-												else
-													alert(r.responseText);
-											},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
-										}
-										else
-											alert(reply[1]);
-									}
-									else
-										alert(r.responseText);
-								},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
 						}
-					});
-				});
-				cElement("span",bottomBtn,{className:"DCL_layerLoad"});
-				div.appendChild(fragment);
-			} else { // 로드 에러
-				cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
-				loadSpan.textContent = "읽기 실패";
+
+						if(P.layerText) {
+							var bfloc = document.location.toString();
+	//						history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no);
+							var DivHtml = text.substring(text.indexOf("<!-- con_substance -->"),text.lastIndexOf('<!-- //con_substance -->'));
+							DivHtml= DivHtml.replace(/(<|<\/)(iframe|script)[^>]+>/g, "");
+
+							var textDiv = cElement("div",contentDiv,{className:"DCL_layerText",innerHTML:DivHtml});
+							var textImgs = getImgs(textDiv);
+							var textImg;
+							var imagePopUrl = "http://image.dcinside.com/viewimagePop.php";
+							for(var i=0,l=textImgs.length ; i<l ; i+=1) {
+								textImg = textImgs[i];
+
+								if(P.albumFullsize)
+									textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+								if(textImg.getAttribute('onclick')) {
+									origUrl = textImg.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
+								}
+								else if(textImg.parentNode.getAttribute('onclick')) {
+									origUrl = textImg.parentNode.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
+								}
+								else
+									origUrl = ' ';
+
+								if(textImg.parentNode.tagName=="A") {
+									nImg = cElement("img", [textImg.parentNode,"next"], {src:textImg.src});
+									textImg.parentNode.parentNode.removeChild(textImg.parentNode);
+									textImg = nImg;
+								}
+								else {
+									nImg = cElement("img", [textImg,"next"], {src:textImg.src});
+									textImg.parentNode.removeChild(textImg);
+									textImg = nImg;
+								}
+
+								textImg.removeAttribute("width");
+								textImg.removeAttribute("height");
+								textImg.removeAttribute("href");
+								textImg.removeAttribute("onclick");
+								eRemove(textImg,"onclick");
+
+								if(origUrl.substr(0, imagePopUrl.length) === imagePopUrl)
+									viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
+								else
+									viewer.add(textImg.src,textImg);
+							}
+							autoLink(textDiv);
+	//						history.pushState(bfloc, bfloc, bfloc);
+						}
+
+						if(P.hide) {
+							Hide.apply(contentDiv);
+						}
+					}
+			//		var ipReg = /(?:IP Address : (\d+\.\d+\.\*\*\*\.\*\*\*))?<br \/>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}) <br \/>/g;
+					var ipReg = /<li class="li_ip">[\s\n]*(\d+\.\d+)(\.\*\.\*)[\s\n]*<\/li>/g;
+					var dateReg = /<li><b>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2})<\/b><\/li>/g;
+					var ipExec,ip,time;
+					while( (ipExec=ipReg.exec(text)) ) {
+						ip = ipExec[1]+'.***.***';//+ipExec[2];
+					}
+					while( (ipExec=dateReg.exec(text)) ) {
+						time = ipExec[1];
+					}
+					
+					cElement("span",topBtn,{textContent:"[시간 "+time+(ip?" / IP "+ip:"")+"]",className:"DCL_layerData"});
+
+					var fileReg = /\t<ul class="appending_file"[^>]+>(.+)<\/ul>/m;
+					var file = fileReg.exec(response.responseText.replace(/\n/g,''));
+					if(file) {
+						file = file[1].split("</li><li");
+						fileReg = /<a.*href=\"(.+)\".*>(.+)?<\/a>/;
+						var fileExec;
+						var fileHTML = "";
+						var attachviewer = new Viewer();
+						l=file.length;
+						attach = cElement("span",topBtn,{className:"DCL_layerFile",textContent:"첨부파일("+l+")"});
+						for(var i=0; i<l ; i+=1) {
+							fileExec = fileReg.exec(file[i]);
+							attachviewer.add(fileExec[1], cElement("a",attach,{href:fileExec[1],textContent:fileExec[2]||"　"}));
+	//						fileHTML += "<a href='"+fileExec[1]+"'>"+fileExec[2]+"</a>";
+						}
+					}
+					if(readytogo>0) return;
+					div.innerHTML = "";
+					div.appendChild(topMenu);
+					div.appendChild(docFrag);
+					div.appendChild(commFrag);
+					div.appendChild(bottomMenu);
+					if(Layer.now === layer)layer.focus();
+				} else { // 로드 에러
+					cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
+					loadSpan.textContent = "읽기 실패";
+				}
 			}
+		);
+	}
+	
+	if(P.layerComment || layer.mode === "comment") {
+		var commentTable = cElement("table",commFrag,{className:"DCL_layerComment"});
 
-			if(Layer.now === layer) {
-				layer.focus();
+		var replyP = cElement("p",[commentTable,"next"],{className:"DCL_replyP"});
+		var rMemo = cElement("input",replyP,{type:"text",className:"DCL_replyMemo2"});
+		rMemo.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
+		layer.rMemo = rMemo;
+		if(!_GID) {
+			var rName = cElement("input",[replyP,0],{type:"text",className:"DCL_replyName"}); // name
+			var rPassword = cElement("input",replyP,{type:"password",className:"DCL_replyPassword"}); // password
+			rPassword.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
+			if(P.autoForm) {
+				rName.value = P.autoName;
+				rPassword.value = P.autoPassword;
 			}
 		}
-	);
+		cElement("input",replyP,{type:"button",className:"DCL_replySubmit",value:"확인"},function(){layer.reply();});
+		cElement("span",topBtn,{textContent:"댓글",className:"DCL_layerBtn"},function(){rMemo.focus();});
+
+		var bfloc = document.location.toString();
+		simpleRequest('/comment/view', 
+			function(response) {
+				readytogo--;
+				commentText=response.responseText.replace(/<\/td><tr>/g, '</td></tr>');
+				var ci = commentText.lastIndexOf("<table class=\"gallery_re_contents\">");
+				var si = commentText.indexOf("<tr class=\"reply_line\">",ci);
+				var ei = commentText.indexOf("</table>",ci);
+
+				if(si > -1 && ei > -1 && si < ei) {
+					var proc = document.createDocumentFragment();
+					var procTable = cElement("table",proc,{innerHTML:commentText.substring(si,ei)});
+					var caption = cElement("caption",commentTable);
+					var rows = procTable.rows;
+					var lc = 4;
+					var btn,onclick;
+					var name,cc=0;
+					var reg1 = /del_comment_orgin\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\',\'([^\']+)\'\);/;
+					var reg2 = /del_comment\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\'\);/;
+					var reg3 = /nomember_comment\((\d+)\);/;
+					var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
+					var delExec;
+					for(var i=0,l=rows.length ; i<l ; i+=3) {
+						ip=null;
+						var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
+						if(rows[i].cells[1].getElementsByClassName('etc_ip')[0]){
+							while( (ipExec=ipReg.exec(rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent)) ) {
+								ip = ipExec[1]+'.***.***';//+ipExec[2];
+							}
+							rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent='';
+						}									
+						if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
+							delbox = delbox.children[0];
+							if( delExec=reg3.exec(onclick) ) {
+								delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
+								delbox.setAttribute("DCL_del_password",1);
+							}
+							else if( !(delExec=reg1.exec(onclick)) && !(delExec=reg2.exec(onclick)) ) {
+								console.log('삭제 버튼 없음');
+							}
+							delbox.addEventListener("click",function(e){ layer.delComment(e);});
+							delbox.setAttribute("DCL_del_no",delExec[1]);
+							delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
+						}
+						else { delbox=null; }
+
+						name	= rows[i].cells[0].innerHTML;
+						value	= rows[i].cells[1].innerHTML;
+						date	= rows[i].cells[2].textContent;
+						ktr = cElement('tr', commentTable);
+						tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
+						cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
+						cElement('td', ktr, {innerHTML:date,className:'com_ip'});
+						btn = cElement('td', ktr, {className:'com_btn'});
+						if(delbox)btn.appendChild(delbox);
+
+						if (ip && P.commentColor) {
+							var color = ipColorize(ip);
+							if (P.commentColorType=="bg")
+								ktr.style.backgroundColor = color;
+							else if(P.commentColorType=="fg")
+								tnm.style.color = color;
+							else if(P.commentColorType=="gc")
+								cElement('span', tnm, "■").style.color = color;
+						}
+					}
+					l/=3;
+					if(P.filter) {
+						Filter.comment(commentTable);
+					}
+					caption.textContent = "[댓글 " + l + "개]";
+					layer.row.cells[1].children[2].children[0].textContent = "["+l+"]";
+				} else {
+					layer.row.cells[1].children[2].textContent = "";
+				}
+				if(Layer.now === layer) {
+					layer.focus();
+				}
+				if(readytogo>0) return;
+				div.innerHTML = "";
+				div.appendChild(topMenu);
+				div.appendChild(docFrag);
+				div.appendChild(commFrag);
+				div.appendChild(bottomMenu);
+				if(Layer.now === layer)layer.focus();
+			},
+			"POST", 
+			{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
+	}
 };
 Layer.prototype.focus = function() {
 	var top = this.row.getBoundingClientRect().top - (P.menuPos==="top"?22:0);
@@ -3662,7 +3725,7 @@ function DCINSIDE_LITE() {
 		".banner_box, #dgn_footer, #dgn_gallery_right_detail { display:none !important; }" +
 		"#dgn_gallery_right { " + (P.sidebar?'':'display:none !important; ') + "background-color: #F4F4F4; }" +
 		'#dgn_gallery_detail, .gallery_re_contents, #dgn_gallery_left .gallery_box, .re_gall_box_5, #dgn_gallery_list, .re_gall_box_5, .re_input { width: 100% !important; }' +
-		"#dgn_gallery_left { width: "+(P.sidebar?P.pageWidth-260:P.pageWidth)+"px !important; "+(P.sidebar?"":"float: none; ")+"}" +
+		"#dgn_gallery_left { width: "+(P.sidebar?(P.pageWidth-260)+'px':'100%')+" !important; "+(P.sidebar?"":"float: none; ")+"}" +
 		'.menu_bg iframe, #dgn_globalmenu { width: '+(P.pageWidth)+'px !important;}' +
 		'#dgn_gallery_left .gallery_box { box-sizing: border-box; }' +
 		'.re_textarea { width: '+(P.pageWidth-350)+'px !important;}' +
@@ -3688,7 +3751,7 @@ function DCINSIDE_LITE() {
 		"#dgn_popup_4 { top: 0px !important; }" +
 		"#dgn_gallery_write { top: 0px !important; }" +
 
-		"#dgn_header_gall, #dgn_gallery_wrap, #dgn_gallery_write {width:"+P.pageWidth+"px !important; margin: 0 auto !important; background: none !important;}" +
+		"#dgn_header_gall, #dgn_gallery_wrap, #dgn_gallery_write {width:100%; margin: 0 auto !important; background: none !important;}" +
 		".con_substance *, #writeForm * {max-width:"+P.pageWidth+"px !important}" +
 
 		"#dgn_content_write .write_gall_box_1:after { clear: both; content: ' '; display: block; }" +
@@ -3736,7 +3799,7 @@ function DCINSIDE_LITE() {
 		".con_img img { width: auto; height: auto; max-width: 85px; max-height: 60px; }" + 
 
 		// 로딩 오류시
-		"#dgn_wrap {width:"+P.pageWidth+"px !important;}" +
+		"#dgn_wrap {width:100%;}" +
 		"#testDiv > table[width='200'], #right_div {display:none}"
 		);
 
