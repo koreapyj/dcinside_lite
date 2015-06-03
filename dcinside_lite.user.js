@@ -11,7 +11,7 @@
 // @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
-var R_VERSION = "15005";	// 실제 버전
+var R_VERSION = "15006";	// 실제 버전
 var VERSION = "15002";		// 설정 내용 버전
 var P = {
 version : "",
@@ -98,6 +98,12 @@ if(navigator.userAgent.indexOf("Firefox") !== -1) {
 	BROWSER.opera = true;
 } else if(navigator.userAgent.indexOf("Trident") !== -1) {
 	BROWSER.msie = true;
+} else if(navigator.userAgent.indexOf("iPhone") !== -1) {
+	BROWSER.chrome = true;
+	BROWSER.iphone = true;
+	P.menuPos = 'top';
+} else if(navigator.userAgent.indexOf("AppleWebKit") !== -1) {
+	BROWSER.chrome = true;
 } else {
 	BROWSER = false;
 	alert("디시라이트가 지원하지 않는 브라우저입니다.\n\n - 브라우저 타입이 지정되지 않음");
@@ -609,7 +615,7 @@ call : function() {
 				"div.DCL_set_mdi > div.body div#linkList > textarea { height: 198px; width: 100%; border-radius: 2px 0 0 2px; }" +
 				"div.DCL_set_mdi > div.filter div[id^=textbox] { height: 190px; }" +
 				"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea { overflow-y: scroll; height: 100%; width: 249px; resize: none; }" +
-				"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:248px; border-radius: 2px 0 0 2px; }" +
+				"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:50%; box-sizing: border-box; border-radius: 2px 0 0 2px; }" +
 				"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
 				"div.DCL_set_mdi > div.filter div#textboxAT," +
 				"div.DCL_set_mdi > div.filter div#textboxCN," +
@@ -1287,8 +1293,17 @@ function menuFunc() {
 					+ 'table.DCL_layerComment > tr > td:nth-of-type(4) { position: absolute; top: 10px; right: 5px; }'
 
 					+ 'div.DCL_layerContent img { max-width: 100% !important; }'
+					+ '#dgn_gallery_left .bottom_search { max-width: 100%; }'
 				+ '}'
-				+	'';
+
++ '@media screen and (max-width: 640px), screen and (max-height: 660px) {'
+	+ 'div.DCL_set_wrap { top: 0; left: 0; margin: 0; width: 100%; height: 100%; overflow-y: scroll; }'
+	+ 'div.DCL_set_wrap > div.body { height: auto; overflow-y: auto; }'
+	+ 'div.DCL_set_wrap > div.foot > input[type="submit"] { position: absolute; top: 0; right: 0; }'
+	+ 'div.DCL_set_wrap > div.head > button { display: none; }'
+	+ 'div.DCL_set_mdi { top: 40px; left: 0; margin: 0; width: 100%; }'
++ '}'
+				+ '';
 	} else {
 		css +=
 			"html > body {padding-left: 190px; padding-right: 10px;}" +
@@ -1547,6 +1562,7 @@ function menuFunc() {
 	}
 
 	addStyle(''
+				+ 'form#DCL_writeForm input { -webkit-appearance: none; border-radius: 0; }'
 				+ 'form#DCL_writeForm { position: fixed; width: 640px; height: 480px; max-width: 100%; max-height: 100%; background-color: white; box-shadow: 0 0 3px black; bottom: 60px; right: 30px; z-index: 120; padding-top: 111px; padding-bottom: 41px; box-sizing: border-box; }'
 				+ 'form#DCL_writeForm * { font-family: "Segoe UI", "Meiryo UI", "Malgun Gothic", "Dotum", sans-serif; }'
 
@@ -1601,10 +1617,12 @@ function menuFunc() {
 		);
 
 	// 간단 글쓰기 폼
-	$('span.f_r > a').addEventListener('click', function(e) {
-		openSimpleWriteForm();
-		e.preventDefault();
-	});
+	if($('span.f_r > a')) {
+		$('span.f_r > a').addEventListener('click', function(e) {
+			openSimpleWriteForm();
+			e.preventDefault();
+		});
+	}
 }
 
 function openSimpleWriteForm() {
@@ -1985,6 +2003,8 @@ init : function() {
 	}
 },
 name : function(value) {
+	if(value===null)
+		return '';
 	value = value.split("\n");
 	var normal = [];
 	var id = [];
@@ -3718,6 +3738,8 @@ function shortkey(e) {
 
 // 실제 실행
 function DCINSIDE_LITE() {
+	if(BROWSER.iphone)
+		cElement('meta',document.head,{'name':'viewport','content':'width='+screen.width+', user-scalable=no, initial-scale=1, maximum-scale=1'});
 	if(MODE.settings)
 		return SET.call();
 	addStyle(
@@ -3751,7 +3773,7 @@ function DCINSIDE_LITE() {
 		"#dgn_popup_4 { top: 0px !important; }" +
 		"#dgn_gallery_write { top: 0px !important; }" +
 
-		"#dgn_header_gall, #dgn_gallery_wrap, #dgn_gallery_write {width:100%; margin: 0 auto !important; background: none !important;}" +
+		"#dgn_header_gall, #dgn_gallery_wrap, #dgn_gallery_write {width:100% !important; margin: 0 auto !important; background: none !important;}" +
 		".con_substance *, #writeForm * {max-width:"+P.pageWidth+"px !important}" +
 
 		"#dgn_content_write .write_gall_box_1:after { clear: both; content: ' '; display: block; }" +
@@ -3799,8 +3821,9 @@ function DCINSIDE_LITE() {
 		".con_img img { width: auto; height: auto; max-width: 85px; max-height: 60px; }" + 
 
 		// 로딩 오류시
-		"#dgn_wrap {width:100%;}" +
-		"#testDiv > table[width='200'], #right_div {display:none}"
+		"#dgn_wrap {width:100% !important;}" +
+		"#testDiv > table[width='200'], #right_div {display:none}" +
+		"a[href^='javascript:mobile_direct'] { display: none; }"
 		);
 
 	addStyle(
