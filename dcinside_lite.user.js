@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15006
-// @date           2015.06.02
+// @version        15007
+// @date           2015.07.07
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15006";	// 실제 버전
+	var R_VERSION = "15007";	// 실제 버전
 	var VERSION = "15002";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -1390,7 +1390,7 @@
 					}
 		};
 		
-		cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
+//		cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
 		var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},funcList.refresh);
 
 		// 즐겨찾기 링크 정리
@@ -1552,7 +1552,7 @@
 					+ 'div#DCL_writeInfoDiv > input[name="password"] { float: left; width: 50%; }'
 
 					+ 'form#DCL_writeForm > textarea,'
-					+ 'form#DCL_writeForm > div.textarea { width: 100%; height: 100%; padding: 10px; border: 0; font-size: 13px; font-weight: normal; box-sizing: border-box; resize: none; }'
+					+ 'form#DCL_writeForm > div.textarea { width: 100%; height: 100%; padding: 10px; border: 0; font-size: 13px; font-weight: normal; box-sizing: border-box; resize: none; overflow-y: scroll; }'
 					+ 'form#DCL_writeForm > textarea { display: none; }'
 
 					+ 'div#DCL_writeBottomDiv { position: absolute; bottom: 0; left: 0; right: 0; height: 41px; border-top: 1px solid #aaa; background-color: #eee; padding: 3px; box-sizing: border-box; }'
@@ -1578,14 +1578,14 @@
 					+ 'div.DCL_dropzoneDiv > span:before { content: "여기에 사진을 끌어놓으세요"; display: inline-block; position: relative; top: 50%; transform: translateY(-50%); }'
 					+ 'div.DCL_dropzoneDiv > span:after { display: inline-block; content: ""; position: absolute; border: 10px dashed white; top: 30px; left: 30px; right: 30px; bottom: 30px; }'
 			);
-
+/*
 		// 간단 글쓰기 폼
 		if($('span.f_r > a')) {
 			$('span.f_r > a').addEventListener('click', function(e) {
 				openSimpleWriteForm();
 				e.preventDefault();
 			});
-		}
+		}*/
 	}
 
 	function openSimpleWriteForm() {
@@ -3436,6 +3436,7 @@
 
 					var html,regexp,exec;
 					if( (html=text.substring(text.indexOf("<!-- con_substance -->"),text.indexOf("<!-- //con_substance -->"))) ) {
+						console.log(html);
 						regexp = /(|onClick=\"javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\']+)\'[^\"]+\">)<img[^>]*src=[\'\">\s]?([^\'\" >]+)[\'\">\s]?/mig;
 						while( (exec=regexp.exec(html)) ) {
 							if(typeof exec[2]!="undefined")
