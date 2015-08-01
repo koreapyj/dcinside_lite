@@ -3456,10 +3456,8 @@
 				if(text.substr(0,9) === "<!DOCTYPE") {
 					var data = Album.aData[no];
 					data.no = no;
-					var unAttributePattern=/user_name=\"([^\"]+)\"/;
 					var tagStartsFrom=text.search(/<span class=\"user_layer\"/);
-					data.name=unAttributePattern.exec(text.substring(tagStartsFrom,tagStartsFrom+500));
-					console.log('Result : '+data.name);
+					data.name=/user_name=\"([^\"]+)\"/.exec(text.substring(tagStartsFrom,tagStartsFrom+500));
 					data.isdisplayed = false;
 					if(data.name===null) {
 						Album.rData[no] = (Album.rData[no] || 0) + 1;
@@ -3474,7 +3472,11 @@
 					}
 					data.name = data.name[1];
 					try{
-						data.title = /<dt>제 목<\/dt><dd>([^<]+)<\/dd>/.exec(text)[1];
+						var titleTagStartsFrom=text.search(/<dl class=\"wt_subject\"/);
+						var mobileImgTag="<span style='display: inline-block;vertical-align: middle;margin: -4px 0 0 2px;'><img src='http://wstatic.dcinside.com/gallery/images/mobile_icon_1.gif' border='0'></span>";
+						var extracted=/<dd>(.+?)<\/dd>/.exec(text.substring(titleTagStartsFrom,titleTagStartsFrom+300))[1];
+						if(extracted.indexOf(mobileImgTag)!=-1) extracted=extracted.replace(mobileImgTag,'');
+						data.title=extracted;
 					} catch(err) {
 						data.title = null;
 					}
@@ -3484,7 +3486,6 @@
 
 					var html,regexp,exec;
 					if( (html=text.substring(text.indexOf("<!-- con_substance -->"),text.indexOf("<!-- //con_substance -->"))) ) {
-						console.log(html);
 						regexp = /(|onClick=\"javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\']+)\'[^\"]+\">)<img[^>]*src=[\'\">\s]?([^\'\" >]+)[\'\">\s]?/mig;
 						while( (exec=regexp.exec(html)) ) {
 							if(typeof exec[2]!="undefined")
