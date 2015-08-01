@@ -3456,7 +3456,10 @@
 				if(text.substr(0,9) === "<!DOCTYPE") {
 					var data = Album.aData[no];
 					data.no = no;
-					data.name = /<span class="user_layer" user_name=\"([^\"]+)\" user_id=/.exec(text);
+					var unAttributePattern=/user_name=\"([^\"]+)\"/;
+					var tagStartsFrom=text.search(/<span class=\"user_layer\"/);
+					data.name=unAttributePattern.exec(text.substring(tagStartsFrom,tagStartsFrom+500));
+					console.log('Result : '+data.name);
 					data.isdisplayed = false;
 					if(data.name===null) {
 						Album.rData[no] = (Album.rData[no] || 0) + 1;
