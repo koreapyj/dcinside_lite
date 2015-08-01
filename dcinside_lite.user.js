@@ -116,6 +116,7 @@
 	}
 
 	if(typeof GM_setValue !== 'undefined' && typeof GM_getValue !== 'undefined' && typeof GM_listValues !== 'undefined' && typeof GM_deleteValue !== 'undefined'){
+		if (localStorage) var w3clocalStorage=localStorage;
 		var localStorage=new function(){
 			var t=this;
 			var ke1=GM_listValues();
@@ -150,7 +151,14 @@
 				}
 			}
 		};
-		BROWSER.localStorage=true;
+		if(typeof w3clocalStorage !== "undefined" && w3clocalStorage.getItem("version")!=""){
+			for(var i=0;i<w3clocalStorage.length;i++){
+				var k=w3clocalStorage.key(i);
+				localStorage.setItem(k,w3clocalStorage.getItem(k));
+			}
+			w3clocalStorage.clear();
+		}
+		BROWSER.localStorage = true;
 	}else if (localStorage){
 		BROWSER.localStorage = true; 
 	}else{
