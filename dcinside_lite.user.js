@@ -1,22 +1,22 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15007
-// @date           2015.07.07
+// @version        15008
+// @date           2015.08.02
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
 // @include        http://gall.dcgame.in/*
 // @include        http://job.dcinside.com/*
 // @grant          GM_xmlhttpRequest
-// @grant					 GM_getValue
-// @grant					 GM_setValue
-// @grant					 GM_deleteValue
-// @grant					 GM_listValues
+// @grant          GM_getValue
+// @grant          GM_setValue
+// @grant          GM_deleteValue
+// @grant          GM_listValues
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15007";	// 실제 버전
+	var R_VERSION = "15008";	// 실제 버전
 	var VERSION = "15002";		// 설정 내용 버전
 	var P = {
 	version : "",
