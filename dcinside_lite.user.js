@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15008
+// @version        15009
 // @date           2015.08.02
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15008";	// 실제 버전
+	var R_VERSION = "15009";	// 실제 버전
 	var VERSION = "15002";		// 설정 내용 버전
 	var P = {
 	version : "",
