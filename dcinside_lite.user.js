@@ -9,10 +9,6 @@
 // @include        http://gall.dcgame.in/*
 // @include        http://job.dcinside.com/*
 // @grant          GM_xmlhttpRequest
-// @grant          GM_getValue
-// @grant          GM_setValue
-// @grant          GM_deleteValue
-// @grant          GM_listValues
 // ==/UserScript==
 
 (function() {
@@ -115,51 +111,7 @@
 		alert("디시라이트가 지원하지 않는 브라우저입니다.\n\n - 브라우저 타입이 지정되지 않음");
 	}
 
-	if(typeof GM_setValue !== 'undefined' && typeof GM_getValue !== 'undefined' && typeof GM_listValues !== 'undefined' && typeof GM_deleteValue !== 'undefined'){
-		if (localStorage) var w3clocalStorage=localStorage;
-		var localStorage=new function(){
-			var t=this;
-			var ke1=GM_listValues();
-			ke1.sort();
-			var methods=['setItem','getItem','removeItem','key','clear'];
-			for(var i=0;i<ke1.length;i++){
-				if(methods.indexOf(ke1[i])==-1){
-					t[ke1[i]]=GM_getValue(ke1[i]);
-				}
-			}
-			this.length=ke1.length;
-			this.setItem=function(na,val){
-				GM_setValue(na,val);
-				t[na]=val;
-			}
-			this.getItem=function(na){
-				return GM_getValue(na);
-			}
-			this.removeItem=function(na){
-				GM_deleteValue(na);
-				delete t[na];
-			}
-			this.key=function(index){
-				var names=GM_listValues();
-				names.sort();
-				return names[index];
-			}
-			this.clear=function(){
-				var names=GM_listValues();
-				for(var i=0;i<names;i++){
-					GM_deleteValue(names[i]);
-				}
-			}
-		};
-		if(typeof w3clocalStorage !== "undefined" && w3clocalStorage.getItem("version")!=""){
-			for(var i=0;i<w3clocalStorage.length;i++){
-				var k=w3clocalStorage.key(i);
-				localStorage.setItem(k,w3clocalStorage.getItem(k));
-			}
-			w3clocalStorage.clear();
-		}
-		BROWSER.localStorage = true;
-	}else if (localStorage){
+	if (localStorage){
 		BROWSER.localStorage = true; 
 	}else{
 		alert("디시라이트가 지원하지 않는 브라우저입니다.\n\n - 로컬 스토리지에 접근할 수 없거나 브라우저가 지원하지 않음");
