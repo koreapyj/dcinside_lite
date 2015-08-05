@@ -645,6 +645,7 @@
 					"div.DCL_set_mdi > div.head > h2{ padding:10px 20px; font-weight: normal; font-size: 120%;}" +
 
 					"div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: " + P.fontList + "; vertical-align:middle}" +
+					"div.DCL_set_wrap div.indent { margin-left: 1.2em; font-size: 0.9em; }" +
 					"div.DCL_set_wrap small { margin-left: 0.5em; font-size: 0.9em; }" + 
 					"div.DCL_set_wrap textarea { border: 1px solid #CCC; cursor: auto; font-family: monospace; outline: none; }" +
 
@@ -1027,15 +1028,18 @@
 				dclset.body.setStore.innerList.storeLocal = cElement("li", dclset.body.setStore.innerList);
 				cElement("input", dclset.body.setStore.innerList.storeLocal, {type:"radio", name:"DCL_store", value:'Local', id:"DCL_storeLocal"});
 				cElement("label", dclset.body.setStore.innerList.storeLocal, {"for":"DCL_storeLocal",textContent:"로컬 저장소"});
+				cElement("div", dclset.body.setStore.innerList.storeLocal, {className:'indent', textContent:"로컬 저장소는 HTML5 Web Storage를 사용하는 저장소이며 모든 브라우저에서 사용할 수 있습니다. 도메인별로 저장되므로 접속 도메인이 다른 경우 설정이 공유되지 않습니다."});
 				dclset.body.setStore.innerList.storeGoogle = cElement("li", dclset.body.setStore.innerList);
 				cElement("input", dclset.body.setStore.innerList.storeGoogle, {type:"radio", name:"DCL_store", value:'Google', id:"DCL_storeGoogle"});
 				cElement("label", dclset.body.setStore.innerList.storeGoogle, {"for":"DCL_storeGoogle",textContent:"Google Sync 저장소"});
+				cElement("div", dclset.body.setStore.innerList.storeGoogle, {className:'indent', textContent:"Google Sync 저장소는 Google Chrome에서만 사용할 수 있는 Google 계정 종속 자동 동기화 저장소입니다. 도메인이 달라도 설정이 공유됩니다."});
 				dclset.body.setStore.innerList.storeGM = cElement("li", dclset.body.setStore.innerList);
 				cElement("input", dclset.body.setStore.innerList.storeGM, {type:"radio", name:"DCL_store", value:'GM', id:"DCL_storeGM"});
 				cElement("label", dclset.body.setStore.innerList.storeGM, {"for":"DCL_storeGM",textContent:"GreaseMonkey 저장소"});
-				dclset.body.setStore.innerList.storeGallog = cElement("li", dclset.body.setStore.innerList);
+				cElement("div", dclset.body.setStore.innerList.storeGM, {className:'indent', textContent:"GreaseMonkey 저장소는 GreaseMonkey API를 사용하는 저장소입니다. Firefox에서는 설정에 따라 동기화를 사용할 수도 있습니다. 도메인이 달라도 설정이 공유됩니다."});
+/*				dclset.body.setStore.innerList.storeGallog = cElement("li", dclset.body.setStore.innerList);
 				cElement("input", dclset.body.setStore.innerList.storeGallog, {type:"radio", name:"DCL_store", value:'Gallog', id:"DCL_storeGallog", disabled:"disabled"});
-				cElement("label", dclset.body.setStore.innerList.storeGallog, {"for":"DCL_storeGallog",textContent:"갤로그 저장소"});
+				cElement("label", dclset.body.setStore.innerList.storeGallog, {"for":"DCL_storeGallog",textContent:"갤로그 저장소"});*/
 
 				dclset.body.setStore.innerList.dataManage = cElement("li", dclset.body.setStore.innerList);
 				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"내보내기"}, SET.exportJson);
@@ -1097,8 +1101,13 @@
 		}
 	},
 	importJson : function() {
-		P = JSON.parse(prompt('내보냈던 설정을 붙여넣으세요.'));
+		importedP = JSON.parse(prompt('내보냈던 설정을 붙여넣으세요.'));
+		for(var i in importedP) {
+			if(importedP.hasOwnProperty(i))
+				P[i] = importedP[i];
+		}
 		SET.write();
+		alert('설정을 가져왔습니다.');
 	},
 	exportJson : function() {
 		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
