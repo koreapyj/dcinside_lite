@@ -8,6 +8,11 @@
 // @include        http://gall.dcinside.com/*
 // @include        http://gall.dcgame.in/*
 // @include        http://job.dcinside.com/*
+// @grant          GM_xmlhttpRequest
+// @grant          GM_getValue
+// @grant          GM_setValue
+// @grant          GM_deleteValue
+// @grant          GM_listValues
 // ==/UserScript==
 
 (function() {
@@ -117,6 +122,11 @@
 		alert("디시라이트가 지원하지 않는 브라우저입니다.\n\n - 브라우저 타입이 지정되지 않음");
 	}
 
+	
+	if(typeof GM_getValue !== "undefined") {
+		BROWSER.greasemonkey = true;
+	}
+
 	if (localStorage){
 		BROWSER.localStorage = true; 
 	}else{
@@ -199,6 +209,13 @@
 			parent.appendChild(style);
 		};
 
+	var GM_clearStorage = function() {
+		var keys = GM_listValues();
+		for (var i=0, key=null; key=keys[i]; i++) {
+			GM_deleteValue(key);
+		}
+	}
+
 	String.prototype.toDomElement = function () {
 		var wrapper = document.createElement('div');
 		wrapper.innerHTML = this;
@@ -231,7 +248,6 @@
 	var xmlhttpRequest = typeof GM_xmlhttpRequest!=='undefined'?GM_xmlhttpRequest:
 		function(details) {
 			var xmlhttp = new XMLHttpRequest();
-			var binary = false;
 			xmlhttp.ontimeout = function() { details.ontimeout(); };
 			xmlhttp.onreadystatechange = function() {
 				var responseState = {
@@ -264,15 +280,12 @@
 			}
 			if(details.headers) {
 				for(var prop in details.headers) {
-					if(details.headers.hasOwnProperty(prop)) {
+					if(details.headers.hasOwnProperty(prop) && ['origin','referer'].indexOf(prop.toLowerCase())==-1) {
 						xmlhttp.setRequestHeader(prop, details.headers[prop]);
-						if(prop.toLowerCase() == 'content-type' && details.headers[prop].match(/multipart\/form-data/)) {
-							binary = true;
-						}
 					}
 				}
 			}
-			if(binary && typeof(details.data)!=="undefined")
+			if(details.binary && typeof(details.data)!=="undefined")
 				xmlhttp.sendAsBinary(details.data);
 			else
 				xmlhttp.send( (typeof(details.data)!=="undefined")?details.data:null );
@@ -297,8 +310,11 @@
 	}
 
 	function setValue(name,value,type) {
-		if(BROWSER.chrome && BROWSER.chrome.storage && P.syncStore) {
+		if(BROWSER.chrome && BROWSER.chrome.storage && P.store == 'Google') {
 			chrome.storage.sync.set(JSON.parse('{"' + name + '":' + JSON.stringify(value) + '}'));
+			return;
+		}else if(BROWSER.greasemonkey && P.store == 'GM') {
+			GM_setValue(name, value);
 			return;
 		}else if(BROWSER.localStorage && type === undefined) {
 			if(typeof value === "boolean") {
@@ -393,12 +409,19 @@
 		return element;
 	}
 	function simpleRequest(url,callback,method,headers,data,error) {
-		var details = {method:method?method:"GET",url:url,timeout:3000,ontimeout:function() { console.log('Timeout! Retry...'); simpleRequest(url,callback,method,headers,data); }};
+		var details = {method:method?method:"GET",url:url,timeout:10000,ontimeout:function() { console.log('Timeout! Retry...'); simpleRequest(url,callback,method,headers,data); }};
 		if(callback) {
 			details.onload = function(response){callback(response);};
 		}
 		if(headers) {
 			details.headers = headers;
+			for(var prop in details.headers) {
+				if(details.headers.hasOwnProperty(prop)) {
+					if(prop.toLowerCase() == 'content-type' && details.headers[prop].match(/multipart\/form-data/)) {
+						details.binary = true;
+					}
+				}
+			}
 		}
 		if(data) {
 			details.data = data;
@@ -550,6 +573,7 @@
 
 	// 환경 설정
 	var SET = {
+	innerElement : {},
 	call : function() {
 		if(!$id("DCL_set_wrap")) {
 			var dclset={};
@@ -996,6 +1020,27 @@
 				cElement("label", dclset.body.setEtc.innerList.longExpires, {"for":"DCL_longExpires",textContent:"브라우저를 닫아도 로그인을 유지"});
 				dclset.body.setEtc.innerList.cookieDelete = cElement("li", dclset.body.setEtc.innerList);
 				cElement("input", dclset.body.setEtc.innerList.cookieDelete, {type:"button", value:"로그인 쿠키 초기화"}, cookieDelete);
+				
+			dclset.body.setStore = cElement("div", dclset.body);
+			cElement("h3", dclset.body.setStore, "저장소");
+			dclset.body.setStore.innerList = cElement("ul", dclset.body.setStore);
+				dclset.body.setStore.innerList.storeLocal = cElement("li", dclset.body.setStore.innerList);
+				cElement("input", dclset.body.setStore.innerList.storeLocal, {type:"radio", name:"DCL_store", value:'Local', id:"DCL_storeLocal"});
+				cElement("label", dclset.body.setStore.innerList.storeLocal, {"for":"DCL_storeLocal",textContent:"로컬 저장소"});
+				dclset.body.setStore.innerList.storeGoogle = cElement("li", dclset.body.setStore.innerList);
+				cElement("input", dclset.body.setStore.innerList.storeGoogle, {type:"radio", name:"DCL_store", value:'Google', id:"DCL_storeGoogle"});
+				cElement("label", dclset.body.setStore.innerList.storeGoogle, {"for":"DCL_storeGoogle",textContent:"Google Sync 저장소"});
+				dclset.body.setStore.innerList.storeGM = cElement("li", dclset.body.setStore.innerList);
+				cElement("input", dclset.body.setStore.innerList.storeGM, {type:"radio", name:"DCL_store", value:'GM', id:"DCL_storeGM"});
+				cElement("label", dclset.body.setStore.innerList.storeGM, {"for":"DCL_storeGM",textContent:"GreaseMonkey 저장소"});
+				dclset.body.setStore.innerList.storeGallog = cElement("li", dclset.body.setStore.innerList);
+				cElement("input", dclset.body.setStore.innerList.storeGallog, {type:"radio", name:"DCL_store", value:'Gallog', id:"DCL_storeGallog", disabled:"disabled"});
+				cElement("label", dclset.body.setStore.innerList.storeGallog, {"for":"DCL_storeGallog",textContent:"갤로그 저장소"});
+
+				dclset.body.setStore.innerList.dataManage = cElement("li", dclset.body.setStore.innerList);
+				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"내보내기"}, SET.exportJson);
+				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"가져오기"}, SET.importJson);
+				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"초기화"}, SET.reset);
 
 			dclset.body.dclInfo = cElement("div", dclset.body);
 			cElement("h3", dclset.body.dclInfo, "DCinside Lite r"+R_VERSION);
@@ -1003,9 +1048,6 @@
 				dclset.body.dclInfo.innerList.updUse = cElement("li", dclset.body.dclInfo.innerList);
 				cElement("input", dclset.body.dclInfo.innerList.updUse, {type:"checkbox", id:"DCL_updUse"});
 				cElement("label", dclset.body.dclInfo.innerList.updUse, {"for":"DCL_updUse",textContent:"업데이트 알림"});
-				dclset.body.dclInfo.innerList.syncStore = cElement("li", dclset.body.dclInfo.innerList);
-				cElement("input", dclset.body.dclInfo.innerList.syncStore, {type:"checkbox", id:"DCL_syncStore"});
-				cElement("label", dclset.body.dclInfo.innerList.syncStore, {"for":"DCL_syncStore",textContent:"Google Sync 저장소 사용"});
 
 				dclset.body.dclInfo.innerList.info = cElement("li", dclset.body.dclInfo.innerList);
 				dclset.body.dclInfo.innerList.info.copyright = cElement("div", dclset.body.dclInfo.innerList.info);
@@ -1021,8 +1063,8 @@
 			dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 				cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
 
-			$id("DCL_syncStore").disabled = !(BROWSER.chrome && BROWSER.chrome.storage);
-			dclset.body.dclInfo.innerList.syncStore.className = $id("DCL_syncStore").disabled?"disabled":null;
+			$id("DCL_storeGoogle").disabled = !(BROWSER.chrome && BROWSER.chrome.storage);
+			$id("DCL_storeGM").disabled = !(BROWSER.greasemonkey);
 		}
 
 
@@ -1033,14 +1075,20 @@
 			$id("DCL_set").scrollTop=0;
 		}
 
+		SET.innerElement = dclset;
+		SET.write();
+	},
+	write : function() {
 		var input,value;
 		for(var i in P) {
 			if(P.hasOwnProperty(i)) {
-				input = $id("DCL_" + i);
-				if(!input)
-					input = cElement("input", dclset.body, {type:"hidden", id:"DCL_"+i});
 				value = P[i];
-				if(input.type === "checkbox") {
+				input = $id("DCL_" + i);
+				if(!input) {
+					if(!(input = $id("DCL_" + i + value)))
+						input = cElement("input", SET.innerElement.body, {type:"hidden", id:"DCL_"+i});
+				}
+				if(input.type === "checkbox" || input.type === "radio") {
 					input.checked = value;
 				} else {
 					input.value = value;
@@ -1048,8 +1096,15 @@
 			}
 		}
 	},
+	importJson : function() {
+		P = JSON.parse(prompt('내보냈던 설정을 붙여넣으세요.'));
+		SET.write();
+	},
+	exportJson : function() {
+		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
+	},
 	load : function(nochrome) {
-		var num = ["loadAtList","loadAtView","loadAtWrite","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","albumFullsize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","layoutEnabled"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","albumFullsize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -1070,7 +1125,7 @@
 				if(P.version === "")
 					return SET.load(true);
 				
-				P.syncStore = 1;
+				P.store = 'Google';
 				if(localStorage['version'])
 					localStorage.clear();
 				
@@ -1083,6 +1138,47 @@
 
 				DCINSIDE_LITE();
 			});
+			return;
+		}
+
+		if(BROWSER.greasemonkey && nochrome!==true) {
+
+			var keys = GM_listValues();
+			var items = {};
+			for(i in keys) {
+				key = keys[i];
+				items[key] = GM_getValue(key);
+
+				if(P.version != "" && P.version < 15001 && key == "menuList")
+					continue;
+				if(P.hasOwnProperty(key)) {
+					if(items[key]=="undefined" || typeof(items[key])=="undefined") {
+						P[key]="";
+						continue;
+					}
+					P[key] = items[key];
+				}
+			}
+				console.log(items);
+			for(i=0,l=num.length ; i<l ; i+=1) {
+				P[num[i]] = Number(P[num[i]]);
+			}
+
+			if(P.version === "")
+				return SET.load(true);
+
+			P.store = 'GM';
+			if(localStorage['version'])
+				localStorage.clear();
+
+			SET.update();
+			if(P.version !== VERSION) {
+				alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
+				addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
+			}
+
+			DCINSIDE_LITE();
+
 			return;
 		}
 
@@ -1128,7 +1224,7 @@
 				return ;
 			}
 		}
-		P.syncStore = 0;
+		P.store = 'Local';
 		if(BROWSER.chrome && !BROWSER.chrome.google)
 			SET.update();
 		if(P.version !== VERSION) {
@@ -1165,17 +1261,27 @@
 		if(!$id("DCL_menuList").value.match(/설정/))
 			return alert("메뉴 항목에 [설정] 버튼이 없으므로 설정을 저장할 수 없습니다.");
 
-		P.syncStore = $id("DCL_syncStore").checked;
+		P.store = document.querySelector('input[name="DCL_store"]:checked').value;
+		P.syncStore = null;
+
+		console.log(P.store);
 
 		if(BROWSER.chrome && BROWSER.chrome.storage) {
-			if(!P.syncStore)
+			if(P.store != 'Google')
 				chrome.storage.sync.clear();
+			else
+				localStorage.clear();
+		}
+		if(BROWSER.greasemonkey) {
+			if(P.store != 'GM')
+				GM_clearStorage();
 			else
 				localStorage.clear();
 		}
 		for(var i in P) {
 			if(P.hasOwnProperty(i)) {
-				input = $id("DCL_" + i);
+				if(!(input = $id("DCL_" + i)))
+					continue;
 				if(input.nodeName === "INPUT") {
 					if(input.type === "checkbox") {
 						setValue(i,input.checked);
@@ -1211,15 +1317,19 @@
 		if(!confirm("설정을 초기화하겠습니까?")) {
 			return;
 		}
-		if(BROWSER.localStorage) {
-			for(var i = localStorage.length -1; i > -1; i--)
-				localStorage.removeItem(localStorage.key(i));
-		}
-		else if(BROWSER.firefox) {
-			var listValues = GM_listValues();
-			for(var i=0,l=listValues.length ; i<l ; i+=1) {
-				GM_deleteValue(listValues[i]);
+		if(BROWSER.chrome && BROWSER.chrome.storage) {
+			if(P.store == 'Google')
+				chrome.storage.sync.clear();
+			else
+				localStorage.clear();
+		}else if(BROWSER.greasemonkey) {
+			if(P.store == 'GM') {
+				GM_clearStorage();
 			}
+			else
+				localStorage.clear();
+		}else if(BROWSER.localStorage) {
+			localStorage.clear();
 		} else {
 			document.cookie = "dcinsidelitesetting=;path=/;";
 		}
@@ -1552,10 +1662,6 @@
 					cElement("img",$id("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
 					cElement("em",$id("DCL_profile"),"갤로그 가기");
 				}
-			},null,null,null,function(e) {/*
-				$id("DCL_menuTitle").textContent = "";
-				$id("DCL_menuTitle").removeEventListener("click",funcList.refresh);
-				cElement("img",[$id("DCL_menuTitle"),0],{src:"http://dcimg1.dcinside.com/glogProfileView.php?gid=26b2c223e4c221ac3e&type=main&mode=GL&dummyCode=242872037",className:"DCL_profileImage",alt:"프로필"});*/
 			});
 		}
 
@@ -1652,17 +1758,35 @@
 					cElement('h1',writeFormTitle,{textContent:'간단 글쓰기'});
 					var writeFormButtons = cElement('ul',writeFormTitle);
 						cElement('a',cElement('li',writeFormButtons),{textContent:'×'},function(){ if(confirm('작성하신 내용이 손실됩니다.\n\n계속하시겠습니까?')) removeElement(writeForm); });
-				
-				if(_GID) {
-					cElement('div',writeInfoDiv,{textContent:_GID,name:'name'});
-				} else {
-					cElement('input',writeInfoDiv,{type:'text',name:'name',placeholder:'닉네임',required:'required'});
-					cElement('input',writeInfoDiv,{type:'password',name:'password',placeholder:'비밀번호',required:'required'});
-				}
-				cElement('input',writeInfoDiv,{type:'text',name:'subject',placeholder:'제목',required:'required'}).focus();
+
 				for(var i=(target = writeBody.querySelector('form#write').querySelectorAll('input[type="hidden"]')).length;i--;) {
 					cElement('input',writeInfoDiv,{type:'hidden',name:target[i].name,value:target[i].value});
 				}
+				
+				if((gallog_url = writeBody.querySelector('#favorite_gallog_img')) && (gallog_id = gallog_url.href.match(/http:\/\/gallog\.dcinside\.com\/(.+)/))) {
+					cElement('div',writeInfoDiv,{textContent:gallog_id[1],name:'name'});
+				} else {
+					var autoName = cElement('input',writeInfoDiv,{type:'text',name:'name',placeholder:'닉네임',required:'required'});
+					var autoPassword = cElement('input',writeInfoDiv,{type:'password',name:'password',placeholder:'비밀번호',required:'required'});
+
+					// 자동입력
+					if(P.autoForm) {
+						if(autoName) {
+							autoName.value = P.autoName;
+							autoName.style.background = "#FAFFBD";
+							autoName.addEventListener("keydown", function() { this.style.background = ""; });
+						}
+						if(autoPassword) {
+							autoPassword.value = P.autoPassword;
+							autoPassword.style.background = "#FAFFBD";
+							autoPassword.addEventListener("keydown", function() { this.style.background = ""; });
+						}
+					}
+					
+					if((ipAddr = writeForm.querySelector('input[name="user_ip"]').value))
+						cElement('style',writeForm,{type:'text/css',innerHTML:'form#DCL_writeForm > div.textarea:empty:before { content: "IP: ' + ipAddr.replace(/[0-9]+\.[0-9]+$/, '***.***') + '"; display: block; color: silver; cursor: text; }'});
+				}
+				cElement('input',writeInfoDiv,{type:'text',name:'subject',placeholder:'제목',required:'required'}).focus();
 				
 			cElement('textarea',writeForm,{name:'memo',required:'required'});
 			writeFormEditor = cElement('div',writeForm,{className:'textarea','contenteditable':'true'});
@@ -1677,10 +1801,6 @@
 								writeForm.querySelector('input[name="block_key"]').value = r.responseText;
 							else
 								cElement('input',writeInfoDiv,{type:'hidden',name:'block_key',value:r.responseText});
-	/*						if(writeForm.imgHtml)
-								writeForm.querySelector('textarea').value = writeForm.imgHtml + writeForm.querySelector('textarea').value;
-							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/\n/g,'<br>');
-							writeForm.querySelector('textarea').value = writeForm.querySelector('textarea').value.replace(/ /g,'&nbsp;');*/
 							writeForm.querySelector('textarea').value = writeForm.querySelector('div.textarea').innerHTML;
 							var data = formWalk(writeForm);
 							data = data.slice(0,data.length-1);
@@ -1699,7 +1819,7 @@
 								}
 								else
 									alert(r.responseText);
-							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},data);
+							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/write/?id='+_ID},data);
 						},
 						"POST",{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
 							''
@@ -1762,10 +1882,9 @@
 			}
 
 			function done() {
-				console.log(_this.segments);
 				bfloc = location.toString();
 				history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');
-				simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
+				simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { console.log(e); history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
 			}
 
 			var _this = this;
@@ -1830,9 +1949,9 @@
 			a[i].href = a[i].href.replace(/([?&]page=)\d+/,"$1"+PAGE);
 		}
 		
+		// TR loop
 		var trs = tbody.querySelectorAll('tr');
 		for(i=0,l=trs.length;i<l;i++) {
-			console.log(trs[i]);
 			if(P.listTime && (date = trs[i].querySelector('.t_date'))) {
 				if(date.title!='') {
 					date.textContent = date.title;
