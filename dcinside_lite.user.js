@@ -50,6 +50,7 @@
 	listRecom : 1,
 	listComment : 0,
 	listTime : 1,
+	listNick : 1,
 	menuList : "즐겨찾기||갤로그/구분선/이미지/베스트/개념글/구분선/설정/로그인",
 	menuPos : "left",
 	best : 1,
@@ -831,6 +832,9 @@
 				dclset.body.listSet.innerList.listTime = cElement("li", dclset.body.listSet.innerList);
 				cElement("input", dclset.body.listSet.innerList.listTime, {type:"checkbox", id:"DCL_listTime"});
 				cElement("label", dclset.body.listSet.innerList.listTime, {"for":"DCL_listTime",textContent:"날짜 옆에 시간도 표시"});
+				dclset.body.listSet.innerList.listNick = cElement("li", dclset.body.listSet.innerList);
+				cElement("input", dclset.body.listSet.innerList.listNick, {type:"checkbox", id:"DCL_listNick"});
+				cElement("label", dclset.body.listSet.innerList.listNick, {"for":"DCL_listNick",textContent:"닉네임 전체 표시"});
 				dclset.body.listSet.innerList.listCount = cElement("li", dclset.body.listSet.innerList);
 				cElement("input", dclset.body.listSet.innerList.listCount, {type:"checkbox", id:"DCL_listCount"});
 				cElement("label", dclset.body.listSet.innerList.listCount, {"for":"DCL_listCount",textContent:"조회수"});
@@ -1045,7 +1049,7 @@
 		}
 	},
 	load : function(nochrome) {
-		var num = ["filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","best","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","albumFullsize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","layoutEnabled"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","albumFullsize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","layoutEnabled"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -1826,12 +1830,20 @@
 			a[i].href = a[i].href.replace(/([?&]page=)\d+/,"$1"+PAGE);
 		}
 		
-		if(P.listTime) {
-			var dates = tbody.getElementsByClassName('t_date');
-			for(i=0,l=dates.length;i<l;i++) {
-				if(dates[i].title!='') {
-					dates[i].textContent = dates[i].title;
-					dates[i].title=null;
+		var trs = tbody.querySelectorAll('tr');
+		for(i=0,l=trs.length;i<l;i++) {
+			console.log(trs[i]);
+			if(P.listTime && (date = trs[i].querySelector('.t_date'))) {
+				if(date.title!='') {
+					date.textContent = date.title;
+					date.removeAttribute('title');
+				}
+			}
+			if(P.listNick && (writer = trs[i].querySelector('.t_writer > span:first-of-type'))) {
+				if(writer.title!='') {
+					writer.textContent = writer.title;
+					if(!(writer.title = writer.parentNode.getAttribute('user_id')))
+						writer.removeAttribute('title');
 				}
 			}
 		}
