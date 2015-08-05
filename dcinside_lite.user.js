@@ -1,21 +1,24 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15009
-// @date           2015.08.02
+// @version        15010
+// @date           2015.08.05
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
 // @include        http://gall.dcgame.in/*
 // @include        http://job.dcinside.com/*
-// @grant          GM_xmlhttpRequest
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15009";	// 실제 버전
-	var VERSION = "15002";		// 설정 내용 버전
+	var R_VERSION = "15010";	// 실제 버전
+	var VERSION = "15010";		// 설정 내용 버전
 	var P = {
 	version : "",
+
+	loadAtList : 1,
+	loadAtView : 0,
+	loadAtWrite : 0,
 
 	filter : 1,
 	blockN : 1,
@@ -51,6 +54,8 @@
 	menuPos : "left",
 	best : 1,
 	linkList : "게시판@47\n김유식@yusik",
+
+	simpleWrite : 0,
 
 	page : 0,
 	pageCount : 5,
@@ -120,7 +125,7 @@
 	var MODE = {};
 	location.pathnameN = location.pathname.replace(/\/+$/, '');
 	switch(location.pathnameN) {
-	/*	case "/board/write":
+		case "/board/write":
 			MODE.gall = true;
 			MODE.write = true;
 			break;
@@ -131,7 +136,7 @@
 		case "/board/comment_view":
 			MODE.gall = true;
 			MODE.comment = true;
-			break;*/
+			break;
 		case "/board/lists":
 			MODE.gall = true;
 			MODE.list = true;
@@ -210,6 +215,17 @@
 		}
 		return data;
 	};
+
+	if(!XMLHttpRequest.prototype.sendAsBinary){		// 망할 크롬
+		XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
+			function byteValue(x) {
+					return x.charCodeAt(0) & 0xff;
+			}
+			var ords = Array.prototype.map.call(datastr, byteValue);
+			var ui8a = new Uint8Array(ords);
+			this.send(ui8a.buffer);
+		}
+	}
 
 	var xmlhttpRequest = typeof GM_xmlhttpRequest!=='undefined'?GM_xmlhttpRequest:
 		function(details) {
@@ -604,6 +620,7 @@
 					"div.DCL_set_mdi > div.head > h2{ padding:10px 20px; font-weight: normal; font-size: 120%;}" +
 
 					"div.DCL_set_wrap * { cursor: default; margin:0 ; padding:0 ; font-size: 12px; line-height:1.6em ; font-family: " + P.fontList + "; vertical-align:middle}" +
+					"div.DCL_set_wrap small { margin-left: 0.5em; font-size: 0.9em; }" + 
 					"div.DCL_set_wrap textarea { border: 1px solid #CCC; cursor: auto; font-family: monospace; outline: none; }" +
 
 					"div.DCL_set_wrap > div.foot > input[type=submit]," +
@@ -652,6 +669,23 @@
 			dclset.body = cElement("div", dclset.wrap, {id:"DCL_set", className:"body"});
 			dclset.body.mdibg = cElement("div", dclset.body, {id:"DCL_set_mdibg"});
 			dclset.body.mdibg.style.display="none";
+
+			dclset.body.loadSet = cElement("div", dclset.body);
+			cElement("h3", dclset.body.loadSet, "로드 설정");
+			dclset.body.loadSet.innerList = cElement("ul", dclset.body.loadSet);
+				dclset.body.loadSet.innerList.info = cElement("li", dclset.body.loadSet.innerList);
+				cElement("div", dclset.body.loadSet.innerList.info, "디시라이트를 사용할 페이지를 설정합니다.");
+				dclset.body.loadSet.innerList.loadAtList = cElement("li", dclset.body.loadSet.innerList);
+				cElement("input", dclset.body.loadSet.innerList.loadAtList, {type:"checkbox", id:"DCL_loadAtList", disabled:"disabled"});
+				cElement("label", dclset.body.loadSet.innerList.loadAtList, {"for":"DCL_loadAtList",textContent:"갤러리"});
+				dclset.body.loadSet.innerList.loadAtView = cElement("li", dclset.body.loadSet.innerList);
+				cElement("input", dclset.body.loadSet.innerList.loadAtView, {type:"checkbox", id:"DCL_loadAtView"});
+				cElement("label", dclset.body.loadSet.innerList.loadAtView, {"for":"DCL_loadAtView",textContent:"게시글 내용"});
+				cElement("small", dclset.body.loadSet.innerList.loadAtView, {textContent:"(느려질 수도 있음)"});
+				dclset.body.loadSet.innerList.loadAtWrite = cElement("li", dclset.body.loadSet.innerList);
+				cElement("input", dclset.body.loadSet.innerList.loadAtWrite, {type:"checkbox", id:"DCL_loadAtWrite"});
+				cElement("label", dclset.body.loadSet.innerList.loadAtWrite, {"for":"DCL_loadAtWrite",textContent:"글쓰기 화면"});
+				cElement("small", dclset.body.loadSet.innerList.loadAtWrite, {textContent:"(별로 소용없는데 왜 굳이?)"});
 
 			dclset.body.filter = cElement("div", dclset.body);
 			cElement("h3", dclset.body.filter, "필터");
@@ -894,6 +928,9 @@
 				dclset.body.easyView.innerList.layerComment = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerComment, {type:"checkbox", id:"DCL_layerComment"});
 				cElement("label", dclset.body.easyView.innerList.layerComment, {"for":"DCL_layerComment",textContent:"댓글"});
+				dclset.body.easyView.innerList.simpleWrite = cElement("li", dclset.body.easyView.innerList);
+				cElement("input", dclset.body.easyView.innerList.simpleWrite, {type:"checkbox", id:"DCL_simpleWrite"});
+				cElement("label", dclset.body.easyView.innerList.simpleWrite, {"for":"DCL_simpleWrite",textContent:"간단 글쓰기"});
 				
 			dclset.body.Album = cElement("div", dclset.body);
 			cElement("h3", dclset.body.Album, "이미지 모아보기");
@@ -1387,7 +1424,8 @@
 					}
 		};
 		
-//		cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
+		if(P.simpleWrite)
+			cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
 		var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},funcList.refresh);
 
 		// 즐겨찾기 링크 정리
@@ -1575,14 +1613,14 @@
 					+ 'div.DCL_dropzoneDiv > span:before { content: "여기에 사진을 끌어놓으세요"; display: inline-block; position: relative; top: 50%; transform: translateY(-50%); }'
 					+ 'div.DCL_dropzoneDiv > span:after { display: inline-block; content: ""; position: absolute; border: 10px dashed white; top: 30px; left: 30px; right: 30px; bottom: 30px; }'
 			);
-/*
+
 		// 간단 글쓰기 폼
-		if($('span.f_r > a')) {
+		if(P.simpleWrite && $('span.f_r > a')) {
 			$('span.f_r > a').addEventListener('click', function(e) {
 				openSimpleWriteForm();
 				e.preventDefault();
 			});
-		}*/
+		}
 	}
 
 	function openSimpleWriteForm() {
@@ -1648,7 +1686,8 @@
 								history.pushState(bfloc, bfloc, bfloc);
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true') {
-										softLoad('/board/view/?id='+_ID+'&no='+reply[1]);
+										console.log('article no:' + reply[1]);
+										softLoad('/board/lists/?id='+_ID);
 										removeElement(writeForm);
 									}
 									else
@@ -3618,7 +3657,7 @@
 	list : [],
 	keydown : function(e) {
 		var tag = e.target.nodeName;
-		if(tag === "INPUT" || tag === "TEXTAREA" || Viewer.on || Album.on) {
+		if(tag === "INPUT" || tag === "TEXTAREA" || Viewer.on || Album.on || e.target.className == "textarea") {
 			return;
 		}
 		var code = e.keyCode;
@@ -3707,6 +3746,12 @@
 			cElement('meta',document.head,{'name':'viewport','content':'width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1'});
 		if(MODE.settings)
 			return SET.call();
+
+		if(!P.loadAtWrite && MODE.write)
+			return;
+		if(!P.loadAtView && (MODE.article || MODE.comment))
+			return;
+
 		addStyle(
 			'* { -webkit-text-size-adjust: none; }' +
 			".banner_box, #dgn_footer, #dgn_gallery_right_detail { display:none !important; }" +
