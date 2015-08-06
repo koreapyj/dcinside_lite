@@ -1554,7 +1554,7 @@
 		// 즐겨찾기 링크 정리
 		var linkList = new Array();
 		if(P.linkList) {
-			var regexp = /(?:(\[현재갤\])|([^@]+)(@{1,2})((http:\/\/)?.+))(?:\n|$)/ig;
+			var regexp = /(?:(\[현재갤\])|([^@]+)(@{1,2})((https?:\/\/)?.+))(?:\n|$)/ig;
 			var exec,href,className,li,a,g_flg=new Array();
 			while( (exec=regexp.exec(P.linkList)) ) {
 				switch(exec[1]) {
