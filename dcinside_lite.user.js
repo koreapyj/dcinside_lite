@@ -2,7 +2,7 @@
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
 // @version        15010
-// @date           2015.08.05
+// @date           2015.08.06
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -1838,10 +1838,10 @@
 					);
 				});
 				var writeToolbox = cElement('ul',writeBottomDiv);
-					cElement('a',cElement('li',writeToolbox),{title:'굵게',textContent:'B',className:'DCL_editor_bold'});
+/*					cElement('a',cElement('li',writeToolbox),{title:'굵게',textContent:'B',className:'DCL_editor_bold'});
 					cElement('a',cElement('li',writeToolbox),{title:'기울임',textContent:'I',className:'DCL_editor_italic'});
 					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
-					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});
+					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});*/
 
 					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'File'},function() {$('input#DCL_fileSelectDlg').click();});
 
@@ -1893,7 +1893,7 @@
 			function done() {
 				bfloc = location.toString();
 				history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');
-				simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { console.log(e); history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
+				simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
 			}
 
 			var _this = this;
@@ -3866,8 +3866,7 @@
 	function shortkey(e) {
 		if(e.target.tagName != "BODY")
 			return;
-
-		console.log(e); 
+ 
 		// . => 190
 		// n =>  78
 		// r =>  82
