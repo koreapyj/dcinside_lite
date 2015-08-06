@@ -409,7 +409,7 @@
 		return element;
 	}
 	function simpleRequest(url,callback,method,headers,data,error) {
-		var details = {method:method?method:"GET",url:url,timeout:10000,ontimeout:function() { console.log('Timeout! Retry...'); simpleRequest(url,callback,method,headers,data); }};
+		var details = {method:method?method:"GET",url:url,timeout:10000,ontimeout:function(e){error(e);}};
 		if(callback) {
 			details.onload = function(response){callback(response);};
 		}
@@ -1749,10 +1749,14 @@
 				var r = JSON.parse(e.responseText)['files'];
 				writeForm.imgHtml='';
 				for(i=0;i<r.length;i++) {
+					if(r[i].error)
+						alert(r[i].error);
 					if(!r[i].url)
 						continue;
 					writeForm.imgHtml+='<img src="' + r[i].url + '" class="txc-image" />\n';
-					cElement('input',writeForm,{name:'file_write['+(writeForm.fileIdx++)+'][file_no]',value:r[i].file_temp_no});
+					cElement('input',writeForm,{type:'hidden',name:'file_write['+(writeForm.fileIdx++)+'][file_no]',value:r[i].file_temp_no});
+					if(uStat = $('input[name="upload_status"]'))
+						uStat.value='Y';
 				}
 				writeForm.querySelector('div.textarea').innerHTML = writeForm.imgHtml + writeForm.querySelector('div.textarea').innerHTML;
 				$('div#DCL_writeBottomDiv input[type="submit"]').disabled=null;
@@ -1893,7 +1897,17 @@
 			function done() {
 				bfloc = location.toString();
 				history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');
-				simpleRequest('http://upimg.dcinside.com/upimg_file.php?id='+_ID,function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },'POST',{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n");
+				xmlhttpRequest({
+					binary:true,
+					method:'POST',
+					url:'http://upimg.dcinside.com/upimg_file.php?id='+_ID,
+					onload:function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },
+					headers:{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},
+					data:"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n",
+					timeout:30000,
+					ontimeout:function(e) { console.log('Upload timeout!'); console.log(e); },
+					onerror:function(e) { console.log('Upload Error!'); console.log(e); }
+				});
 			}
 
 			var _this = this;
