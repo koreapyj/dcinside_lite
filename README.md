@@ -6,7 +6,7 @@ DCinside Lite(디시라이트)는 디시인사이드를 쉽고 편리하게 이�
 - 갤러리 게시물 내부의 사진을 모아서 한 눈에 볼 수 있습니다.
 - 고속으로 게시물을 불러오므로 갤러리 이용 속도가 향상됩니다.
 
-대응 브라우저: MSIE, Firefox, Opera, Safari, Chrome ([Chrome Web Store](https://chrome.google.com/webstore/detail/dcinside-lite/lgnkacndidedhhckjpgdofaoaogbgnac)에서 찾으세요)
+대응 브라우저: MSIE, Firefox, WebKit을 쓰거나 WebKit같이 생긴 애들, Chrome ([Chrome Web Store](https://chrome.google.com/webstore/detail/dcinside-lite/lgnkacndidedhhckjpgdofaoaogbgnac)에서 찾으세요)
 
 문제 보고나 Pull Request 언제든 환영합니다. 제발 해주세요.
 
