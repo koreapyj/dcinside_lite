@@ -300,11 +300,13 @@
 				history.pushState(bfloc, bfloc, bfloc);
 		};
 
-	function softLoad(url) {
+	function softLoad(url,ispop) {
 		p_url = parseQuery(url);
 		if(history.pushState && MODE.list) {
-			history.pushState(location.toString(), '로드 중...', url);
-			SCROLL.scrollTop = 0;
+			if(!ispop) {
+				history.pushState(location.toString(), '로드 중...', url);
+				SCROLL.scrollTop = 0;
+			}
 
 			if(p_url.id!=_ID) {
 				_ID = p_url.id;
@@ -1707,6 +1709,7 @@
 		addStyle(''
 					+ 'form#DCL_writeForm input { -webkit-appearance: none; border-radius: 0; }'
 					+ 'form#DCL_writeForm { position: fixed; width: 640px; height: 480px; max-width: 100%; max-height: 100%; background-color: white; box-shadow: 0 0 3px black; bottom: 60px; right: 30px; z-index: 120; padding-top: 111px; padding-bottom: 41px; box-sizing: border-box; }'
+					+ 'form#DCL_writeForm.DCL_writeHasAttach { padding-bottom: 124px; }'
 					+ 'form#DCL_writeForm * { font-family: "Segoe UI", "Meiryo UI", "Malgun Gothic", "Dotum", sans-serif; }'
 
 					+ '@media (max-width: 670px) {'
@@ -1735,16 +1738,22 @@
 					+ 'form#DCL_writeForm > div.textarea { width: 100%; height: 100%; padding: 10px; border: 0; font-size: 13px; font-weight: normal; box-sizing: border-box; resize: none; overflow-y: scroll; }'
 					+ 'form#DCL_writeForm > textarea { display: none; }'
 
+					+ 'ul#DCL_writeAttach { position: absolute; right: 0; bottom: 41px; left: 0; background-color: #EEE; border-top: 1px solid #bbb; padding: 10px; list-style: none; white-space: nowrap; }'
+					+ 'ul#DCL_writeAttach > li { position: relative; display: inline-block; width: 60px; height: 60px; overflow: hidden; border: 1px solid #bbb; margin-right: 10px; }'
+					+ 'ul#DCL_writeAttach > li > img { position: absolute; left: 50%; top: 50%; height: 100%; width: auto; transform: translate(-50%,-50%); }'
+					+ 'ul#DCL_writeAttach > li > div { background-color: black; position: absolute; top: 0; right: 0; color: white; width: 15px; height: 15px; text-align: center; line-height: 15px; font-size: 15px; opacity: .5; cursor: pointer; }'
+					+ 'ul#DCL_writeAttach > li > div:hover { opacity: .9; }'
+
 					+ 'div#DCL_writeBottomDiv { position: absolute; bottom: 0; left: 0; right: 0; height: 41px; border-top: 1px solid #aaa; background-color: #eee; padding: 3px; box-sizing: border-box; }'
 					+ 'div#DCL_writeBottomDiv > input[type="button"],'
-					+ 'div#DCL_writeBottomDiv > input[type="submit"] { font-size: 13px; line-height: 20px; padding: 3px 20px; border-radius: 3px; margin: 3px; background-color: white; background-image: linear-gradient(0deg,#eee,#fff); border: 1px solid #aaa; }'
+					+ 'div#DCL_writeBottomDiv > input[type="submit"] { font-size: 13px; line-height: 20px; padding: 3px 20px; border-radius: 3px; margin: 3px; background-color: white; background-image: linear-gradient(0deg,#eee,#fff); border: 1px solid #aaa; float: right; }'
 					+ 'div#DCL_writeBottomDiv > input[type="submit"] { background-color: #5b7ce5; background-image: linear-gradient(0deg,#5b7ce5,#6987e8); border: 1px solid #2049cf; color: white; }'
 					+ 'div#DCL_writeBottomDiv > input[type="submit"]:disabled { background-color: #889fec; background-image: linear-gradient(0deg,#889fec,#95aaee); border-color: #7b95ea; }'
-					+ 'div#DCL_writeBottomDiv > a { font-weight: normal; color: blue; font-size: 12px; line-height: 20px; margin: 3px; padding: 3px; display: inline-block; float: right; }'
+					+ 'div#DCL_writeBottomDiv > a { font-weight: normal; color: blue; font-size: 12px; line-height: 20px; margin: 3px; padding: 3px; display: inline-block; }'
 
 					+ 'div#DCL_writeBottomDiv > ul { display: inline-block; height: 28px; margin: 3px; }'
 					+ 'div#DCL_writeBottomDiv > ul > li { display: inline-block; }'
-					+ 'div#DCL_writeBottomDiv > ul > li > a { cursor: default; height: 26px; width: 26px; border: 1px solid transparent; border-radius: 3px; line-height: 26px; text-align: center; font-size: 16px; display: inline-block; padding: 0; font-weight: normal; text-decoration: none; }'
+					+ 'div#DCL_writeBottomDiv > ul > li > a { cursor: default; height: 26px; border: 1px solid transparent; border-radius: 3px; line-height: 26px; text-align: center; font-size: 13px; display: inline-block; padding: 0 10px; font-weight: normal; text-decoration: none; }'
 
 					+ 'div#DCL_writeBottomDiv > ul > li > a:hover { border-color: #aaa; background-image: linear-gradient(0deg,#eee,#fff); }'
 
@@ -1778,8 +1787,25 @@
 						alert(r[i].error);
 					if(!r[i].url)
 						continue;
-					writeForm.imgHtml+='<img src="' + r[i].url + '" class="txc-image" />\n';
-					cElement('input',writeForm,{type:'hidden',name:'file_write['+(writeForm.fileIdx++)+'][file_no]',value:r[i].file_temp_no});
+					
+					if(!$('ul#DCL_writeAttach')) {
+						cElement('ul',[writeForm,0],{id:'DCL_writeAttach'});
+						writeForm.classList.add('DCL_writeHasAttach');
+					}
+					imgbox = cElement('li', $('ul#DCL_writeAttach'));
+					attachViewer.add(r[i].url,cElement('img',imgbox,{src:r[i].url}));
+					cElement('div',imgbox,{textContent:'×'},function() {
+						removeElement(this.parentNode);
+						if(!$('ul#DCL_writeAttach > *')) {
+							if(uStat = $('input[name="upload_status"]'))
+								uStat.value='N';
+							removeElement($('ul#DCL_writeAttach'));
+							writeForm.classList.remove('DCL_writeHasAttach');
+						}
+					});
+					cElement('input',imgbox,{type:'hidden',name:'file_write[][file_no]',value:r[i].file_temp_no});
+					imgbox = null;
+
 					if(uStat = $('input[name="upload_status"]'))
 						uStat.value='Y';
 				}
@@ -1790,7 +1816,6 @@
 			if(writeForm = $('form#DCL_writeForm')) removeElement(writeForm);
 			var writeBody = e.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)<\/body>/)[1].toDomElement();
 			var writeForm = cElement('form',[document.body,0],{id:'DCL_writeForm',action:'http://gall.dcinside.com/forms/article_submit',method:'post'/*,enctype:'multipart/form-data'*/});
-			writeForm.fileIdx = 0;
 			var writeInfoDiv = cElement('div',writeForm,{id:'DCL_writeInfoDiv'});
 				var writeFormTitle = cElement('div',writeInfoDiv,{id:'DCL_writeFormTitle'});
 					cElement('h1',writeFormTitle,{textContent:'간단 글쓰기'});
@@ -1828,8 +1853,21 @@
 				
 			cElement('textarea',writeForm,{name:'memo',required:'required'});
 			writeFormEditor = cElement('div',writeForm,{className:'textarea','contenteditable':'true'});
-			
+
+			var attachViewer = new Viewer();
+			attachViewer.clear();
+
 			var writeBottomDiv = cElement('div',writeForm,{id:'DCL_writeBottomDiv'});
+				var writeToolbox = cElement('ul',writeBottomDiv);
+/*					cElement('a',cElement('li',writeToolbox),{title:'굵게',textContent:'B',className:'DCL_editor_bold'});
+					cElement('a',cElement('li',writeToolbox),{title:'기울임',textContent:'I',className:'DCL_editor_italic'});
+					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
+					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});*/
+
+					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...'},function() {$('input#DCL_fileSelectDlg').click();});
+					
+				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
+
 				cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
 					e.preventDefault();
 					this.disabled='disabled';
@@ -1848,6 +1886,7 @@
 								history.pushState(bfloc, bfloc, bfloc);
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true') {
+										attachViewer = null;
 										softLoad('/board/lists/?id='+_ID);
 										removeElement(writeForm);
 									}
@@ -1865,15 +1904,6 @@
 						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
 					);
 				});
-				var writeToolbox = cElement('ul',writeBottomDiv);
-/*					cElement('a',cElement('li',writeToolbox),{title:'굵게',textContent:'B',className:'DCL_editor_bold'});
-					cElement('a',cElement('li',writeToolbox),{title:'기울임',textContent:'I',className:'DCL_editor_italic'});
-					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
-					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});*/
-
-					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'File'},function() {$('input#DCL_fileSelectDlg').click();});
-
-				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
 
 			var fileSelectDlg = cElement('input',writeForm,{type:'file',id:'DCL_fileSelectDlg','multiple':'multiple'})
 			fileSelectDlg.style.display='none';
@@ -1926,12 +1956,12 @@
 //						binary:true,    // Fuck you Gecko 31
 						method:'POST',
 						url:'http://upimg.dcinside.com/upimg_file.php?id='+_ID,
-						onload:function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },
+						onload:function(e) { return callback(e); },
 						headers:{'Accept':'application/json, text/javascript, */*; q=0.01','Referer':'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com','Content-Type':'multipart/form-data; boundary='+_this.boundary},
 						data:("--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n").toBlob(),
 						timeout:30000,
-						ontimeout:function(e) { history.pushState(bfloc, bfloc, bfloc); console.log('Upload timeout!'); console.log(e); },
-						onerror:function(e) { history.pushState(bfloc, bfloc, bfloc); console.log('Upload Error!'); console.log(e); }
+						ontimeout:function(e) { console.log('Upload timeout!'); console.log(e); },
+						onerror:function(e) { console.log('Upload Error!'); console.log(e); }
 					});
 				} catch(e) {
 					console.log(e);
@@ -3284,7 +3314,7 @@
 		};
 
 		addStyle(
-			"div#DCL_viewerDiv {position:fixed; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:102 ; display:none}" +
+			"div#DCL_viewerDiv {position:fixed; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:121; display:none}" +
 			"div#DCL_viewerBack {position:fixed; top:0 ; left:0 ; width:100% ; height:100% ; background-color:#000 ; opacity:0.8}" +
 			"div#DCL_viewerImg {position:absolute; display: inline-block; }" +
 			"div#DCL_viewerImg > img { cursor:all-scroll; }" +
@@ -4195,7 +4225,7 @@
 				document.addEventListener("keydown",shortkey,false);
 
 				window.onpopstate = function(e) {
-					softLoad(e.state);
+					softLoad(e.state,1);
 				};
 			}
 
