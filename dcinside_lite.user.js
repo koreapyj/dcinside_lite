@@ -411,6 +411,9 @@
 					if(target === "next") {
 						before = before.nextSibling;
 					}
+					if(target === "prev") {
+						before = before.previousSibling;
+					}
 				}
 			} else {
 				parent = insert;
@@ -1473,37 +1476,6 @@
 				"div#DCL_writeBtn { display: none; }" +
 				"";
 		}
-
-		if(MODE.list) {
-			css += ''
-					+ ".btn_voice_ps{display:inline-block;position:relative;width:166px;height:20px;z-index:0;background:url(http://wstatic.dcinside.com/gallery/images/voice/btn_voice_web.gif) 0 0 no-repeat;}"
-					+ ".btn_voice_ps a.btn_voice_play{display:inline-block;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_play.gif) 12px 5px no-repeat;color:#5964f4;width:141px;height:20px;line-height:20px;text-align:left;padding-left:25px;font-size:11px;font-family:Dotum,'돋움';text-decoration:none;}"
-					+ ".btn_voice_ps a.btn_voice_stop{display:inline-block;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_stop.gif) 12px 6px no-repeat;color:#666666;width:141px;height:20px;line-height:20px;text-align:left;padding-left:25px;font-size:11px;font-family:Dotum,'돋움';text-decoration:none;}"
-					+ ".btn_voice_ps a.btn_voice_stop span{margin-left:40px}"
-					+ ".btn_voice_ps a.btn_voice_play span{margin-left:40px}"
-					+ ".btn_voice_info{display:inline-block;width:25px;height:20px;position:absolute;top:0;right:0;background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_info.gif) center center no-repeat}"
-					+ "#dgn_voice_pop_info{position:absolute;z-index:9999;top:50%;left:" + (document.body.offsetWidth / 2 - 167) + "px;font-size:12px;font-family:Dotum,'돋움'}"
-					+ "#dgn_voice_pop_info div,#dgn_voice_pop_info p{margin:0;padding:0}"
-					+ "#dgn_voice_pop_info .pop_info_top{display:block;width:335px;height:15px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_top.png) 0 bottom no-repeat;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_top.png', sizingMethod='crop');}"
-					+ "#dgn_voice_pop_info .pop_info_con{display:block;width:335px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_center.png) ;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_center.png', sizingMethod='crop');background-repeat: 0 repeat-y}"
-					+ "#dgn_voice_pop_info .pop_info_bottom{display:block;width:335px;height:19px;background:url(http://wstatic.dcinside.com/gallery/images/voice/bg_voice_bottom.png) 0 0 no-repeat;_background:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://wstatic.dcinside.com/gallery/images/voice/bg_voice_bottom.png', sizingMethod='crop');}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_1{position:relative;margin:0px 18px;padding:3px 0 6px 0;border-bottom:1px solid #d9d9d9;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_1 span{background:url(http://wstatic.dcinside.com/gallery/images/voice/icon_info1.gif) 0 center no-repeat;padding:2px 0 0px 20px}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_1 span img{vertical-align:middle}"
-					+ "#dgn_voice_pop_info .pop_info_con .btn_close{position:absolute;top:0px;right:5px;*top:3px;_right:20px;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_2{position:relative;margin:0px 18px;padding:10px 0 6px 0;font-size:11px;color:#3f3f3f;line-height:16px}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_2 p{text-decoration:underline;color:#707070;margin:5px 0;font-size:11px;letter-spacing:0}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_2 p a{color:#707070;text-decoration:underline;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3{position:relative;margin:0px 18px;padding:10px;background:#f2f2f2;font-size:11px;color:#3f3f3f;line-height:16px}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 p{color:#4a65ef;font-size:11px;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url{margin-top:3px;font-size:12px}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url span{padding-left:5px;color:#4c4c4c;font-size:12px}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_url a{color:#4c4c4c;font-size:12px;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_txt{position:relative;margin-top:8px;width:200px;font-size:12px;height:70px;color:#817f7f;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_txt span{font-size:12px;}"
-					+ "#dgn_voice_pop_info .pop_info_con .ibox_3 .voice_qr{position:absolute;top:50px;right:10px;_right:25px;}"
-					+ ''
-		}
 		addStyle(css);
 
 		var menuDiv = cElement("div",[document.body,0],{id:"DCL_menuDiv"});
@@ -2021,7 +1993,6 @@
 		var rows = tbody.rows;
 
 		tbody.setAttribute("DCL_tbody",p);
-		cElement("div",rows[0].cells[0],{id:'dgn_voice_pop_info',className:"hidden",innerHTML:'<div class="pop_info_top"></div><div class="pop_info_con"><div class="ibox_1"><span><img src="http://wstatic.dcinside.com/gallery/images/voice/title_voice.gif" alt="보이스 리플이란?"/></span><a onclick="javascript:vr_guide_closed();" class="btn_close" style="cursor:pointer;"><img src="http://wstatic.dcinside.com/gallery/images/voice/btn_delete_pop.gif" alt="닫기 버튼 "></a></div><div class="ibox_2">보이스 리플이란?  갤러리 게시물에 일반 텍스트 형태가 아닌 <b>음성</b>으로 리플을 등록할 수 있는 기능 입니다. <p>보이스 리플 등록은 스마트폰 전용 어플리케이션을 설치하신후 모바일웹(m.dcinside.com)을 통해 등록 할 수 있습니다.</p></div><div class="ibox_3"><p>[전용 어플리케이션 다운 안내]</p><div class="voice_url"><b>접속 URL</b><span><a href="http://dcinside.com/voice_guide.html">http://dcinside.com/voice_guide.html</a></span></div><div class="voice_txt" ><span>※스마트폰 브라우저 주소창에 위 주소를 입력 또는 우측 qr코드를 스캔해 다운 받을 수 있습니다. </span> </div><img src="http://wstatic.dcinside.com/gallery/images/voice/qrcode_voice.gif" alt="qr code" class="voice_qr"></div></div><div class="pop_info_bottom"></div>'});
 		var tbodyBtn = cElement("p",rows[0].cells[0],{className:"DCL_tbodyBtn"});
 		cElement("span",tbodyBtn,(p+PAGE)+" 페이지",function(){pageLoad(p);});
 		cElement("span",tbodyBtn,"글닫기",function(){Layer.close(p);});
@@ -2463,9 +2434,12 @@
 			"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
 			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 10pt; font-family: 굴림; }" +
 
-			"table.DCL_layerComment {width:100% ; margin-top:5px ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
-			"table.DCL_layerComment > caption {border-top:1px solid #999 ; border-bottom:1px solid #999 ; padding:2px 5px ; font:10pt 돋움 ; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto;}" +
+			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:10pt 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
+
+			"table.DCL_layerComment {width:100% ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
 			"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
+			"table.DCL_layerComment tr.DCL_layerCommentMore td { font-size: 9pt !important; }" +
+			"table.DCL_layerComment tr.DCL_layerCommentMore td a { font-weight: bold; }" +
 			"table.DCL_layerComment td { height: auto; vertical-align: middle !important;}" +
 			"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
 			"table.DCL_layerComment td:last-child { padding-right: 5px; }" +
@@ -2564,7 +2538,6 @@
 		if(target.href.match(/comment_view/)===null) {
 			mode = "normal";
 		} else {
-	//		row = row.parentNode;
 			mode = "comment";
 		}
 
@@ -2849,7 +2822,7 @@
 						div.appendChild(commFrag);
 						div.appendChild(bottomMenu);
 
-						$('table.DCL_layerComment > caption').textContent = "[댓글 " + layer.comment_count + "개]";
+						$('div.DCL_layerCommentTitle').textContent = "댓글 " + layer.comment_count + "개";
 						layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
 
 						if(Layer.now === layer)layer.focus();
@@ -2868,6 +2841,8 @@
 			simpleRequest('/comment/view', 
 				function(response) {
 					readytogo--;
+
+					cElement('div',commFrag,{className:'DCL_layerCommentTitle',textContent:'댓글 0개'});
 
 					commFrag.appendChild(commentCallback(response));
 
@@ -2896,7 +2871,7 @@
 					div.appendChild(commFrag);
 					div.appendChild(bottomMenu);
 
-					$('table.DCL_layerComment > caption').textContent = "[댓글 " + layer.comment_count + "개]";
+					$('div.DCL_layerCommentTitle').textContent = "댓글 " + layer.comment_count + "개";
 					layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
 
 					if(Layer.now === layer)layer.focus();
@@ -2913,7 +2888,7 @@
 				if(si > -1 && ei > -1 && si < ei) {
 					var commFrag = document.createDocumentFragment();
 					var commentTable = cElement("table",commFrag,{className:"DCL_layerComment"});
-					var caption = cElement("caption",commentTable,'[댓글 0개]');
+					var colgroup = cElement('colgroup',commentTable);
 					var proc = document.createDocumentFragment();
 					var procTable = cElement("table",proc,{innerHTML:commentText.substring(si,ei)});
 					var rows = procTable.rows;
@@ -2925,6 +2900,12 @@
 					var reg3 = /nomember_comment\((\d+)\);/;
 					var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
 					var delExec;
+
+					cElement('col',colgroup,{style:'width: 120px;'});
+					cElement('col',colgroup,{style:'width: auto;'});
+					cElement('col',colgroup,{style:'width: 110px;'});
+					cElement('col',colgroup,{style:'width: 20px;'});
+
 					for(var i=0,l=rows.length ; i<l ; i+=3) {
 						ip=null;
 						var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
@@ -2970,8 +2951,25 @@
 						}
 					}
 					l/=3;
+
 					if(P.filter) {
 						Filter.comment(commentTable);
+					}
+					if(l < layer.comment_count) {
+						var loadPrevTd = cElement('td',cElement('tr',[commentTable,0],{className:'DCL_layerCommentMore'}),{colspan:4});
+						cElement('a',loadPrevTd,{href:'',textContent:'이전 댓글 불러오기...'},function(e) {
+							e.preventDefault();
+							layer.comment_page++;
+							var _this = this.parentNode;
+							_this.textContent = '로드 중...';
+							simpleRequest('/comment/view', 
+								function(response) {
+									removeElement(_this);
+									layer.div.insertBefore(commentCallback(response),$('.DCL_layerComment'));
+								},
+								"POST", 
+								{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+layer.no+'&comment_page='+layer.comment_page+'&ci_t='+csrf_token());
+						});
 					}
 				}
 				return commFrag;
@@ -4244,9 +4242,10 @@
 			}
 			
 			if(MODE.list) {
+				cElement('script',document.head,{type:'text/javascript',src:'http://gall.dcinside.com/_js/voice_reple.js'});
+				cElement('link',document.head,{type:'text/css',rel:'stylesheet',href:'http://nstatic.dcinside.com/dgn/gallery/css/voicereply/voicereply.css'});
 				ilbeView();
 				document.addEventListener("keydown",shortkey,false);
-
 				window.onpopstate = function(e) {
 					softLoad(e.state,1);
 				};
