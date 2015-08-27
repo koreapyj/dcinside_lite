@@ -2423,6 +2423,10 @@
 		this.r = r;
 		this.no = parseQuery(this.row.cells[1].children[1].href).no;
 		this.viewer = new Viewer();
+		this.comment_page = 1;
+		this.comment_count= 0;
+		if(cnt = this.row.cells[1].children[2].children[0].textContent.match(/([0-9]+)(?:\/([0-9]+))?/))
+			this.comment_count=cnt[1];
 
 		this.call();
 	}
@@ -2598,6 +2602,7 @@
 		var div = this.div;
 		var row = this.row;
 		var viewer = this.viewer;
+
 		viewer.clear();
 
 		div.innerHTML = "";
@@ -2831,12 +2836,22 @@
 		//						fileHTML += "<a href='"+fileExec[1]+"'>"+fileExec[2]+"</a>";
 							}
 						}
+						var commentCount = text.match(/comment_page\('([0-9]+)'\);/);
+						if(commentCount && commentCount[1])
+							layer.comment_count = commentCount[1];
+						else
+							layer.comment_count = 0;
+
 						if(readytogo>0) return;
 						div.innerHTML = "";
 						div.appendChild(topMenu);
 						div.appendChild(docFrag);
 						div.appendChild(commFrag);
 						div.appendChild(bottomMenu);
+
+						$('table.DCL_layerComment > caption').textContent = "[댓글 " + layer.comment_count + "개]";
+						layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
+
 						if(Layer.now === layer)layer.focus();
 					} else { // 로드 에러
 						cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
@@ -2847,99 +2862,30 @@
 		}
 		
 		if(P.layerComment || layer.mode === "comment") {
-			var commentTable = cElement("table",commFrag,{className:"DCL_layerComment"});
-
-			var replyP = cElement("p",[commentTable,"next"],{className:"DCL_replyP"});
-			var rMemo = cElement("input",replyP,{type:"text",className:"DCL_replyMemo2"});
-			rMemo.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
-			layer.rMemo = rMemo;
-			if(!_GID) {
-				var rName = cElement("input",[replyP,0],{type:"text",className:"DCL_replyName"}); // name
-				var rPassword = cElement("input",replyP,{type:"password",className:"DCL_replyPassword"}); // password
-				rPassword.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
-				if(P.autoForm) {
-					rName.value = P.autoName;
-					rPassword.value = P.autoPassword;
-				}
-			}
-			cElement("input",replyP,{type:"button",className:"DCL_replySubmit",value:"확인"},function(){layer.reply();});
 			cElement("span",topBtn,{textContent:"댓글",className:"DCL_layerBtn"},function(){rMemo.focus();});
 
 			var bfloc = document.location.toString();
 			simpleRequest('/comment/view', 
 				function(response) {
 					readytogo--;
-					commentText=response.responseText.replace(/<\/td><tr>/g, '</td></tr>');
-					var ci = commentText.lastIndexOf("<table class=\"gallery_re_contents\">");
-					var si = commentText.indexOf("<tr class=\"reply_line\">",ci);
-					var ei = commentText.indexOf("</table>",ci);
 
-					if(si > -1 && ei > -1 && si < ei) {
-						var proc = document.createDocumentFragment();
-						var procTable = cElement("table",proc,{innerHTML:commentText.substring(si,ei)});
-						var caption = cElement("caption",commentTable);
-						var rows = procTable.rows;
-						var lc = 4;
-						var btn,onclick;
-						var name,cc=0;
-						var reg1 = /del_comment_orgin\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\',\'([^\']+)\'\);/;
-						var reg2 = /del_comment\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\'\);/;
-						var reg3 = /nomember_comment\((\d+)\);/;
-						var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
-						var delExec;
-						for(var i=0,l=rows.length ; i<l ; i+=3) {
-							ip=null;
-							var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
-							if(rows[i].cells[1].getElementsByClassName('etc_ip')[0]){
-								while( (ipExec=ipReg.exec(rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent)) ) {
-									ip = ipExec[1]+'.***.***';//+ipExec[2];
-								}
-								rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent='';
-							}									
-							if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
-								delbox = delbox.children[0];
-								if( delExec=reg3.exec(onclick) ) {
-									delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
-									delbox.setAttribute("DCL_del_password",1);
-								}
-								else if( !(delExec=reg1.exec(onclick)) && !(delExec=reg2.exec(onclick)) ) {
-									console.log('삭제 버튼 없음');
-								}
-								delbox.addEventListener("click",function(e){ layer.delComment(e);});
-								delbox.setAttribute("DCL_del_no",delExec[1]);
-								delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
-							}
-							else { delbox=null; }
+					commFrag.appendChild(commentCallback(response));
 
-							name	= rows[i].cells[0].innerHTML;
-							value	= rows[i].cells[1].innerHTML;
-							date	= rows[i].cells[2].textContent;
-							ktr = cElement('tr', commentTable);
-							tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
-							cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
-							cElement('td', ktr, {innerHTML:date,className:'com_ip'});
-							btn = cElement('td', ktr, {className:'com_btn'});
-							if(delbox)btn.appendChild(delbox);
-
-							if (ip && P.commentColor) {
-								var color = ipColorize(ip);
-								if (P.commentColorType=="bg")
-									ktr.style.backgroundColor = color;
-								else if(P.commentColorType=="fg")
-									tnm.style.color = color;
-								else if(P.commentColorType=="gc")
-									cElement('span', tnm, "■").style.color = color;
-							}
+					var replyP = cElement("p",commFrag/*[commentTable,"next"]*/,{className:"DCL_replyP"});
+					var rMemo = cElement("input",replyP,{type:"text",className:"DCL_replyMemo2"});
+					rMemo.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
+					layer.rMemo = rMemo;
+					if(!_GID) {
+						var rName = cElement("input",[replyP,0],{type:"text",className:"DCL_replyName"}); // name
+						var rPassword = cElement("input",replyP,{type:"password",className:"DCL_replyPassword"}); // password
+						rPassword.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
+						if(P.autoForm) {
+							rName.value = P.autoName;
+							rPassword.value = P.autoPassword;
 						}
-						l/=3;
-						if(P.filter) {
-							Filter.comment(commentTable);
-						}
-						caption.textContent = "[댓글 " + l + "개]";
-						layer.row.cells[1].children[2].children[0].textContent = "["+l+"]";
-					} else {
-						layer.row.cells[1].children[2].textContent = "";
 					}
+					cElement("input",replyP,{type:"button",className:"DCL_replySubmit",value:"확인"},function(){layer.reply();});
+
 					if(Layer.now === layer) {
 						layer.focus();
 					}
@@ -2949,10 +2895,87 @@
 					div.appendChild(docFrag);
 					div.appendChild(commFrag);
 					div.appendChild(bottomMenu);
+
+					$('table.DCL_layerComment > caption').textContent = "[댓글 " + layer.comment_count + "개]";
+					layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
+
 					if(Layer.now === layer)layer.focus();
 				},
 				"POST", 
 				{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
+
+			function commentCallback(response) {
+				commentText=response.responseText.replace(/<\/td><tr>/g, '</td></tr>');
+				var ci = commentText.lastIndexOf("<table class=\"gallery_re_contents\">");
+				var si = commentText.indexOf("<tr class=\"reply_line\">",ci);
+				var ei = commentText.indexOf("</table>",ci);
+
+				if(si > -1 && ei > -1 && si < ei) {
+					var commFrag = document.createDocumentFragment();
+					var commentTable = cElement("table",commFrag,{className:"DCL_layerComment"});
+					var caption = cElement("caption",commentTable,'[댓글 0개]');
+					var proc = document.createDocumentFragment();
+					var procTable = cElement("table",proc,{innerHTML:commentText.substring(si,ei)});
+					var rows = procTable.rows;
+					var lc = 4;
+					var btn,onclick;
+					var name,cc=0;
+					var reg1 = /del_comment_orgin\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\',\'([^\']+)\'\);/;
+					var reg2 = /del_comment\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\'\);/;
+					var reg3 = /nomember_comment\((\d+)\);/;
+					var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
+					var delExec;
+					for(var i=0,l=rows.length ; i<l ; i+=3) {
+						ip=null;
+						var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
+						if(rows[i].cells[1].getElementsByClassName('etc_ip')[0]){
+							while( (ipExec=ipReg.exec(rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent)) ) {
+								ip = ipExec[1]+'.***.***';//+ipExec[2];
+							}
+							rows[i].cells[1].getElementsByClassName('etc_ip')[0].textContent='';
+						}									
+						if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
+							delbox = delbox.children[0];
+							if( delExec=reg3.exec(onclick) ) {
+								delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
+								delbox.setAttribute("DCL_del_password",1);
+							}
+							else if( !(delExec=reg1.exec(onclick)) && !(delExec=reg2.exec(onclick)) ) {
+								console.log('삭제 버튼 없음');
+							}
+							delbox.addEventListener("click",function(e){ layer.delComment(e);});
+							delbox.setAttribute("DCL_del_no",delExec[1]);
+							delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
+						}
+						else { delbox=null; }
+
+						name	= rows[i].cells[0].innerHTML;
+						value	= rows[i].cells[1].innerHTML;
+						date	= rows[i].cells[2].textContent;
+						ktr = cElement('tr', commentTable);
+						tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
+						cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
+						cElement('td', ktr, {innerHTML:date,className:'com_ip'});
+						btn = cElement('td', ktr, {className:'com_btn'});
+						if(delbox)btn.appendChild(delbox);
+
+						if (ip && P.commentColor) {
+							var color = ipColorize(ip);
+							if (P.commentColorType=="bg")
+								ktr.style.backgroundColor = color;
+							else if(P.commentColorType=="fg")
+								tnm.style.color = color;
+							else if(P.commentColorType=="gc")
+								cElement('span', tnm, "■").style.color = color;
+						}
+					}
+					l/=3;
+					if(P.filter) {
+						Filter.comment(commentTable);
+					}
+				}
+				return commFrag;
+			}
 		}
 	};
 	Layer.prototype.focus = function() {
