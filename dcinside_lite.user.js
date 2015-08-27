@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15011
+// @version        15012
 // @date           2015.08.28
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
@@ -16,7 +16,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15010";	// 실제 버전
+	var R_VERSION = "15012";	// 실제 버전
 	var VERSION = "15010";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -2396,7 +2396,7 @@
 		this.viewer = new Viewer();
 		this.comment_page = 1;
 		this.comment_count= 0;
-		if(cnt = this.row.cells[1].children[2].children[0].textContent.match(/([0-9]+)(?:\/([0-9]+))?/))
+		if(this.row.cells[1].children[2].children[0] && (cnt = this.row.cells[1].children[2].children[0].textContent.match(/([0-9]+)(?:\/([0-9]+))?/)))
 			this.comment_count=cnt[1];
 
 		this.call();
@@ -2823,7 +2823,8 @@
 						div.appendChild(bottomMenu);
 
 						$('div.DCL_layerCommentTitle').textContent = "댓글 " + layer.comment_count + "개";
-						layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
+						if(layer.row.cells[1].children[2].children[0])
+							layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
 
 						if(Layer.now === layer)layer.focus();
 					} else { // 로드 에러
@@ -2872,7 +2873,8 @@
 					div.appendChild(bottomMenu);
 
 					$('div.DCL_layerCommentTitle').textContent = "댓글 " + layer.comment_count + "개";
-					layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
+					if(layer.row.cells[1].children[2].children[0])
+						layer.row.cells[1].children[2].children[0].textContent = "["+layer.comment_count+"]";
 
 					if(Layer.now === layer)layer.focus();
 				},
@@ -2880,13 +2882,13 @@
 				{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
 
 			function commentCallback(response) {
+				var commFrag = document.createDocumentFragment();
 				commentText=response.responseText.replace(/<\/td><tr>/g, '</td></tr>');
 				var ci = commentText.lastIndexOf("<table class=\"gallery_re_contents\">");
 				var si = commentText.indexOf("<tr class=\"reply_line\">",ci);
 				var ei = commentText.indexOf("</table>",ci);
 
 				if(si > -1 && ei > -1 && si < ei) {
-					var commFrag = document.createDocumentFragment();
 					var commentTable = cElement("table",commFrag,{className:"DCL_layerComment"});
 					var colgroup = cElement('colgroup',commentTable);
 					var proc = document.createDocumentFragment();
