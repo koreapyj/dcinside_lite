@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15010
-// @date           2015.08.06
+// @version        15011
+// @date           2015.08.28
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -247,6 +247,7 @@
 
 	var xmlhttpRequest = typeof GM_xmlhttpRequest!=='undefined'?GM_xmlhttpRequest:
 		function(details) {
+			var bfloc = null;
 			var xmlhttp = new XMLHttpRequest();
 			xmlhttp.ontimeout = function() { details.ontimeout(); };
 			xmlhttp.onreadystatechange = function() {
@@ -280,15 +281,23 @@
 			}
 			if(details.headers) {
 				for(var prop in details.headers) {
-					if(details.headers.hasOwnProperty(prop) && ['origin','referer'].indexOf(prop.toLowerCase())==-1) {
-						xmlhttp.setRequestHeader(prop, details.headers[prop]);
+					if(details.headers.hasOwnProperty(prop)) {
+						if(['origin','referer'].indexOf(prop.toLowerCase())==-1)
+							xmlhttp.setRequestHeader(prop, details.headers[prop]);
+						else {
+							bfloc = location.toString();
+							history.pushState(bfloc, '로드 중...', details.headers[prop]);
+						}
 					}
 				}
-			}
-			if(details.binary && typeof(details.data)!=="undefined")
+			}/*
+			if(details.binary && typeof(details.data)!=="undefined") // Deprecated
 				xmlhttp.sendAsBinary(details.data);
-			else
-				xmlhttp.send( (typeof(details.data)!=="undefined")?details.data:null );
+			else */
+			xmlhttp.send( (typeof(details.data)!=="undefined")?details.data:null );
+
+			if(bfloc !== null)
+				history.pushState(bfloc, bfloc, bfloc);
 		};
 
 	function softLoad(url) {
@@ -356,6 +365,25 @@
 	Array.prototype.contains = function(needle) {
 		for(var i=0; i < this.length; i++) if(this[i] === needle) return true;
 		return false;
+	}
+	
+	String.prototype.toUint8Array = function () {
+		var datastr = this;
+		function byteValue(x) {
+				return x.charCodeAt(0) & 0xff;
+		}
+		var ords = Array.prototype.map.call(datastr, byteValue);
+		return new Uint8Array(ords);
+	}
+	
+	String.prototype.toBlob = function () {
+		var datastr = this;
+		
+		var bytes = new Uint8Array(datastr.length);
+		for (var i=0; i<datastr.length; i++)
+			bytes[i] = datastr.charCodeAt(i);
+
+		return bytes;
 	}
 
 	function $(id,multi) {return (multi?document.querySelectorAll(id):document.querySelector(id));};
@@ -431,6 +459,7 @@
 		}
 		xmlhttpRequest(details);
 	}
+
 	function ePrevent(e) {
 		e.stopPropagation();
 		e.preventDefault();
@@ -1168,7 +1197,6 @@
 					P[key] = items[key];
 				}
 			}
-				console.log(items);
 			for(i=0,l=num.length ; i<l ; i+=1) {
 				P[num[i]] = Number(P[num[i]]);
 			}
@@ -1272,8 +1300,6 @@
 
 		P.store = document.querySelector('input[name="DCL_store"]:checked').value;
 		P.syncStore = null;
-
-		console.log(P.store);
 
 		if(BROWSER.chrome && BROWSER.chrome.storage) {
 			if(P.store != 'Google')
@@ -1745,7 +1771,6 @@
 	function openSimpleWriteForm() {
 		simpleRequest('/board/write/?id=' + _ID, function(e) {
 			function uploadCallback(e) {
-				console.log(JSON.parse(e.responseText));
 				var r = JSON.parse(e.responseText)['files'];
 				writeForm.imgHtml='';
 				for(i=0;i<r.length;i++) {
@@ -1823,7 +1848,6 @@
 								history.pushState(bfloc, bfloc, bfloc);
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true') {
-										console.log('article no:' + reply[1]);
 										softLoad('/board/lists/?id='+_ID);
 										removeElement(writeForm);
 									}
@@ -1895,19 +1919,24 @@
 			}
 
 			function done() {
-				bfloc = location.toString();
-				history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');
-				xmlhttpRequest({
-					binary:true,
-					method:'POST',
-					url:'http://upimg.dcinside.com/upimg_file.php?id='+_ID,
-					onload:function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },
-					headers:{'Accept':'application/json, text/javascript, */*; q=0.01','Content-Type':'multipart/form-data; boundary='+_this.boundary},
-					data:"--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n",
-					timeout:30000,
-					ontimeout:function(e) { console.log('Upload timeout!'); console.log(e); },
-					onerror:function(e) { console.log('Upload Error!'); console.log(e); }
-				});
+/*				bfloc = location.toString();
+				history.pushState(bfloc, '로드 중...', 'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com');*/
+				try {
+					xmlhttpRequest({
+//						binary:true,    // Fuck you Gecko 31
+						method:'POST',
+						url:'http://upimg.dcinside.com/upimg_file.php?id='+_ID,
+						onload:function(e) { history.pushState(bfloc, bfloc, bfloc); return callback(e); },
+						headers:{'Accept':'application/json, text/javascript, */*; q=0.01','Referer':'http://gall.dcinside.com/upload/image?xssDomain=dcinside.com','Content-Type':'multipart/form-data; boundary='+_this.boundary},
+						data:("--" + _this.boundary + "\r\n" + _this.segments.join("--" + _this.boundary + "\r\n") + "--" + _this.boundary + "--\r\n").toBlob(),
+						timeout:30000,
+						ontimeout:function(e) { history.pushState(bfloc, bfloc, bfloc); console.log('Upload timeout!'); console.log(e); },
+						onerror:function(e) { history.pushState(bfloc, bfloc, bfloc); console.log('Upload Error!'); console.log(e); }
+					});
+				} catch(e) {
+					console.log(e);
+					return;
+				}
 			}
 
 			var _this = this;
@@ -2698,24 +2727,30 @@
 
 									if(P.albumFullsize)
 										textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
-									if(textImg.getAttribute('onclick')) {
-										origUrl = textImg.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-									}
-									else if(textImg.parentNode.getAttribute('onclick')) {
-										origUrl = textImg.parentNode.getAttribute('onclick').match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/)[0];
-									}
-									else
-										origUrl = ' ';
 
-									if(textImg.parentNode.tagName=="A") {
-										nImg = cElement("img", [textImg.parentNode,"next"], {src:textImg.src});
-										textImg.parentNode.parentNode.removeChild(textImg.parentNode);
-										textImg = nImg;
+									var urlContainers = [textImg.getAttribute('onclick')];
+
+									if(textImg.parentNode && textImg.parentNode.tagName=="A")
+										urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
+
+									origUrl = ' ';
+									for(j=urlContainers.length;j--;) {
+										if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
+											origUrl = url[0];
+										}
 									}
-									else {
-										nImg = cElement("img", [textImg,"next"], {src:textImg.src});
-										textImg.parentNode.removeChild(textImg);
-										textImg = nImg;
+
+									if(textImg.parentNode) {
+										if(textImg.parentNode.tagName=="A") {
+											nImg = cElement("img", [textImg.parentNode,"next"], {src:textImg.src});
+											textImg.parentNode.parentNode.removeChild(textImg.parentNode);
+											textImg = nImg;
+										}
+										else {
+											nImg = cElement("img", [textImg,"next"], {src:textImg.src});
+											textImg.parentNode.removeChild(textImg);
+											textImg = nImg;
+										}
 									}
 
 									textImg.removeAttribute("width");
@@ -4158,6 +4193,10 @@
 			if(MODE.list) {
 				ilbeView();
 				document.addEventListener("keydown",shortkey,false);
+
+				window.onpopstate = function(e) {
+					softLoad(e.state);
+				};
 			}
 
 			// 코멘트가 있는 경우
