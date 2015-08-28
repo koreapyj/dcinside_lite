@@ -1862,8 +1862,10 @@
 										softLoad('/board/lists/?id='+_ID);
 										removeElement(writeForm);
 									}
-									else
+									else {
 										alert(reply[1]);
+										$('div#DCL_writeBottomDiv input[type="submit"]').disabled=null;
+									}
 								}
 								else
 									alert(r.responseText);
