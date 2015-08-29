@@ -2736,12 +2736,12 @@
 									textImg = textImgs[i];
 
 									if(P.albumFullsize)
-										textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+										textImg.src=textImg.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
 
-									var urlContainers = [textImg.getAttribute('onclick')];
+									var urlContainers = [textImg.src, textImg.getAttribute('onclick')];
 
 									if(textImg.parentNode && textImg.parentNode.tagName=="A")
-										urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
+										urlContainers = urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
 
 									origUrl = ' ';
 									for(j=urlContainers.length;j--;) {
@@ -2769,10 +2769,7 @@
 									textImg.removeAttribute("onclick");
 									eRemove(textImg,"onclick");
 
-									if(origUrl.substr(0, imagePopUrl.length) === imagePopUrl)
-										viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
-									else
-										viewer.add(textImg.src,textImg);
+									viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
 								}
 								autoLink(textDiv);
 		//						history.pushState(bfloc, bfloc, bfloc);
@@ -4202,20 +4199,23 @@
 					var viewer = new Viewer();
 					var img;
 					for(var i=0,l=articleImgs.length ; i<l ; i+=1) {
-						regexp = /javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\',]+)/;
+						var vtarget = '';
 						img = articleImgs[i];
 
 
 						if(P.albumFullsize)
-							img.src=img.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
-						if(img.parentNode.getAttribute("onclick") && (vtarget = img.parentNode.getAttribute("onclick").match(regexp))) {
-							vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
+							img.src = img.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+						
+						var urlContainers = [img.src, img.getAttribute('onclick')];
+
+						if(img.parentNode && img.parentNode.tagName=="A")
+							urlContainers = urlContainers.concat([img.parentNode.getAttribute('onclick'),img.parentNode.getAttribute('href')]);
+
+						for(j=urlContainers.length;j--;) {
+							if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
+								vtarget = url[0];
+							}
 						}
-						else if(img.getAttribute("onclick") && (vtarget = img.getAttribute("onclick").match(regexp))) {
-							vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
-						}
-						else
-							vtarget = img.src;
 
 						if(img.parentNode.tagName=="A") {
 							nImg = cElement("img", [img.parentNode,"next"], {src:img.src});
@@ -4235,7 +4235,7 @@
 						img.removeAttribute("width");
 						img.removeAttribute("height");
 
-						viewer.add(vtarget,img);
+						viewer.add(vtarget.replace("viewimagePop.php", "viewimage.php"),img);
 					}
 				}
 
