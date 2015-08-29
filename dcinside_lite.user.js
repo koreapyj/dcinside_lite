@@ -4095,7 +4095,7 @@
 			);
 
 		if(P.listComment) {
-			addStyle("#list_table > tbody > tr > td:nth-of-type(3) > font > a:empty:after {content:'[0]'}");
+			addStyle("#list_table .t_subject > a:empty:after {color: #6E6E6E; font-size: 11px; margin-left: 5px; font-family: '굴림',Gulim; content:'[0]'}");
 		}
 
 		// 쿠키 연장
