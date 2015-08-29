@@ -4045,7 +4045,7 @@
 			"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?110:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?35:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child(6) {width:"+(P.listRecom?35:0)+"px;}" +
-			"#list_table .list_tbody .tb td { padding-top: 3px; padding-bottom: 0; }" +
+			"#list_table .list_tbody .tb td { padding-top: 3px !important; padding-bottom: 0; }" +
 			"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
 			"#list_table .list_tbody > tr.tb:hover { background-color: #eae9f7; }" +
 
@@ -4346,11 +4346,12 @@
 							+ '#list_table > tbody > tr:first-of-type > td:after { content: ""; display: block; clear: both; }'
 							+ '#list_table > tbody > tr { display: block; }'
 							+ '#list_table > tbody > tr.DCL_blockArticle { display: none; }'
+				 			+ '#list_table > tbody.DCL_showArticle > tr.DCL_blockArticle { display: block; background-color: #EEE; }'
 							+ '#list_table > tbody > tr > td { display: block; height: initial !important; }'
 							+ '#list_table > tbody > tr > td:nth-of-type(3) { border-right: 1px solid #ddd; border-left: 1px solid #ddd; padding: 0 7px !important; }'
 							+ '#list_table > tbody > tr.tb > td:nth-of-type(5),'
 							+ '#list_table > tbody > tr.tb > td:nth-of-type(6) { display: none; }'
-							+ '#list_table > tbody > tr > td:nth-of-type(2) { font-size: 16px !important; }'
+							+ '#list_table > tbody > tr > td:nth-of-type(2) { border-left: 0; font-size: 16px !important; }'
 							+ '#list_table > tbody > tr.tb { padding: 10px; border-bottom: 1px solid #ddd; }'
 							+ '#list_table > tbody > tr.tb > td { display: inline; border-bottom: none !important; padding: 0; margin: 0; line-height: initial !important; }'
 							+ '#list_table > tbody > tr.tb > td:first-of-type { display: none; }'
