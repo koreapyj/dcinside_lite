@@ -2045,6 +2045,7 @@
 
 		var list = $id("dgn_btn_paging").getElementsByClassName("on")[0].nextElementSibling;
 		for(var i=1,l=P.pageCount ; i<l ; i+=1) { // 페이징 목록에 다중 목록 스타일 추가
+			if (!list) return;
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 			if(!mode) {
@@ -2512,7 +2513,7 @@
 		for(var i=1,l=rows.length ; i<l ; i++) {
 			targetA=rows[i].cells[1].children;
 			if(!targetA[1])
-				cElement('a', rows[i].cells[1], {href:targetA[0].href.replace("view", "comment_view")},Layer.toggle); //
+				cElement('a', rows[i].cells[1], {href:targetA[0].href.replace("view", "comment_view")},Layer.toggle);
 			cElement('a', [rows[i].cells[1],0], {href:targetA[0].href,className:targetA[0].className,innerHTML:"&nbsp;"}); 
 			targetA[1].className = "";
 
