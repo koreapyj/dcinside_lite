@@ -2735,19 +2735,24 @@
 								for(var i=0,l=textImgs.length ; i<l ; i+=1) {
 									textImg = textImgs[i];
 
-									if(P.albumFullsize)
-										textImg.src=textImg.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+									if(P.albumFullsize) {
+										var urlContainers = [textImg.getAttribute('onclick')];
 
-									var urlContainers = [textImg.src, textImg.getAttribute('onclick')];
+										if(textImg.parentNode && textImg.parentNode.tagName=="A")
+											urlContainers = urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
 
-									if(textImg.parentNode && textImg.parentNode.tagName=="A")
-										urlContainers = urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
-
-									origUrl = ' ';
-									for(j=urlContainers.length;j--;) {
-										if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
-											origUrl = url[0];
+										origUrl = '';
+										for(j=urlContainers.length;j--;) {
+											if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
+												origUrl = url[0];
+											}
 										}
+							
+										if (origUrl == '') {
+											origUrl = textImg.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+										}
+									} else {
+										origUrl = textImg.src;
 									}
 
 									if(textImg.parentNode) {
@@ -4203,18 +4208,23 @@
 						img = articleImgs[i];
 
 
-						if(P.albumFullsize)
-							img.src = img.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
-						
-						var urlContainers = [img.src, img.getAttribute('onclick')];
+						if(P.albumFullsize) {
+							var urlContainers = [img.getAttribute('onclick')];
 
-						if(img.parentNode && img.parentNode.tagName=="A")
-							urlContainers = urlContainers.concat([img.parentNode.getAttribute('onclick'),img.parentNode.getAttribute('href')]);
+							if(img.parentNode && img.parentNode.tagName=="A")
+								urlContainers = urlContainers.concat([img.parentNode.getAttribute('onclick'),img.parentNode.getAttribute('href')]);
 
-						for(j=urlContainers.length;j--;) {
-							if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
-								vtarget = url[0];
+							for(j=urlContainers.length;j--;) {
+								if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
+									vtarget = url[0];
+								}
 							}
+							
+							if (vtarget == '') {
+								vtarget = img.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+							}
+						} else {
+							vtarget = img.src;
 						}
 
 						if(img.parentNode.tagName=="A") {
