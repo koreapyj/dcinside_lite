@@ -1742,7 +1742,7 @@
 
 		// 간단 글쓰기 폼
 		if(P.simpleWrite && $('span.f_r > a')) {
-			$('span.f_r > a').addEventListener('click', function(e) {
+			$('.gallery_list span.f_r > a').addEventListener('click', function(e) {
 				openSimpleWriteForm();
 				e.preventDefault();
 			});
