@@ -945,7 +945,7 @@
 
 				dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
 				cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력하고, 메뉴를 위쪽으로 설정한 경우 |로 구분해서 순서대로 좌측 메뉴, 우측 메뉴, 프로필 메뉴를 입력합니다."});
-				cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 현재갤 : 현재 갤러리 링크 / 구분선 : 구분선"});
+				cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 현재갤 : 현재 갤러리 링크 / 글쓰기 : 글쓰기 / 구분선 : 구분선"});
 				cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"즐겨찾기 링크는 따로따로 입력할 수도 있습니다."});
 				cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"예) 미연시/게시판/김유식"});
 
@@ -1544,7 +1544,13 @@
 						if(e.target === $("h2#DCL_menuTitle > img.DCL_profileImage"))
 							return funcList.menutoggle();
 						$id("DCL_menuUlSub").style.display=null;
-					}
+					},
+			write: function(){
+				if(P.simpleWrite)
+					openSimpleWriteForm();
+				else
+					location.href = 'http://gall.dcinside.com/board/write/?id='+_ID;
+			}
 		};
 		
 		if(P.simpleWrite)
@@ -1618,6 +1624,8 @@
 					cElement("a",cElement("li",menuUl),"일간베스트",funcList.ilbeview);
 				} else if(flag === "개념글") {
 					cElement("a",cElement("li",menuUl),"개념글",funcList.favview);
+				} else if(flag === "글쓰기"){
+					cElement("a",cElement("li",menuUl),"글쓰기",funcList.write);
 				} else if(flag === "즐겨찾기") {
 					for(flag in linkList) {
 						if(typeof linkList[flag].href === "undefined")
@@ -1742,7 +1750,7 @@
 
 		// 간단 글쓰기 폼
 		if(P.simpleWrite && $('span.f_r > a')) {
-			$('span.f_r > a').addEventListener('click', function(e) {
+			$('.gallery_list span.f_r > a').addEventListener('click', function(e) {
 				openSimpleWriteForm();
 				e.preventDefault();
 			});
