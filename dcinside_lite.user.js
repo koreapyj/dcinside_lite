@@ -2110,7 +2110,7 @@
 					cell.innerHTML = "";
 					cElement("span",cell,{textContent:"읽기 실패 ("+(p+PAGE)+" 페이지)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
 				}
-			}
+			},'GET',{"Accept":"text/html"}
 		);
 	}
 
