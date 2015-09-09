@@ -1560,7 +1560,7 @@
 		// 즐겨찾기 링크 정리
 		var linkList = new Array();
 		if(P.linkList) {
-			var regexp = /(?:(\[현재갤\])|([^@]+)(@{1,2})((http:\/\/)?.+))(?:\n|$)/ig;
+			var regexp = /(?:(\[현재갤\])|([^@]+)(@{1,2})((https?:\/\/)?.+))(?:\n|$)/ig;
 			var exec,href,className,li,a,g_flg=new Array();
 			while( (exec=regexp.exec(P.linkList)) ) {
 				switch(exec[1]) {
@@ -1870,8 +1870,10 @@
 										softLoad('/board/lists/?id='+_ID);
 										removeElement(writeForm);
 									}
-									else
+									else {
 										alert(reply[1]);
+										$('div#DCL_writeBottomDiv input[type="submit"]').disabled=null;
+									}
 								}
 								else
 									alert(r.responseText);
@@ -2051,6 +2053,7 @@
 
 		var list = $id("dgn_btn_paging").getElementsByClassName("on")[0].nextElementSibling;
 		for(var i=1,l=P.pageCount ; i<l ; i+=1) { // 페이징 목록에 다중 목록 스타일 추가
+			if (!list) return;
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 			if(!mode) {
@@ -2518,7 +2521,7 @@
 		for(var i=1,l=rows.length ; i<l ; i++) {
 			targetA=rows[i].cells[1].children;
 			if(!targetA[1])
-				cElement('a', rows[i].cells[1], {href:targetA[0].href.replace("view", "comment_view")},Layer.toggle); //
+				cElement('a', rows[i].cells[1], {href:targetA[0].href.replace("view", "comment_view")},Layer.toggle);
 			cElement('a', [rows[i].cells[1],0], {href:targetA[0].href,className:targetA[0].className,innerHTML:"&nbsp;"}); 
 			targetA[1].className = "";
 
@@ -2741,19 +2744,24 @@
 								for(var i=0,l=textImgs.length ; i<l ; i+=1) {
 									textImg = textImgs[i];
 
-									if(P.albumFullsize)
-										textImg.src=textImg.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+									if(P.albumFullsize) {
+										var urlContainers = [textImg.getAttribute('onclick')];
 
-									var urlContainers = [textImg.getAttribute('onclick')];
+										if(textImg.parentNode && textImg.parentNode.tagName=="A")
+											urlContainers = urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
 
-									if(textImg.parentNode && textImg.parentNode.tagName=="A")
-										urlContainers.concat([textImg.parentNode.getAttribute('onclick'),textImg.parentNode.getAttribute('href')]);
-
-									origUrl = ' ';
-									for(j=urlContainers.length;j--;) {
-										if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
-											origUrl = url[0];
+										origUrl = '';
+										for(j=urlContainers.length;j--;) {
+											if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
+												origUrl = url[0];
+											}
 										}
+							
+										if (origUrl == '') {
+											origUrl = textImg.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+										}
+									} else {
+										origUrl = textImg.src;
 									}
 
 									if(textImg.parentNode) {
@@ -2775,10 +2783,7 @@
 									textImg.removeAttribute("onclick");
 									eRemove(textImg,"onclick");
 
-									if(origUrl.substr(0, imagePopUrl.length) === imagePopUrl)
-										viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
-									else
-										viewer.add(textImg.src,textImg);
+									viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
 								}
 								autoLink(textDiv);
 		//						history.pushState(bfloc, bfloc, bfloc);
@@ -4054,7 +4059,7 @@
 			"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?110:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?35:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child(6) {width:"+(P.listRecom?35:0)+"px;}" +
-			"#list_table .list_tbody .tb td { padding-top: 3px; padding-bottom: 0; }" +
+			"#list_table .list_tbody .tb td { padding-top: 3px !important; padding-bottom: 0; }" +
 			"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
 			"#list_table .list_tbody > tr.tb:hover { background-color: #eae9f7; }" +
 
@@ -4101,7 +4106,7 @@
 			);
 
 		if(P.listComment) {
-			addStyle("#list_table > tbody > tr > td:nth-of-type(3) > font > a:empty:after {content:'[0]'}");
+			addStyle("#list_table .t_subject > a:empty:after {color: #6E6E6E; font-size: 11px; margin-left: 5px; font-family: '굴림',Gulim; content:'[0]'}");
 		}
 
 		// 쿠키 연장
@@ -4208,20 +4213,28 @@
 					var viewer = new Viewer();
 					var img;
 					for(var i=0,l=articleImgs.length ; i<l ; i+=1) {
-						regexp = /javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\',]+)/;
+						var vtarget = '';
 						img = articleImgs[i];
 
 
-						if(P.albumFullsize)
-							img.src=img.src.replace(/http:\/\/dcimg1\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
-						if(img.parentNode.getAttribute("onclick") && (vtarget = img.parentNode.getAttribute("onclick").match(regexp))) {
-							vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
-						}
-						else if(img.getAttribute("onclick") && (vtarget = img.getAttribute("onclick").match(regexp))) {
-							vtarget=vtarget[1].replace("viewimagePop.php", "viewimage.php");
-						}
-						else
+						if(P.albumFullsize) {
+							var urlContainers = [img.getAttribute('onclick')];
+
+							if(img.parentNode && img.parentNode.tagName=="A")
+								urlContainers = urlContainers.concat([img.parentNode.getAttribute('onclick'),img.parentNode.getAttribute('href')]);
+
+							for(j=urlContainers.length;j--;) {
+								if(urlContainers[j]!==null && (url = urlContainers[j].match(/http:\/\/image\.dcinside\.com[^,\'\"\s]+/))) {
+									vtarget = url[0];
+								}
+							}
+							
+							if (vtarget == '') {
+								vtarget = img.src.replace(/http:\/\/dcimg[0-9]\.dcinside\.com\/viewimage\.php(.+)$/g, "http://image.dcinside.com/viewimage.php$1");
+							}
+						} else {
 							vtarget = img.src;
+						}
 
 						if(img.parentNode.tagName=="A") {
 							nImg = cElement("img", [img.parentNode,"next"], {src:img.src});
@@ -4241,7 +4254,7 @@
 						img.removeAttribute("width");
 						img.removeAttribute("height");
 
-						viewer.add(vtarget,img);
+						viewer.add(vtarget.replace("viewimagePop.php", "viewimage.php"),img);
 					}
 				}
 
@@ -4352,11 +4365,12 @@
 							+ '#list_table > tbody > tr:first-of-type > td:after { content: ""; display: block; clear: both; }'
 							+ '#list_table > tbody > tr { display: block; }'
 							+ '#list_table > tbody > tr.DCL_blockArticle { display: none; }'
+				 			+ '#list_table > tbody.DCL_showArticle > tr.DCL_blockArticle { display: block; background-color: #EEE; }'
 							+ '#list_table > tbody > tr > td { display: block; height: initial !important; }'
 							+ '#list_table > tbody > tr > td:nth-of-type(3) { border-right: 1px solid #ddd; border-left: 1px solid #ddd; padding: 0 7px !important; }'
 							+ '#list_table > tbody > tr.tb > td:nth-of-type(5),'
 							+ '#list_table > tbody > tr.tb > td:nth-of-type(6) { display: none; }'
-							+ '#list_table > tbody > tr > td:nth-of-type(2) { font-size: 16px !important; }'
+							+ '#list_table > tbody > tr > td:nth-of-type(2) { border-left: 0; font-size: 16px !important; }'
 							+ '#list_table > tbody > tr.tb { padding: 10px; border-bottom: 1px solid #ddd; }'
 							+ '#list_table > tbody > tr.tb > td { display: inline; border-bottom: none !important; padding: 0; margin: 0; line-height: initial !important; }'
 							+ '#list_table > tbody > tr.tb > td:first-of-type { display: none; }'
