@@ -2844,7 +2844,7 @@
 						cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
 						loadSpan.textContent = "읽기 실패";
 					}
-				}
+				},'GET',{"Accept":"text/html"}
 			);
 		}
 		
@@ -3795,7 +3795,7 @@
 				}
 
 				Album.display(true);
-			}
+			},'GET',{"Accept":"text/html"}
 		);
 	};
 	Album.reload = function() {
