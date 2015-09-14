@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DCinside Lite",
-  "version": "15013",
+  "version": "15014",
   
   "description": "디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.",
   "icons": { "16": "icon/icon16.png", "48": "icon/icon48.png", "128": "icon/icon128.png" },
