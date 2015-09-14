@@ -16,7 +16,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15013";	// 실제 버전
+	var R_VERSION = "15014";	// 실제 버전
 	var VERSION = "15010";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -1679,7 +1679,7 @@
 					cElement("img",$id("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
 					cElement("em",$id("DCL_profile"),"갤로그 가기");
 				}
-			});
+			},'GET',{"Accept":"text/html"});
 		}
 
 		if(P.menuPos === "top" && $id("DCL_menuUlSub")) {
@@ -1885,7 +1885,7 @@
 						+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
 						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
 					);
-				});
+				},'GET',{"Accept":"text/html"});
 
 			var fileSelectDlg = cElement('input',writeForm,{type:'file',id:'DCL_fileSelectDlg','multiple':'multiple'})
 			fileSelectDlg.style.display='none';
@@ -2665,7 +2665,7 @@
 									alert(r.responseText);
 							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
 					}
-				});
+				},'GET',{"Accept":"text/html"});
 			});
 			cElement("span",bottomBtn,{className:"DCL_layerLoad"});
 		}
@@ -3687,8 +3687,7 @@
 				} else { // 응답을 못받았을 경우(과다 사용자)
 					$id("DCL_albumLoad").textContent = "읽기 실패";
 				}
-			}
-		);
+			},'GET',{"Accept":"text/html"});
 	};
 	Album.aCall = function(no) {
 		if(Album.aData.hasOwnProperty(no)) {
