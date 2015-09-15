@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15014
+// @version        15015
 // @date           2015.09.15
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
@@ -16,7 +16,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15014";	// 실제 버전
+	var R_VERSION = "15015";	// 실제 버전
 	var VERSION = "15010";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -1679,7 +1679,7 @@
 					cElement("img",$id("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
 					cElement("em",$id("DCL_profile"),"갤로그 가기");
 				}
-			},'GET',{"Accept":"text/html"});
+			},'GET',{"Accept":"text/html,application/xhtml+xml"});
 		}
 
 		if(P.menuPos === "top" && $id("DCL_menuUlSub")) {
@@ -1885,7 +1885,7 @@
 						+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
 						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
 					);
-				},'GET',{"Accept":"text/html"});
+				},'GET',{"Accept":"text/html,application/xhtml+xml"});
 
 			var fileSelectDlg = cElement('input',writeForm,{type:'file',id:'DCL_fileSelectDlg','multiple':'multiple'})
 			fileSelectDlg.style.display='none';
@@ -2113,7 +2113,7 @@
 					cell.innerHTML = "";
 					cElement("span",cell,{textContent:"읽기 실패 ("+(p+PAGE)+" 페이지)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
 				}
-			},'GET',{"Accept":"text/html"}
+			},'GET',{"Accept":"text/html,application/xhtml+xml"}
 		);
 	}
 
@@ -2665,7 +2665,7 @@
 									alert(r.responseText);
 							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
 					}
-				},'GET',{"Accept":"text/html"});
+				},'GET',{"Accept":"text/html,application/xhtml+xml"});
 			});
 			cElement("span",bottomBtn,{className:"DCL_layerLoad"});
 		}
@@ -2844,7 +2844,7 @@
 						cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
 						loadSpan.textContent = "읽기 실패";
 					}
-				},'GET',{"Accept":"text/html"}
+				},'GET',{"Accept":"text/html,application/xhtml+xml"}
 			);
 		}
 		
@@ -2892,7 +2892,7 @@
 					if(Layer.now === layer)layer.focus();
 				},
 				"POST", 
-				{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
+				{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
 
 			function commentCallback(response) {
 				var commFrag = document.createDocumentFragment();
@@ -2983,7 +2983,7 @@
 									layer.div.insertBefore(commentCallback(response),$('.DCL_layerComment'));
 								},
 								"POST", 
-								{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+layer.no+'&comment_page='+layer.comment_page+'&ci_t='+csrf_token());
+								{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+layer.no+'&comment_page='+layer.comment_page+'&ci_t='+csrf_token());
 						});
 					}
 				}
@@ -3065,7 +3065,7 @@
 				layer.call();
 			},
 			"POST",
-			{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
+			{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
 			data
 		);
 		history.pushState(bfloc, bfloc, bfloc);
@@ -3108,7 +3108,7 @@
 				layer.call();
 			},
 			"POST",
-			{"Accept":"text/html","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
+			{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
 			data
 		);
 	};
@@ -3687,7 +3687,7 @@
 				} else { // 응답을 못받았을 경우(과다 사용자)
 					$id("DCL_albumLoad").textContent = "읽기 실패";
 				}
-			},'GET',{"Accept":"text/html"});
+			},'GET',{"Accept":"text/html,application/xhtml+xml"});
 	};
 	Album.aCall = function(no) {
 		if(Album.aData.hasOwnProperty(no)) {
@@ -3794,7 +3794,7 @@
 				}
 
 				Album.display(true);
-			},'GET',{"Accept":"text/html"}
+			},'GET',{"Accept":"text/html,application/xhtml+xml"}
 		);
 	};
 	Album.reload = function() {
