@@ -189,10 +189,10 @@
 		var _GID = $('#favorite_gallog_img')?$('#favorite_gallog_img').href.match(/http:\/\/gallog\.dcinside\.com\/(.+)$/):null; // 로그인 상태
 			_GID = (_GID!=null?_GID[1]:false);
 		var _RECOMM = (parseQuery(location.search).recommend==undefined?0:parseQuery(location.search).recommend); // 개념글
-		if(MODE.write || MODE.singo || !$('.gallery_title embed'))
+		if(MODE.write || MODE.singo || !$('.gallery_title .tit'))
 			GALLERY = document.title.replace(/ 갤러리$/,"");
 		else
-			GALLERY = decodeURIComponent($('.gallery_title embed').getAttribute("flashvars").match(/gallery_title=([^&]+)&/)[1]); // 갤러리(한글)
+			GALLERY = decodeURIComponent($('.gallery_title .tit').textContent); // 갤러리(한글)
 		var PAGE = Number(parseQuery(location.search).page) || 1;
 	}
 
@@ -1465,81 +1465,10 @@
 
 		var menuDiv = cElement("div",[document.body,0],{id:"DCL_menuDiv"});
 		var menuWrap = cElement("div",menuDiv,{id:"DCL_menuWrap"});
-		var funcList = {
-			login : function(){location.href="http://dcid.dcinside.com/join/log"+(_GID?"out":"in")+".php?s_url="+encodeURIComponent(location.href);},
-			gallog : function(e) {
-						if(!_GID) {
-							ePrevent(e);
-							if(confirm("로그인을 하지 않은 상태입니다.\n로그인 하시겠습니까?")) {
-								location.href = "http://dcid.dcinside.com/join/login.php?s_url="+encodeURIComponent(location.href);
-							}
-						}
-					},
-			page : function() {
-						setValue("page",!P.page);
-						cToggle(this,"DCL_menuOn");
-						var list_table = $id("list_table");
-						var tbody = list_table.tBodies;
-						if(P.page) {
-							pageFunc();
-						} else {
-							for(var i=tbody.length-1 ; i>0 ; i-=1) {
-								Layer.close(i);
-								list_table.removeChild(tbody[i]);
-							}
-						}
-					},
-			wide : function() {
-						setValue("wide",!P.wide);
-						cToggle(this,"DCL_menuOn");
-						wideFunc();
-					},
-			header : function() {
-						setValue("header",!P.header);
-						cToggle(this,"DCL_menuOn");
-						$id("dgn_header_gall").style.display = P.header?"block":"none";
-					},
-			title : function() {
-						setValue("title",!P.title);
-						cToggle(this,"DCL_menuOn");
-						$(".gallery_title").style.display = P.title?"block":"none";
-					},
-			best : function() {
-						setValue("best",!P.best);
-						cToggle(this,"DCL_menuOn");
-						$(".gallery_box").style.display = P.best?"block":"none";
-					},
-			ilbeview : function(){
-						softLoad("/board/lists/?id="+_ID+"&exception_mode=best");
-					},
-			favview : function(){
-						softLoad("/board/lists/?id="+_ID+"&exception_mode=recommend");
-					},
-			refresh : function(){
-						softLoad("/board/lists/?id="+_ID);
-					},
-			menutoggle : function(){
-						if($id("DCL_menuUlSub").style.display!=="block")
-							$id("DCL_menuUlSub").style.display="block";
-						else
-							$id("DCL_menuUlSub").style.display=null;
-					},
-			menuclose : function(e){
-						if(e.target === $("h2#DCL_menuTitle > img.DCL_profileImage"))
-							return funcList.menutoggle();
-						$id("DCL_menuUlSub").style.display=null;
-					},
-			write: function(){
-				if(P.simpleWrite)
-					openSimpleWriteForm();
-				else
-					location.href = 'http://gall.dcinside.com/board/write/?id='+_ID;
-			}
-		};
 		
 		if(P.simpleWrite)
 			cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
-		var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},funcList.refresh);
+		var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},DCINSIDE_LITE.funcList.refresh);
 
 		// 즐겨찾기 링크 정리
 		var linkList = new Array();
@@ -1587,27 +1516,27 @@
 				if(flag === "설정") {
 					cElement("a",cElement("li",menuUl),{textContent:"설정",id:"DCL_setBtn"},SET.call);
 				} else if(flag === "로그인") {
-					cElement("a",cElement("li",menuUl),{textContent:_GID?"로그아웃":"로그인",className:"DCL_menuOn"},funcList.login);
+					cElement("a",cElement("li",menuUl,{className:"DCL_menuLogin"}),{textContent:_GID?"로그아웃":"로그인"},DCINSIDE_LITE.funcList.login);
 				} else if(flag === "갤로그") {
-					cElement("a",cElement("li",menuUl),{textContent:"갤로그",id:"DCL_profile",href:_GID?"//gallog.dcinside.com/"+_GID:'',target:"_blank"},funcList.gallog);
+					cElement("a",cElement("li",menuUl,{className:"DCL_menuGallog"}),{textContent:"갤로그",id:"DCL_profile",href:_GID?"//gallog.dcinside.com/"+_GID:'',target:"_blank"},DCINSIDE_LITE.funcList.gallog);
 				} else if(flag === "갤러리") {
 					cElement("a",cElement("li",menuUl),{textContent:"갤러리",href:"//gall.dcinside.com/",target:"_blank"});
 				} else if(flag === "목록") {
-					cElement("a",cElement("li",menuUl),{textContent:"멀티 페이지",className:P.page?"DCL_menuOn":""},funcList.page);
+					cElement("a",cElement("li",menuUl),{textContent:"멀티 페이지",className:P.page?"DCL_menuOn":""},DCINSIDE_LITE.funcList.page);
 				} else if(flag === "와이드") {
-					cElement("a",cElement("li",menuUl),{textContent:"와이드 레이아웃",className:P.wide?"DCL_menuOn":""},funcList.wide);
+					cElement("a",cElement("li",menuUl),{textContent:"와이드 레이아웃",className:P.wide?"DCL_menuOn":""},DCINSIDE_LITE.funcList.wide);
 				} else if(flag === "상단") {
-					cElement("a",cElement("li",menuUl),{textContent:"상단 메뉴",className:P.header?"DCL_menuOn":""},funcList.header);
+					cElement("a",cElement("li",menuUl),{textContent:"상단 메뉴",className:P.header?"DCL_menuOn":""},DCINSIDE_LITE.funcList.header);
 				} else if(flag === "타이틀") {
-					cElement("a",cElement("li",menuUl),{textContent:"갤러리 타이틀",className:P.title?"DCL_menuOn":""},funcList.title);
+					cElement("a",cElement("li",menuUl),{textContent:"갤러리 타이틀",className:P.title?"DCL_menuOn":""},DCINSIDE_LITE.funcList.title);
 				} else if(flag === "박스") {
-					cElement("a",cElement("li",menuUl),{textContent:"갤러리 박스",className:P.best?"DCL_menuOn":""},funcList.best);
+					cElement("a",cElement("li",menuUl),{textContent:"갤러리 박스",className:P.best?"DCL_menuOn":""},DCINSIDE_LITE.funcList.best);
 				} else if(flag === "베스트") {
-					cElement("a",cElement("li",menuUl),"일간베스트",funcList.ilbeview);
+					cElement("a",cElement("li",menuUl),"일간베스트",DCINSIDE_LITE.funcList.ilbeview);
 				} else if(flag === "개념글") {
-					cElement("a",cElement("li",menuUl),"개념글",funcList.favview);
+					cElement("a",cElement("li",menuUl),"개념글",DCINSIDE_LITE.funcList.favview);
 				} else if(flag === "글쓰기"){
-					cElement("a",cElement("li",menuUl),"글쓰기",funcList.write);
+					cElement("a",cElement("li",menuUl),"글쓰기",DCINSIDE_LITE.funcList.write);
 				} else if(flag === "즐겨찾기") {
 					for(flag in linkList) {
 						if(typeof linkList[flag].href === "undefined")
@@ -1633,7 +1562,7 @@
 
 		if(P.menuPos === "top") {
 			$id("DCL_menuTitle").textContent = "";
-			$id("DCL_menuTitle").removeEventListener("click",funcList.refresh);
+			$id("DCL_menuTitle").removeEventListener("click",DCINSIDE_LITE.funcList.refresh);
 			cElement("img",[$id("DCL_menuTitle"),0],{src:"http://dcimg1.dcinside.com/glogProfileView.php?gid=26b2c223e4c221ac3e&type=main&mode=GL&dummyCode=242872037",className:"DCL_profileImage",alt:"프로필"});
 		}
 
@@ -1653,7 +1582,7 @@
 				cElement("img",glog,{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
 				cElement("em",$id("DCL_menuTitle"),_GID);
 				if(bgImg) addStyle("h2#DCL_menuTitle:before {background-image: url('" + bgImg + "') !important;}");
-				$id("DCL_menuTitle").removeEventListener("click",funcList.refresh);
+				$id("DCL_menuTitle").removeEventListener("click",DCINSIDE_LITE.funcList.refresh);
 
 				if(P.menuPos === "top" && $id("DCL_profile")) {
 					$id("DCL_profile").className = "DCL_profile";
@@ -1665,7 +1594,7 @@
 		}
 
 		if(P.menuPos === "top" && $id("DCL_menuUlSub")) {
-			document.body.addEventListener("click",funcList.menuclose);
+			document.body.addEventListener("click",DCINSIDE_LITE.funcList.menuclose);
 		}
 
 		addStyle(''
@@ -2070,6 +1999,7 @@
 		simpleRequest("/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
 			function(response) {
 				var text = response.responseText;
+				DCINSIDE_LITE.checkLoginStatus(text);
 				var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7'\" onmouseout=\"this.style.backgroundColor=''\" class=\"tb\">");
 				var html = text.substring(startPos,text.indexOf("</tbody>"));
 				if(html) {
@@ -3634,12 +3564,6 @@
 			'.appending_file { width:'+(P.pageWidth-10)+'px !important; }' +
 			'.resize_bar > div { left: 50px !important; }' +
 
-			"#dgn_gallery_left .gallery_title { display: " + (P.title?"block":"none") + "; height: 37px !important; }" +
-			"#dgn_gallery_left .gallery_title > h1 { top: 0px !important; }" +
-			"#dgn_gallery_left .gallery_title > h1 > embed { display: none; }" +
-			"#dgn_gallery_left .gallery_title > h1 > a { font-family: " + P.fontList + "; letter-spacing: -1px; font-size: 22px; font-weight: bold; text-decoration: none; display: inline-block; margin-top: 12px; }" +
-			"#dgn_gallery_left .gallery_title > h1 > a > span { text-shadow: 0 0 1px; }" +
-			"#dgn_gallery_left .gallery_title > h1 > a > span.gallery_str { color: #5B79C9; }" +
 			"#dgn_gallery_left .gallery_box { display: " + (P.best?"block":"none") + "; " + (P.title?"":"top: 0px !important;") + "}" +
 			"#dgn_gallery_left .gallery_box {position: static !important; margin-bottom: 10px; "+(!MODE.list?'':'height: 175px !important;')+"}" +
 			"#dgn_gallery_left .gallery_list {position: static !important; padding: 0 !important;}" +
@@ -3740,13 +3664,17 @@
 		// 메뉴 생성
 		menuFunc();
 
+		if(title = $('#dgn_gallery_left .gallery_title h1 a.fc_5b')) {
+			title.addEventListener('click', function(e) { ePrevent(e); softLoad("/board/lists/?id="+_ID); });
+		}
+/*
 		if($('#dgn_gallery_left .gallery_title > h1')) {
 			$('#dgn_gallery_left .gallery_title > h1').innerHTML = '';
 			var title = cElement('a', $('#dgn_gallery_left .gallery_title > h1'), {href:"/board/lists/?id="+_ID}, function(e) { ePrevent(e); softLoad("/board/lists/?id="+_ID); });
 			cElement('span', title, {textContent:GALLERY,className:"gallery_name"});
 			cElement(null, title, " ");
 			cElement('span', title, {textContent:"갤러리",className:"gallery_str"});
-		}
+		}*/
 
 		// 글쓰기 모드
 		if(MODE.write) {
@@ -4031,6 +3959,123 @@
 							+ 'div.DCL_set_wrap > div.head > h2 { text-align: center; }'
 						+ '}'
 						+ '');
+	}
+
+	DCINSIDE_LITE.funcList = {
+		login : function(){location.href="http://dcid.dcinside.com/join/log"+(_GID?"out":"in")+".php?s_url="+encodeURIComponent(location.href);},
+		gallog : function(e) {
+					if(!_GID) {
+						ePrevent(e);
+						if(confirm("로그인을 하지 않은 상태입니다.\n로그인 하시겠습니까?")) {
+							location.href = "http://dcid.dcinside.com/join/login.php?s_url="+encodeURIComponent(location.href);
+						}
+					}
+				},
+		page : function() {
+					setValue("page",!P.page);
+					cToggle(this,"DCL_menuOn");
+					var list_table = $id("list_table");
+					var tbody = list_table.tBodies;
+					if(P.page) {
+						pageFunc();
+					} else {
+						for(var i=tbody.length-1 ; i>0 ; i-=1) {
+							Layer.close(i);
+							list_table.removeChild(tbody[i]);
+						}
+					}
+				},
+		wide : function() {
+					setValue("wide",!P.wide);
+					cToggle(this,"DCL_menuOn");
+					wideFunc();
+				},
+		header : function() {
+					setValue("header",!P.header);
+					cToggle(this,"DCL_menuOn");
+					$id("dgn_header_gall").style.display = P.header?"block":"none";
+				},
+		title : function() {
+					setValue("title",!P.title);
+					cToggle(this,"DCL_menuOn");
+					$(".gallery_title").style.display = P.title?"block":"none";
+				},
+		best : function() {
+					setValue("best",!P.best);
+					cToggle(this,"DCL_menuOn");
+					$(".gallery_box").style.display = P.best?"block":"none";
+				},
+		ilbeview : function(){
+					softLoad("/board/lists/?id="+_ID+"&exception_mode=best");
+				},
+		favview : function(){
+					softLoad("/board/lists/?id="+_ID+"&exception_mode=recommend");
+				},
+		refresh : function(){
+					softLoad("/board/lists/?id="+_ID);
+				},
+		menutoggle : function(){
+					if($id("DCL_menuUlSub").style.display!=="block")
+						$id("DCL_menuUlSub").style.display="block";
+					else
+						$id("DCL_menuUlSub").style.display=null;
+				},
+		menuclose : function(e){
+					if(e.target === $("h2#DCL_menuTitle > img.DCL_profileImage"))
+						return DCINSIDE_LITE.funcList.menutoggle();
+					$id("DCL_menuUlSub").style.display=null;
+				},
+		write: function(){
+			if(P.simpleWrite)
+				openSimpleWriteForm();
+			else
+				location.href = 'http://gall.dcinside.com/board/write/?id='+_ID;
+		}
+	};
+
+	DCINSIDE_LITE.checkLoginStatus = function(html) {
+		_GID = html.match(/<li class="pic_galler"><a href="http:\/\/gallog\.dcinside\.com\/([^"]+)" id="favorite_gallog_img"><\/a><\/li>/);
+		_GID = (_GID!=null?_GID[1]:false);
+		console.log('checkLoginStatus:' + _GID);
+
+		if(P.menuPos === "top") {
+			$id("DCL_menuTitle").textContent = "";
+			cElement("img",[$id("DCL_menuTitle"),0],{src:"http://dcimg1.dcinside.com/glogProfileView.php?gid=26b2c223e4c221ac3e&type=main&mode=GL&dummyCode=242872037",className:"DCL_profileImage",alt:"프로필"});
+		}
+
+		if(btnLogin = $('.DCL_menuLogin > a'))
+			btnLogin.textContent = _GID?"로그아웃":"로그인";
+		if(btnGallog = $('.DCL_menuGallog')) {
+			btnGallog.innerHTML = '';
+			cElement("a",btnGallog,{textContent:"갤로그",id:"DCL_profile",href:_GID?"//gallog.dcinside.com/"+_GID:'',target:"_blank"},DCINSIDE_LITE.funcList.gallog);
+
+			if(_GID) {
+				simpleRequest("http://gallog.dcinside.com/" + _GID, function(e) {
+					var gallogHtml = e.responseText;
+					var nick = gallogHtml.match(/id='pfNickView'>(.+?)<\/span>/)[1];
+					if(isFNick = nick.match(/<U>(.+?)<\/U>/)) {
+						nick = isFNick[1];
+						isFNick = true;
+					}
+					var pfImg = gallogHtml.match(/<img src="([^"]+)" width="[^"]+" id="ProfileImg"/)[1];
+					var bgImg = gallogHtml.match(/background-image:url\('([^ ]+) \?>'\);"><\/div>/)[1];
+					$id("DCL_menuTitle").textContent = "";
+					cElement("img",[$id("DCL_menuTitle"),0],{src:pfImg,className:"DCL_profileImage",alt:"프로필"});
+					var glog = cElement("a",$id("DCL_menuTitle"),{href:"//gallog.dcinside.com/" + _GID,target:"_blank",textContent:nick});
+					cElement("img",glog,{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
+					cElement("em",$id("DCL_menuTitle"),_GID);
+					if(bgImg) addStyle("h2#DCL_menuTitle:before {background-image: url('" + bgImg + "') !important;}");
+					$id("DCL_menuTitle").removeEventListener("click",DCINSIDE_LITE.funcList.refresh);
+
+					if(P.menuPos === "top" && $id("DCL_profile")) {
+						$id("DCL_profile").className = "DCL_profile";
+						$id("DCL_profile").textContent = nick;
+						cElement("img",$id("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
+						cElement("em",$id("DCL_profile"),"갤로그 가기");
+					}
+				},'GET',{"Accept":"text/html,application/xhtml+xml"});
+			}
+		}
 	}
 
 	function ilbeView() {
