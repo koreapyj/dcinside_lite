@@ -2005,8 +2005,8 @@
 				var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7'\" onmouseout=\"this.style.backgroundColor=''\" class=\"tb\">");
 				var html = text.substring(startPos,text.indexOf("</tbody>"));
 				if(html) {
-					if((g_title=text.match(/gallery_title2\.swf".+"gallery_title=" \+ encodeURIComponent\('([^']+)'\)/)) && g_title[1]) {
-						$('.gallery_name').textContent = GALLERY = document.title = g_title[1];
+					if((g_title=text.match(/<span class="tit">([^<]+)<\/span>/)) && g_title[1]) {
+						$('.gallery_title .tit').textContent = GALLERY = document.title = g_title[1];
 						titleFunc();
 					}
 					tbody.innerHTML = "<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>" + (startPos!="-1"?html:'');
@@ -2351,6 +2351,7 @@
 			"span.DCL_layerFile > a {display:none ; margin-left:5px ; color:#999 ; text-decoration:underline}" +
 			"span.DCL_layerFile:hover > a {display:inline}" +
 			"span.DCL_layerFile > a:hover {color:#000}" +
+			"span.DCL_layerEtc { float: right; font-size: 9px; margin: 0 3px; }" +
 
 			"div.DCL_layerContent {margin:5px 0}" +
 			"ul.DCL_layerImage {margin-bottom:5px}" +
@@ -2379,14 +2380,18 @@
 			"table.DCL_layerComment span.num2 {margin-left:1em ; font:8pt Tahoma ; color:#999}" +
 
 			"div.DCL_layerContent + p.DCL_replyP {border-top:1px solid #666 ; padding-top:5px}" +
-			"p.DCL_replyP {position:relative ; margin:5px 0 ; padding:0 122px 0 105px}" +
-			"p.DCL_replyP.DCL_LoggedIn {padding:0 45px 0 5px}" +
-			"p.DCL_replyP > input {height:16px ; border:1px solid #999}" +
-			"p.DCL_replyP > input:focus {background-color:#f5f5f5 ; border:1px solid #666}" +
-			"input.DCL_replyName {position:absolute ; bottom:0 ; left:0 ; width:100px}" +
+			"p.DCL_replyP {position:relative ; margin:5px 0 ; padding:0 150px 0 120px}" +
+			"p.DCL_replyP.DCL_LoggedIn {padding:0 70px 0 5px}" +
+			"p.DCL_replyP > input { outline-offset: 0px; border:1px solid #999; }" +
+			"p.DCL_replyP > input[type=text], " +
+			"p.DCL_replyP > input[type=password]{ line-height: 13px; font-size: 13px; font-family: Gulim, sans-serif; padding: 5px; box-sizing: border-box; }" +
+			"p.DCL_replyP > input[type=button] { width: auto; padding: 6px 17px; display: inline-block; background-color: #5b7ce5; background-image: linear-gradient(0deg,#5b7ce5,#6987e8); border: 1px solid #2049cf; color: white; border-radius: 3px; box-sizing: border-box; }" +
+			"p.DCL_replyP > input:focus { outline: rgba(91, 124, 229,.5) 2px solid; }" +
+			"p.DCL_replyP > input:hover { border:1px solid #666;}" +
+			"input.DCL_replyName {position:absolute ; bottom:0 ; left:0 ; width:115px}" +
 			"input.DCL_replyMemo2 {position:relative ; width:100%}" +
-			"input.DCL_replyPassword {position:absolute ; bottom:0 ; right:40px ; width:75px}" +
-			"input.DCL_replySubmit {position: absolute; bottom: 0; right: 5px; width:35px ; height:20px !important ; font:8pt 돋움; padding: 0;}" +
+			"input.DCL_replyPassword {position:absolute ; bottom:0 ; right:70px ; width:75px}" +
+			"input.DCL_replySubmit {position: absolute; bottom: 0; right: 5px; width:35px ;}" + // height:20px !important ; font:8pt 돋움; padding: 0;}" +
 
 			"tr.DCL_layerActive > td, tr.DCL_layerActive+tr > td { border-bottom-color: #333 !important; }" +
 			"";
@@ -2711,15 +2716,23 @@
 				//		var ipReg = /(?:IP Address : (\d+\.\d+\.\*\*\*\.\*\*\*))?<br \/>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2}) <br \/>/g;
 						var ipReg = /<li class="li_ip">[\s\n]*(\d+\.\d+)(\.\*\.\*)[\s\n]*<\/li>/g;
 						var dateReg = /<li><b>(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2})<\/b><\/li>/g;
+						var recommUpReg = /<span id="recommend_view_up">(\d+)<\/span>/g;
+						var recommDownReg = /<span id="recommend_view_down"><span class="t_black">(\d+)<\/span><\/span>/g;
 						var ipExec,ip,time;
 						while( (ipExec=ipReg.exec(text)) ) {
 							ip = ipExec[1]+'.***.***';//+ipExec[2];
 						}
-						while( (ipExec=dateReg.exec(text)) ) {
-							time = ipExec[1];
+						while( (dateExec=dateReg.exec(text)) ) {
+							time = dateExec[1];
+						}
+						while( (recommUpExec=recommUpReg.exec(text)) ) {
+							recomm_up = recommUpExec[1];
+						}
+						while( (recommDownExec=recommDownReg.exec(text)) ) {
+							recomm_down = recommDownExec[1];
 						}
 						
-						cElement("span",topBtn,{textContent:"[시간 "+time+(ip?" / IP "+ip:"")+"]",className:"DCL_layerData"});
+						cElement('span',topBtn,{textContent:'[ 시간 '+time+(ip?' / IP '+ip:'')+' / 추천 '+recomm_up+' / 비추 '+recomm_down+' ]',className:'DCL_layerData'});
 
 						var fileReg = /\t<ul class="appending_file"[^>]+>(.+)<\/ul>/m;
 						var file = fileReg.exec(response.responseText.replace(/\n/g,''));
@@ -2737,6 +2750,8 @@
 		//						fileHTML += "<a href='"+fileExec[1]+"'>"+fileExec[2]+"</a>";
 							}
 						}
+
+//						cElement("span",topBtn,{className:"DCL_layerEtc",textContent:"●●●"});
 						var commentCount = text.match(/comment_page\('([0-9]+)'\);/);
 						if(commentCount && commentCount[1])
 							layer.comment_count = commentCount[1];
@@ -3566,6 +3581,9 @@
 			'#dgn_gallery_detail { position: static; margin: 20px 0 0 0; }' +
 			'.appending_file { width:'+(P.pageWidth-10)+'px !important; }' +
 			'.resize_bar > div { left: 50px !important; }' +
+
+			'#dgn_gallery_left .gallery_title { display: '+(P.title?"block":"none")+'; position: static; height: auto; }' +
+			'#dgn_gallery_left .gallery_title h1 { position: static; }' +
 
 			"#dgn_gallery_left .gallery_box { display: " + (P.best?"block":"none") + "; " + (P.title?"":"top: 0px !important;") + "}" +
 			"#dgn_gallery_left .gallery_box {position: static !important; margin-bottom: 10px; "+(!MODE.list?'':'height: 175px !important;')+"}" +
