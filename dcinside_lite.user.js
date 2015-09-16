@@ -1703,6 +1703,8 @@
 				writeForm.querySelector('div.textarea').innerHTML = writeForm.imgHtml + writeForm.querySelector('div.textarea').innerHTML;
 				$('div#DCL_writeBottomDiv input[type="submit"]').disabled=null;
 			}
+			
+			DCINSIDE_LITE.checkLoginStatus(e.responseText);
 
 			if(writeForm = $('form#DCL_writeForm')) removeElement(writeForm);
 			var writeBody = e.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)<\/body>/)[1].toDomElement();
@@ -2377,7 +2379,8 @@
 			"table.DCL_layerComment span.num2 {margin-left:1em ; font:8pt Tahoma ; color:#999}" +
 
 			"div.DCL_layerContent + p.DCL_replyP {border-top:1px solid #666 ; padding-top:5px}" +
-			"p.DCL_replyP {position:relative ; margin:5px 0 ; padding:"+(_GID?"0 45px 0 5px":"0 122px 0 105px")+"}" +
+			"p.DCL_replyP {position:relative ; margin:5px 0 ; padding:0 122px 0 105px}" +
+			"p.DCL_replyP.DCL_LoggedIn {padding:0 45px 0 5px}" +
 			"p.DCL_replyP > input {height:16px ; border:1px solid #999}" +
 			"p.DCL_replyP > input:focus {background-color:#f5f5f5 ; border:1px solid #666}" +
 			"input.DCL_replyName {position:absolute ; bottom:0 ; left:0 ; width:100px}" +
@@ -2772,7 +2775,7 @@
 
 					commFrag.appendChild(commentCallback(response));
 
-					var replyP = cElement("p",commFrag/*[commentTable,"next"]*/,{className:"DCL_replyP"});
+					var replyP = cElement("p",commFrag/*[commentTable,"next"]*/,{className:"DCL_replyP"+(_GID?' DCL_LoggedIn':'')});
 					var rMemo = cElement("input",replyP,{type:"text",className:"DCL_replyMemo2"});
 					rMemo.addEventListener("keypress",function(e){if(e.keyCode===13){layer.reply();}},false);
 					layer.rMemo = rMemo;
@@ -4034,15 +4037,18 @@
 	};
 
 	DCINSIDE_LITE.checkLoginStatus = function(html) {
+		var oGID = _GID;
 		_GID = html.match(/<li class="pic_galler"><a href="http:\/\/gallog\.dcinside\.com\/([^"]+)" id="favorite_gallog_img"><\/a><\/li>/);
 		_GID = (_GID!=null?_GID[1]:false);
 		console.log('checkLoginStatus:' + _GID);
+
+		if(oGID == _GID) // 변경사항이 없으면
+			return;
 
 		if(P.menuPos === "top") {
 			$id("DCL_menuTitle").textContent = "";
 			cElement("img",[$id("DCL_menuTitle"),0],{src:"http://dcimg1.dcinside.com/glogProfileView.php?gid=26b2c223e4c221ac3e&type=main&mode=GL&dummyCode=242872037",className:"DCL_profileImage",alt:"프로필"});
 		}
-
 		if(btnLogin = $('.DCL_menuLogin > a'))
 			btnLogin.textContent = _GID?"로그아웃":"로그인";
 		if(btnGallog = $('.DCL_menuGallog')) {
