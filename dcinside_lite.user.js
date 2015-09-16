@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15015
-// @date           2015.09.15
+// @version        15016
+// @date           2015.09.16
 // @author         축 -> 하루카나소라
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -16,8 +16,8 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15015";	// 실제 버전
-	var VERSION = "15010";		// 설정 내용 버전
+	var R_VERSION = "15016";	// 실제 버전
+	var VERSION = "15016";		// 설정 내용 버전
 	var P = {
 	version : "",
 
@@ -62,6 +62,7 @@
 	linkList : "게시판@47\n김유식@yusik",
 
 	simpleWrite : 0,
+	albumFullsize : 1,
 
 	page : 0,
 	pageCount : 5,
@@ -73,9 +74,6 @@
 	layerReply : 1,
 	layerSingle : 1,
 	layerResize : 1,
-	albumInfScrl : 1,
-	albumRealtime : 1,
-	albumFullsize : 1,
 	thumbWidth : 640,
 	thumbHeight : 480,
 	hide : 1,
@@ -945,7 +943,7 @@
 
 				dclset.body.menuSet.innerList.info = cElement("li", dclset.body.menuSet.innerList);
 				cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"/로 구분해서 입력하고, 메뉴를 위쪽으로 설정한 경우 |로 구분해서 순서대로 좌측 메뉴, 우측 메뉴, 프로필 메뉴를 입력합니다."});
-				cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 이미지 : 이미지 모아보기 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 현재갤 : 현재 갤러리 링크 / 글쓰기 : 글쓰기 / 구분선 : 구분선"});
+				cElement("div", dclset.body.menuSet.innerList.info, {className:"small copyable", textContent:"설정 : 디시라이트 설정 버튼 / 로그인 : 로그인/아웃 버튼 / 갤로그 : 갤로그 버튼 / 갤러리 : 갤러리 메뉴 토글 / 목록 : 다중 목록 토글 / 와이드 : 와이드 모드 토글 / 상단 : 상단 기본 메뉴 토글 / 타이틀 : 갤러리 타이틀 토글 / 박스 : 갤러리 박스 토글 / 베스트 : 일간 베스트 게시물 보기 / 개념글 : 개념글 보기 / 즐겨찾기 : 즐겨찾기 링크 / 현재갤 : 현재 갤러리 링크 / 글쓰기 : 글쓰기 / 구분선 : 구분선"});
 				cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"즐겨찾기 링크는 따로따로 입력할 수도 있습니다."});
 				cElement("div", dclset.body.menuSet.innerList.info, {className:"small", textContent:"예) 미연시/게시판/김유식"});
 
@@ -985,6 +983,13 @@
 				dclset.body.easyView.innerList.layerThumb = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerThumb, {type:"checkbox", id:"DCL_layerThumb"});
 				cElement("label", dclset.body.easyView.innerList.layerThumb, {"for":"DCL_layerThumb",textContent:"이미지 섬네일화"});
+
+				dclset.body.easyView.innerList.thumbProp = cElement("li", dclset.body.easyView.innerList);
+				cElement(null, dclset.body.easyView.innerList.thumbProp, "섬네일 크기 ");
+				cElement("input", dclset.body.easyView.innerList.thumbProp, {type:"text", className:"number", size:"3", id:"DCL_thumbWidth"});
+				cElement(null, dclset.body.easyView.innerList.thumbProp, "× ");
+				cElement("input", dclset.body.easyView.innerList.thumbProp, {type:"text", className:"number", size:"3", id:"DCL_thumbHeight"});
+
 				dclset.body.easyView.innerList.layerText = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerText, {type:"checkbox", id:"DCL_layerText"});
 				cElement("label", dclset.body.easyView.innerList.layerText, {"for":"DCL_layerText",textContent:"본문"});
@@ -994,26 +999,6 @@
 				dclset.body.easyView.innerList.simpleWrite = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.simpleWrite, {type:"checkbox", id:"DCL_simpleWrite"});
 				cElement("label", dclset.body.easyView.innerList.simpleWrite, {"for":"DCL_simpleWrite",textContent:"간단 글쓰기"});
-				
-			dclset.body.Album = cElement("div", dclset.body);
-			cElement("h3", dclset.body.Album, "이미지 모아보기");
-			dclset.body.Album.innerList = cElement("ul", dclset.body.Album);
-				dclset.body.Album.innerList.info = cElement("li", dclset.body.Album.innerList);
-				cElement("div", dclset.body.Album.innerList.info, "게시판의 이미지를 모아 봅니다.");
-				dclset.body.Album.innerList.albumInfScrl = cElement("li", dclset.body.Album.innerList);
-				cElement("input", dclset.body.Album.innerList.albumInfScrl, {type:"checkbox", id:"DCL_albumInfScrl"});
-				cElement("label", dclset.body.Album.innerList.albumInfScrl, {"for":"DCL_albumInfScrl",textContent:"무한 스크롤"});
-				dclset.body.Album.innerList.albumFullsize = cElement("li", dclset.body.Album.innerList);
-				cElement("input", dclset.body.Album.innerList.albumFullsize, {type:"checkbox", id:"DCL_albumFullsize"});
-				cElement("label", dclset.body.Album.innerList.albumFullsize, {"for":"DCL_albumFullsize",textContent:"풀 사이즈 이미지 표시"});
-				dclset.body.Album.innerList.albumRealtime = cElement("li", dclset.body.Album.innerList);
-				cElement("input", dclset.body.Album.innerList.albumRealtime, {type:"checkbox", id:"DCL_albumRealtime"});
-				cElement("label", dclset.body.Album.innerList.albumRealtime, {"for":"DCL_albumRealtime",textContent:"읽으면서 표시"});
-				dclset.body.Album.innerList.thumb = cElement("li", dclset.body.Album.innerList);
-				cElement(null, dclset.body.Album.innerList.thumb, "섬네일 크기 ");
-				cElement("input", dclset.body.Album.innerList.thumb, {type:"text", className:"number", size:"3", id:"DCL_thumbWidth"});
-				cElement(null, dclset.body.Album.innerList.thumb, "× ");
-				cElement("input", dclset.body.Album.innerList.thumb, {type:"text", className:"number", size:"3", id:"DCL_thumbHeight"});
 				
 			dclset.body.blockContent = cElement("div", dclset.body);
 			cElement("h3", dclset.body.blockContent, "컨텐츠 차단");
@@ -1147,7 +1132,7 @@
 		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
 	},
 	load : function(nochrome) {
-		var num = ["loadAtList","loadAtView","loadAtWrite","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","albumInfScrl","albumRealtime","albumFullsize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -1524,7 +1509,6 @@
 						cToggle(this,"DCL_menuOn");
 						$(".gallery_box").style.display = P.best?"block":"none";
 					},
-			album : function(){Album(PAGE);},
 			ilbeview : function(){
 						softLoad("/board/lists/?id="+_ID+"&exception_mode=best");
 					},
@@ -1618,8 +1602,6 @@
 					cElement("a",cElement("li",menuUl),{textContent:"갤러리 타이틀",className:P.title?"DCL_menuOn":""},funcList.title);
 				} else if(flag === "박스") {
 					cElement("a",cElement("li",menuUl),{textContent:"갤러리 박스",className:P.best?"DCL_menuOn":""},funcList.best);
-				} else if(flag === "이미지") {
-					cElement("a",cElement("li",menuUl),"이미지 모아보기",funcList.album);
 				} else if(flag === "베스트") {
 					cElement("a",cElement("li",menuUl),"일간베스트",funcList.ilbeview);
 				} else if(flag === "개념글") {
@@ -3444,374 +3426,6 @@
 		this.list.length = 0;
 	};
 
-	// 이미지 모아보기
-	function Album(page, more) {
-		if(!Album.inited) {
-			Album.init();
-		}
-
-		Album.on = true;
-		Album.complete = false;
-		Album.finish = false;
-		Album.page = page;
-		document.body.style.overflow = "hidden";
-		cAdd(document.body,"DCL_hideMovAll");
-		$id("DCL_albumDiv").style.display = "block";
-		$id("DCL_albumLoad").textContent = "읽는 중...";
-		if(!more) {
-			Album.count = 0;
-			Album.align.last=-1;
-			Album.viewer.clear();
-			$id("DCL_albumUl").innerHTML = "";
-		}
-
-		var albumPage = $id("DCL_albumPage");
-		albumPage.innerHTML = "";
-		var p = (Math.ceil(page/10)-1)*10+1;
-		if(p>10) {
-			cElement("span",albumPage,"다음",function(i){return function(){Album(i);};}(p-1));
-		}
-		for(var l=p+10 ; p<l ; p+=1) {
-			cElement("span",albumPage,{textContent:p,className:(p===page?"DCL_albumNow":"")},function(i){return function(){Album(i);};}(p));
-		}
-		cElement("span",albumPage,"이전",function(i){return function(){Album(i);};}(p));
-
-		Album.display();
-	}
-	Album.init = function() {
-		var width = P.thumbWidth;
-		var height = P.thumbHeight;
-		var cols = Math.floor(document.documentElement.clientWidth/(width+20));
-		Album.cssWidth = document.documentElement.clientWidth-120;
-
-		addStyle(
-			"div#DCL_albumDiv {position:fixed ; overflow:hidden ; top:0 ; left:0 ; width:100% ; height:100% ; z-index:101}" +
-			"div#DCL_albumBack {position:absolute; top:0; width:100%; height:100%; background-color:#000 ; opacity:0.6}" +
-			"div#DCL_albumWrap {position:absolute; top: 30px; bottom: 0px; width:100%; overflow:auto;}" +
-			"p#DCL_albumP {overflow:hidden; height:25px; padding-top: 5px; font: 15px " + P.fontList + "; color:#fff ; background-color:#333; position: fixed; top: 0px; left: 0px; right: 0px; z-index: 1;}" +
-			"span.DCL_albumBtn {margin-left:10px ; cursor:pointer}" +
-			"span#DCL_albumPage {margin-left:15px}" +
-			"span#DCL_albumPage > span {margin:5px ; cursor:pointer}" +
-			"span#DCL_albumPage > span.DCL_albumNow {font-size: 21px; line-height: 15px; }" +
-			"span#DCL_albumLoad {margin-left:20px}" +
-			"ul#DCL_albumUl {position:relative ; overflow:auto ; width:" + Album.cssWidth + "px ; margin:10px auto}" +
-			"ul#DCL_albumUl > li { position: relative; float:left; margin:5px; border: none; display:none; overflow: hidden; }" +
-			"ul#DCL_albumUl > li.DCL_albumDC { border-color:#000; }" +
-			"ul#DCL_albumUl > li.DCL_albumLink { border-color:#999; }" +
-			"ul#DCL_albumUl img { background-color:#fff}" +
-			"ul#DCL_albumUl p { position:absolute; padding: 5px; overflow:hidden; bottom: -1px; left:0; right:0; height:40px; line-height: 15px; background-image: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,1)); box-shadow: 0 0 1px black; display:none; text-align: center; }" +
-			"ul#DCL_albumUl > li:hover p { display: block; }" +
-			"ul#DCL_albumUl span {color: #DDD; display: block; height: 15px; overflow: hidden; min-width: 250px; }" +
-			"ul#DCL_albumUl span.author{font-weight: bold;}" +
-			"ul#DCL_albumUl a { display: inline-block; height: 100%; text-align: left; }"
-		);
-
-		Album.on = false; // 앨범 상태 여부
-		Album.complete = false; // 렌더링 여부 ; 연결이 여러개이므로 다른 연결에 의해 렌더링(display)이 시작되었는지 체크
-		Album.finish = false;
-		Album.page = 0; // 현재 페이지
-		Album.count = 0; // 이미지 개수
-
-		Album.pData = {}; // 페이지별 이미지가 포함된 글의 번호
-		Album.aData = {}; // 글의 데이터
-		Album.rData = {}; // 재시도 내역
-
-		Album.viewer = new Viewer();
-		Album.inited = true;
-		Album.align.last=-1;
-
-		var div = cElement("div",document.body,{id:"DCL_albumDiv"});
-		cElement("div",div,{id:"DCL_albumBack"});
-		var wrap = cElement("div",div,{id:"DCL_albumWrap"});
-		var albumP = cElement("p",wrap,{id:"DCL_albumP"});
-		cElement("span",albumP,{textContent:"닫기",className:"DCL_albumBtn"},Album.close);
-		cElement("span",albumP,{textContent:"새로고침",className:"DCL_albumBtn"},Album.reload);
-		cElement("span",albumP,{id:"DCL_albumPage"});
-		cElement("span",albumP,{id:"DCL_albumLoad"});
-		cElement("ul",wrap,{id:"DCL_albumUl"});
-		
-		if(P.albumInfScrl) {
-			wrap.addEventListener("scroll", function() {
-				if(!Album.complete || !Album.finish)
-					return;
-				if(wrap.scrollHeight - wrap.clientHeight < wrap.scrollTop + wrap.clientHeight/2) {
-					Album(Album.page+1, true);
-				}
-			});
-		}
-	};
-	Album.display = function(disp) {
-		if(!Album.on || Album.complete) {
-			return;
-		}
-
-		var albumLoad = $id("DCL_albumLoad");
-		var pData = Album.pData[Album.page];
-		if(pData) {
-			var no;
-			var load = 0;
-			for(var i=0,l=pData.length ; i<l ; i+=1) {
-				no = pData[i];
-				if(Album.aData.hasOwnProperty(no) && Album.aData[no].status) {
-					load += 1;
-				} else {
-					Album.aCall(no);
-				}
-			}
-			//albumLoad.textContent = "글 읽는 중... (" + Math.floor(load*100/l) + "%)";
-			if(load < l) {
-				albumLoad.textContent = "글 읽는 중... (" + (l-load) + "개 남음)";
-				return;
-			}
-		} else {
-			albumLoad.textContent = "목록 읽는 중...";
-			Album.pCall(Album.page);
-			return;
-		}
-
-		Album.complete = true;
-		albumLoad.textContent = "읽기 완료.";
-
-		var fragment = $id("DCL_albumUl");
-		if(!disp || (disp && !P.albumRealtime)) {
-			Album.loadedCnt=0;
-			var data,imgs,li,img,p;
-			for(var i=0,l=pData.length ; i<l ; i+=1) {
-				data = Album.aData[pData[i]];
-				imgs = data.imgs;
-				for(var j=imgs.length ; j-- ; ) {
-					if(imgs[j][1]!=null) {
-						thumb = imgs[j][0];
-						orig = imgs[j][1];
-					}
-					else
-						orig = thumb = imgs[j][0];
-
-					if(/\.dcinside\.com/.test(orig))
-						type="DC";
-					else
-						type="Link";
-
-					Album.count += 1;
-					li = cElement("li",fragment,{className:"DCL_album"+type});
-					img = cElement("img",li,{alt:data.title+" ("+(j+1)+")",src:thumb});
-					img.addEventListener("load", function(e) {
-						Album.loadedCnt=(Album.loadedCnt || 0) + 1;
-						if(Album.loadedCnt==Album.count) {
-							Album.align();
-						}
-					});
-					img.addEventListener("error", function(e) {
-						Album.count--;
-						removeElement(this.parentNode);
-						if(Album.loadedCnt==Album.count) {
-							Album.align();
-						}
-					});
-					Album.viewer.add(orig,img);
-					
-					p = cElement("p",li);
-					ah=cElement("a",p,{href:"/board/view/?id="+_ID+"&no="+data.no,target:"_blank"});
-					cElement("span",ah,{textContent:data.name,className:"author"});
-					cElement("span",ah,{textContent:data.title});
-				}
-			}
-		}
-		Album.align();
-		albumLoad.textContent = "로드 완료 (" + Album.count + " 개 로드됨)";
-		Album.finish=true;
-		if(disp && P.albumInfScrl) {
-			var wrap = $id('DCL_albumWrap');
-
-			if(wrap.scrollHeight - wrap.clientHeight < wrap.scrollTop + wrap.clientHeight/2) {
-				Album(Album.page+1, true);
-			}
-		}
-	};
-	Album.align = function() {
-		var target = $id("DCL_albumUl").childNodes;
-		var _width  = Album.cssWidth;
-		var _max_height = P.thumbHeight; // 구분선 20px
-		var wsum = 0;
-		if(typeof Album.align.last==="undefined") Album.align.last = -1;
-		
-		for(i=Album.align.last+1;i<target.length;i++) {
-			img = target[i].firstChild;
-			img.style.maxWidth=img.style.maxHeight=null;
-			img.realWidth  =img.width;
-			img.realHeight =img.height;
-			wsum += img.realWidth/img.realHeight; // 높이를 1로 두었을 때 너비
-			if(_max_height >= (_width-(i-Album.align.last+1)*10)/wsum) {
-				for(k=Album.align.last+1;k<=i;k++) {
-					kimg = target[k].firstChild;
-					kimg.style.height = ((_width-(i-Album.align.last+1)*10)/wsum) + "px";
-					kimg.parentNode.style.display= "inline-block";
-				}
-				Album.align.last = i;
-				wsum = 0;
-			}
-		}
-		for(k=Album.align.last+1;wsum && k<=i;k++) {
-			if(!target[k])
-				continue;
-			kimg = target[k].firstChild;
-			kimg.style.height = _max_height + "px";
-			kimg.parentNode.style.display= "inline-block";
-		}
-	}
-	Album.pCall = function(page) {
-		if(Album.pData.hasOwnProperty(page)) {
-			return;
-		}
-
-		var exception_mode=parseQuery(location.search).exception_mode;
-		var s_type=parseQuery(location.search).s_type;
-		var s_keyword=parseQuery(location.search).s_keyword;
-		var search_pos=parseQuery(location.search).search_pos;
-		simpleRequest("/board/lists/?id="+_ID+"&page="+page+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
-			function(response) {
-				var text = response.responseText.replace(/^\s+/,"");
-				if(text.substr(0,9) === "<!DOCTYPE") {
-					var regexp = new RegExp("class=\"t_subject\"><a href=\"/board/view/[^\"]+no=([0-9]+)[^\"]+\" class=\"icon_pic_n\"","g");
-					var exec;
-					Album.pData[page] = [];
-					while( (exec=regexp.exec(text)) ) {
-						var no = exec[1];
-						Album.pData[page].push(no);
-						if(!Album.aData.hasOwnProperty(no)) {
-							Album.aCall(no);
-						}
-					}
-					$id("DCL_albumLoad").textContent = "준비 중...";
-					Album.display(true);
-				} else { // 응답을 못받았을 경우(과다 사용자)
-					$id("DCL_albumLoad").textContent = "읽기 실패";
-				}
-			},'GET',{"Accept":"text/html,application/xhtml+xml"});
-	};
-	Album.aCall = function(no) {
-		if(Album.aData.hasOwnProperty(no)) {
-			return;
-		}
-		Album.aData[no] = {status:false};
-
-		simpleRequest("/board/view/?id="+_ID+"&no="+no,
-			function(response) {
-				var text = response.responseText.replace(/^\s+/,"");
-				if(text.substr(0,9) === "<!DOCTYPE") {
-					var data = Album.aData[no];
-					data.no = no;
-					var tagStartsFrom=text.search(/<span class=\"user_layer\"/);
-					data.name=/user_name=\"([^\"]+)\"/.exec(text.substring(tagStartsFrom,tagStartsFrom+500));
-					data.isdisplayed = false;
-					if(data.name===null) {
-						Album.rData[no] = (Album.rData[no] || 0) + 1;
-						if(Album.rData[no] < 3) {
-							Album.aCall(no); // 2번 이내의 경우 재호출(리턴)
-							return;
-						} else {
-							delete Album.rData[no];
-							Album.aData[no].status = true; // 3번째는 뛰어넘기
-							return;
-						}
-					}
-					data.name = data.name[1];
-					try{
-						var titleTagStartsFrom=text.search(/<dl class=\"wt_subject\"/);
-						var mobileImgTag="<span style='display: inline-block;vertical-align: middle;margin: -4px 0 0 2px;'><img src='http://wstatic.dcinside.com/gallery/images/mobile_icon_1.gif' border='0'></span>";
-						var extracted=/<dd>(.+?)<\/dd>/.exec(text.substring(titleTagStartsFrom,titleTagStartsFrom+300))[1];
-						if(extracted.indexOf(mobileImgTag)!=-1) extracted=extracted.replace(mobileImgTag,'');
-						data.title=extracted;
-					} catch(err) {
-						data.title = null;
-					}
-					data.imgs = [];
-					data.status = true;
-					delete Album.rData[no];
-
-					var html,regexp,exec;
-					if( (html=text.substring(text.indexOf("<!-- con_substance -->"),text.indexOf("<!-- //con_substance -->"))) ) {
-						regexp = /(|onClick=\"javascript:window\.open\(\'(http:\/\/image\.dcinside\.com\/viewimagePop\.php[^\']+)\'[^\"]+\">)<img[^>]*src=[\'\">\s]?([^\'\" >]+)[\'\">\s]?/mig;
-						while( (exec=regexp.exec(html)) ) {
-							if(typeof exec[2]!="undefined")
-								exec[2] = exec[2].replace("viewimagePop.php", "viewimage.php");
-							if(!(/wstatic\.dcinside\.com|images\/g_fix\.gif|dc2\.dcinside\.com/.test(exec[3]))) {
-								full = (typeof exec[2]!="undefined"?exec[2]:null)
-								data.imgs.push([exec[3].replace(/&amp;/g,"&"),full]);
-							}
-						}
-					}
-					if(P.albumRealtime) {
-						var fragment = $id("DCL_albumUl");
-						var data,imgs,li,img,p;
-						imgs = data.imgs;
-						for(var j=imgs.length ; j-- ; ) {
-							if(imgs[j][1]!=null) {
-								thumb = imgs[j][0];
-								orig = imgs[j][1];
-							}
-							else
-								orig = thumb = imgs[j][0];
-
-							if(/\.dcinside\.com/.test(orig))
-								type="DC";
-							else
-								type="Link";
-
-							Album.count += 1;
-							li = cElement("li",fragment,{className:"DCL_album"+type});
-							img = cElement("img",li,{alt:data.title+" ("+(j+1)+")",src:thumb});
-							img.addEventListener("load", function(e) {
-								Album.loadedCnt=(Album.loadedCnt || 0) + 1;
-								if(Album.loadedCnt==Album.count) {
-									Album.align();
-								}
-							});
-							img.addEventListener("error", function(e) {
-								Album.count--;
-								removeElement(this.parentNode);
-								if(Album.loadedCnt==Album.count) {
-									Album.align();
-								}
-							});
-							Album.viewer.add(orig,img);
-							
-							p = cElement("p",li);
-							ah=cElement("a",p,{href:"/board/view/?id="+_ID+"&no="+data.no,target:"_blank"});
-							cElement("span",ah,{textContent:data.name,className:"author"});
-							cElement("span",ah,{textContent:data.title});
-						}
-					}
-				} else { // 응답을 못받았을 경우
-					Album.rData[no] = (Album.rData[no] || 0) + 1;
-					if(Album.rData[no] < 3) {
-						Album.aCall(no); // 2번 이내의 경우 재호출(리턴)
-						return;
-					} else {
-						delete Album.rData[no];
-						Album.aData[no].status = true; // 3번째는 뛰어넘기
-					}
-				}
-
-				Album.display(true);
-			},'GET',{"Accept":"text/html,application/xhtml+xml"}
-		);
-	};
-	Album.reload = function() {
-		Album.pData = {};
-		Album.aData = {};
-		Album.rData = {};
-		Album(Album.page);
-	};
-	Album.close = function() {
-		$id("DCL_albumDiv").style.display = "none";
-		$id("DCL_albumLoad").textContent = "";
-		$id("DCL_albumUl").innerHTML = "";
-		Album.on = false;
-		cRemove(document.body,"DCL_hideMovAll");
-		document.body.style.overflow = "auto";
-	};
-
 	// 이미지 & 동영상 차단
 	var Hide = {
 
@@ -3911,7 +3525,7 @@
 	list : [],
 	keydown : function(e) {
 		var tag = e.target.nodeName;
-		if(tag === "INPUT" || tag === "TEXTAREA" || Viewer.on || Album.on || e.target.className == "textarea") {
+		if(tag === "INPUT" || tag === "TEXTAREA" || Viewer.on || e.target.className == "textarea") {
 			return;
 		}
 		var code = e.keyCode;
