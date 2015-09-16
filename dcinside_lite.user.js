@@ -2803,7 +2803,7 @@
 							rPassword.value = P.autoPassword;
 						}
 					}
-					cElement("input",replyP,{type:"button",className:"DCL_replySubmit",value:"확인"},function(){layer.reply();});
+					cElement("input",replyP,{type:"button",className:"DCL_replySubmit",value:"작성"},function(){layer.reply();});
 
 					if(Layer.now === layer) {
 						layer.focus();
