@@ -1590,7 +1590,7 @@
 					cElement("img",$id("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
 					cElement("em",$id("DCL_profile"),"갤로그 가기");
 				}
-			},'GET',{"Accept":"text/html,application/xhtml+xml"});
+			},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"});
 		}
 
 		if(P.menuPos === "top" && $id("DCL_menuUlSub")) {
@@ -1798,7 +1798,7 @@
 						+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
 						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
 					);
-				},'GET',{"Accept":"text/html,application/xhtml+xml"});
+				},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"});
 
 			var fileSelectDlg = cElement('input',writeForm,{type:'file',id:'DCL_fileSelectDlg','multiple':'multiple'})
 			fileSelectDlg.style.display='none';
@@ -2027,7 +2027,7 @@
 					cell.innerHTML = "";
 					cElement("span",cell,{textContent:"읽기 실패 ("+(p+PAGE)+" 페이지)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
 				}
-			},'GET',{"Accept":"text/html,application/xhtml+xml"}
+			},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"}
 		);
 	}
 
@@ -2585,7 +2585,7 @@
 									alert(r.responseText);
 							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
 					}
-				},'GET',{"Accept":"text/html,application/xhtml+xml"});
+				},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"});
 			});
 			cElement("span",bottomBtn,{className:"DCL_layerLoad"});
 		}
@@ -2774,7 +2774,7 @@
 						cElement("span",[btns,1],{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
 						loadSpan.textContent = "읽기 실패";
 					}
-				},'GET',{"Accept":"text/html,application/xhtml+xml"}
+				},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"}
 			);
 		}
 		
@@ -2822,7 +2822,7 @@
 					if(Layer.now === layer)layer.focus();
 				},
 				"POST", 
-				{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
+				{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+Layer.now.no+'&comment_page=1&ci_t='+csrf_token());
 
 			function commentCallback(response) {
 				var commFrag = document.createDocumentFragment();
@@ -2913,7 +2913,7 @@
 									layer.div.insertBefore(commentCallback(response),$('.DCL_layerComment'));
 								},
 								"POST", 
-								{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+layer.no+'&comment_page='+layer.comment_page+'&ci_t='+csrf_token());
+								{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+_ID+'&no='+layer.no+'&comment_page='+layer.comment_page+'&ci_t='+csrf_token());
 						});
 					}
 				}
@@ -2995,7 +2995,7 @@
 				layer.call();
 			},
 			"POST",
-			{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
+			{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
 			data
 		);
 		history.pushState(bfloc, bfloc, bfloc);
@@ -3038,7 +3038,7 @@
 				layer.call();
 			},
 			"POST",
-			{"Accept":"text/html,application/xhtml+xml","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
+			{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
 			data
 		);
 	};
@@ -4097,7 +4097,7 @@
 						cElement("img",$id("DCL_profile"),{src:isFNick?"//wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif":"http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",className:"userType"});
 						cElement("em",$id("DCL_profile"),"갤로그 가기");
 					}
-				},'GET',{"Accept":"text/html,application/xhtml+xml"});
+				},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"});
 			}
 		}
 	}
