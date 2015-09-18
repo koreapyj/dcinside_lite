@@ -3,7 +3,7 @@
 // @namespace      http://kasugano.tistory.com
 // @version        15016
 // @date           2015.09.16
-// @author         축 -> 하루카나소라
+// @author         koreapyj 외
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
 // @include        http://gall.dcgame.in/*
@@ -1078,9 +1078,11 @@
 				cElement("a", dclset.body.dclInfo.innerList.info.copyright, {href:"http://gallog.dcinside.com/hkyuwon", target:"_blank", textContent:"디시인사이드 고정닉 축"});
 				dclset.body.dclInfo.innerList.info.kasugano = cElement("div", dclset.body.dclInfo.innerList.info);
 				cElement(null, dclset.body.dclInfo.innerList.info.kasugano, "수정 : ");
-				cElement("a", dclset.body.dclInfo.innerList.info.kasugano, {href:"http://kasugano.tistory.com/", target:"_blank", textContent:"디시인사이드 고정닉 하루카나소라"});
+				cElement("a", dclset.body.dclInfo.innerList.info.kasugano, {href:"http://kasugano.tistory.com/", target:"_blank", textContent:"koreapyj"});
+				cElement(null, dclset.body.dclInfo.innerList.info.kasugano, " ");
+				cElement("a", dclset.body.dclInfo.innerList.info.kasugano, {href:"https://github.com/koreapyj/dcinside_lite/graphs/contributors", target:"_blank", textContent:"외"});
 				dclset.body.dclInfo.innerList.info.github = cElement("div", dclset.body.dclInfo.innerList.info);
-				cElement("a", dclset.body.dclInfo.innerList.info.github, {href:"https://github.com/koreapyj/dcinside_lite", target:"_blank", textContent:"GitHub 페이지"});
+				cElement("a", dclset.body.dclInfo.innerList.info.github, {href:"https://github.com/koreapyj/dcinside_lite", target:"_blank", textContent:"GitHub"});
 				cElement("div", dclset.body.dclInfo.innerList.info, {className:"small br", textContent:"이 스크립트는 자유 소프트웨어 라이센스를 따르지 않습니다. 이 스크립트의 저작권은 디시인사이드 고정닉 축에게 있습니다. 이 스크립트는 원 저작자의 허락을 받지 않고 수정되었으며, 원 저작자의 문제 제기시 배포는 중단됩니다. 이 스크립트의 버전 1.5.5 이후 변경사항은 Public Domain으로 배포됩니다."});
 
 			dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
