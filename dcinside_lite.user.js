@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15016
-// @date           2015.09.16
+// @version        15017
+// @date           2015.09.20
 // @author         koreapyj 외
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -16,14 +16,16 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15016";	// 실제 버전
-	var VERSION = "15016";		// 설정 내용 버전
+	var R_VERSION = "15017";	// 실제 버전
+	var VERSION = "15017";		// 설정 내용 버전
 	var P = {
 	version : "",
 
 	loadAtList : 1,
 	loadAtView : 0,
 	loadAtWrite : 0,
+
+	notification : 0,
 
 	filter : 1,
 	blockN : 1,
@@ -745,6 +747,15 @@
 				cElement("label", dclset.body.loadSet.innerList.loadAtWrite, {"for":"DCL_loadAtWrite",textContent:"글쓰기 화면"});
 				cElement("small", dclset.body.loadSet.innerList.loadAtWrite, {textContent:"(별로 소용없는데 왜 굳이?)"});
 
+			dclset.body.notification = cElement("div", dclset.body);
+			cElement("h3", dclset.body.notification, "알림");
+			dclset.body.notification.innerList = cElement("ul", dclset.body.notification);
+				dclset.body.notification.innerList.info = cElement("li", dclset.body.notification.innerList);
+				cElement("div", dclset.body.notification.innerList.info, "내가 쓴 글에 댓글이 달릴 때 데스크톱 알림으로 알려줍니다.");
+				dclset.body.notification.innerList.enabled = cElement("li", dclset.body.notification.innerList);
+				cElement("input", dclset.body.notification.innerList.enabled, {type:"checkbox", id:"DCL_notification"});
+				cElement("label", dclset.body.notification.innerList.enabled, {"for":"DCL_notification",textContent:"알림 사용"});
+
 			dclset.body.filter = cElement("div", dclset.body);
 			cElement("h3", dclset.body.filter, "필터");
 			dclset.body.filter.innerList = cElement("ul", dclset.body.filter);
@@ -1088,8 +1099,43 @@
 			dclset.foot = cElement("div", dclset.wrap, {className:"foot"});
 				cElement("input", dclset.foot, {type:"submit", value:"완료"}, SET.save);
 
-			$id("DCL_storeGoogle").disabled = !(BROWSER.chrome && BROWSER.chrome.storage);
-			$id("DCL_storeGM").disabled = !(BROWSER.greasemonkey);
+			$id('DCL_storeGoogle').disabled = !(BROWSER.chrome && BROWSER.chrome.storage);
+			$id('DCL_storeGM').disabled = !(BROWSER.greasemonkey);
+			if('Notification' in window) {
+				if (Notification.permission === "denied") {
+					$id('DCL_notification').disabled = true;
+					cElement("p", dclset.body.notification.innerList.enabled, {id:'DCL_notificationDenied',textContent:"알림이 차단되어 있어서 사용할 수 없습니다. 브라우저 설정에서 알림을 허용해 주세요.",style:'margin-left: 1.5em; font-size: 11px; color: red;'});
+				}
+				else {
+					$id('DCL_notification').addEventListener('change', function(e) {
+						if(!$id('DCL_notification').checked)
+							return;
+						if(Notification.permission==="granted") {
+							return;
+//							new Notification('댓글',{'body':'죽여버린다 씨발새끼야','tag':'13301'});
+						}
+						else {
+							$id('DCL_notification').checked=false;
+							Notification.requestPermission(function (permission) {
+								if (permission === "granted") {
+									$id('DCL_notification').checked=true;
+									return;
+//									new Notification('댓글',{'body':'죽여버린다 씨발새끼야','tag':'13301'});
+								}
+								else if(!$id('DCL_notificationDenied')) {
+									$id('DCL_notification').disabled = true;
+									cElement("p", dclset.body.notification.innerList.enabled, {id:'DCL_notificationDenied',textContent:"알림이 차단되어 있어서 사용할 수 없습니다. 브라우저 설정에서 알림을 허용해 주세요.",style:'margin-left: 1.5em; font-size: 11px; color: red;'});
+									return;
+								}
+							});
+						}
+					});
+				}
+			}
+			else {
+				$id('DCL_notification').disabled = true;
+				cElement("p", dclset.body.notification.innerList.enabled, {id:'DCL_notificationDenied',textContent:"알림을 사용할 수 없는 브라우저입니다.",style:'margin-left: 1.5em; font-size: 11px; color: red;'});
+			}
 		}
 
 
@@ -1134,7 +1180,7 @@
 		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
 	},
 	load : function(nochrome) {
-		var num = ["loadAtList","loadAtView","loadAtWrite","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","notification","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -1626,7 +1672,7 @@
 					+ 'div#DCL_writeInfoDiv > input[name="name"] { border-right: 1px solid #aaa; }'
 					+ 'div#DCL_writeInfoDiv > input[name="name"],'
 					+ 'div#DCL_writeInfoDiv > input[name="password"] { float: left; width: 50%; }'
-
+//box-shadow: 0 0 0 2px rgba(91, 124, 229,.5);
 					+ 'form#DCL_writeForm > textarea,'
 					+ 'form#DCL_writeForm > div.textarea { width: 100%; height: 100%; padding: 10px; border: 0; font-size: 13px; font-weight: normal; box-sizing: border-box; resize: none; overflow-y: scroll; }'
 					+ 'form#DCL_writeForm > textarea { display: none; }'
@@ -1642,13 +1688,16 @@
 					+ 'div#DCL_writeBottomDiv > input[type="submit"] { font-size: 13px; line-height: 20px; padding: 3px 20px; border-radius: 3px; margin: 3px; background-color: white; background-image: linear-gradient(0deg,#eee,#fff); border: 1px solid #aaa; float: right; }'
 					+ 'div#DCL_writeBottomDiv > input[type="submit"] { background-color: #5b7ce5; background-image: linear-gradient(0deg,#5b7ce5,#6987e8); border: 1px solid #2049cf; color: white; }'
 					+ 'div#DCL_writeBottomDiv > input[type="submit"]:disabled { background-color: #889fec; background-image: linear-gradient(0deg,#889fec,#95aaee); border-color: #7b95ea; }'
-					+ 'div#DCL_writeBottomDiv > a { font-weight: normal; color: blue; font-size: 12px; line-height: 20px; margin: 3px; padding: 3px; display: inline-block; }'
+					+ 'div#DCL_writeBottomDiv > a { border-radius: 3px; font-weight: normal; color: blue; font-size: 12px; line-height: 20px; margin: 3px; padding: 3px; display: inline-block; }'
+					+ 'div#DCL_writeBottomDiv a:focus,'
+					+ 'div#DCL_writeBottomDiv input[type=submit]:focus{ box-shadow: 0 0 0 2px rgba(91, 124, 229,.5); outline: none;}'
 
 					+ 'div#DCL_writeBottomDiv > ul { display: inline-block; height: 28px; margin: 3px; }'
 					+ 'div#DCL_writeBottomDiv > ul > li { display: inline-block; }'
 					+ 'div#DCL_writeBottomDiv > ul > li > a { cursor: default; height: 26px; border: 1px solid transparent; border-radius: 3px; line-height: 26px; text-align: center; font-size: 13px; display: inline-block; padding: 0 10px; font-weight: normal; text-decoration: none; }'
 
 					+ 'div#DCL_writeBottomDiv > ul > li > a:hover { border-color: #aaa; background-image: linear-gradient(0deg,#eee,#fff); }'
+					+ 'div#DCL_writeBottomDiv > ul > li > a:focus { background-color: #fafafa; }'
 
 					+ 'div#DCL_writeBottomDiv > ul > li > a.DCL_editor_bold { font-weight: bold; }'
 					+ 'div#DCL_writeBottomDiv > ul > li > a.DCL_editor_italic { font-style: italic; }'
@@ -1759,7 +1808,7 @@
 					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
 					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});*/
 
-					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...'},function() {$('input#DCL_fileSelectDlg').click();});
+					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...',href:'http://gall.dcinside.com/board/write/?id=dcwiki'},function(e) { e.preventDefault(); $('input#DCL_fileSelectDlg').click(); });
 					
 				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
 
@@ -2031,6 +2080,7 @@
 				}
 			},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"}
 		);
+		DCINSIDE_LITE.checkAlert();
 	}
 
 	// 필터 ; 차단 or 강조
@@ -2360,9 +2410,9 @@
 			"ul.DCL_layerFlash iframe {border: 0}" +
 			"ul.DCL_layerFlash > li {margin-bottom:5px}" +
 			"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
-			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 10pt; font-family: 굴림; }" +
+			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 13px; font-family: 굴림; }" +
 
-			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:10pt 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
+			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:13px 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
 
 			"table.DCL_layerComment {width:100% ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
 			"table.DCL_layerComment tr:hover {background-color:#f0f0f0}" +
@@ -2372,8 +2422,8 @@
 			"table.DCL_layerComment td:first-child { padding-left: 5px; }" +
 			"table.DCL_layerComment td:last-child { padding-right: 5px; }" +
 			"table.DCL_layerComment td {border-bottom:1px solid #ccc !important; text-align: left !important;}" +
-			"table.DCL_layerComment td.com_name {width:120px; font:10pt 굴림 !important;}" +
-			"table.DCL_layerComment td.com_text {width:auto; font:10pt 굴림 !important; line-height: 22px !important;}" +
+			"table.DCL_layerComment td.com_name {width:120px; font:13px 굴림 !important;}" +
+			"table.DCL_layerComment td.com_text {width:auto; font:13px 굴림 !important; line-height: 22px !important;}" +
 			"table.DCL_layerComment td.com_chat {width:10px}" +
 			"table.DCL_layerComment td.com_ip {width:110px; font:8pt Tahoma !important;}" +
 			"table.DCL_layerComment td.com_btn {width:12px}" +
@@ -2382,16 +2432,17 @@
 			"table.DCL_layerComment span.num2 {margin-left:1em ; font:8pt Tahoma ; color:#999}" +
 
 			"div.DCL_layerContent + p.DCL_replyP {border-top:1px solid #666 ; padding-top:5px}" +
-			"p.DCL_replyP {position:relative ; margin:5px 0 ; padding:0 150px 0 120px}" +
+			"p.DCL_replyP {position:relative ; margin:5px 0 ; padding:0 150px 0 115px}" +
 			"p.DCL_replyP.DCL_LoggedIn {padding:0 70px 0 5px}" +
-			"p.DCL_replyP > input { outline-offset: 0px; border:1px solid #999; }" +
+			"p.DCL_replyP > input { outline-offset: 0px; border:1px solid #999; height: 27px; }" +
 			"p.DCL_replyP > input[type=text], " +
-			"p.DCL_replyP > input[type=password]{ line-height: 13px; font-size: 13px; font-family: Gulim, sans-serif; padding: 5px; box-sizing: border-box; }" +
+			"p.DCL_replyP > input[type=password]{ line-height: 13px; font-size: 13px; font-family: Gulim, sans-serif; padding: 5px; box-sizing: border-box; border-radius: 3px; }" +
 			"p.DCL_replyP > input[type=button] { width: auto; padding: 6px 17px; display: inline-block; background-color: #5b7ce5; background-image: linear-gradient(0deg,#5b7ce5,#6987e8); border: 1px solid #2049cf; color: white; border-radius: 3px; box-sizing: border-box; }" +
-			"p.DCL_replyP > input:focus { outline: rgba(91, 124, 229,.5) 2px solid; }" +
-			"p.DCL_replyP > input:hover { border:1px solid #666;}" +
-			"input.DCL_replyName {position:absolute ; bottom:0 ; left:0 ; width:115px}" +
-			"input.DCL_replyMemo2 {position:relative ; width:100%}" +
+			"p.DCL_replyP > input[type=button]:focus { box-shadow: 0 0 0 2px rgba(91, 124, 229,.5); }" +
+			"p.DCL_replyP > input[type=text]:focus," +
+			"p.DCL_replyP > input[type=password]:focus { border:1px solid #666; }" +
+			"input.DCL_replyName {position:absolute; bottom: 0; left: 5px; width: 105px; }" +
+			"input.DCL_replyMemo2 {position:relative; width:100%}" +
 			"input.DCL_replyPassword {position:absolute ; bottom:0 ; right:70px ; width:75px}" +
 			"input.DCL_replySubmit {position: absolute; bottom: 0; right: 5px; width:35px ;}" + // height:20px !important ; font:8pt 돋움; padding: 0;}" +
 
@@ -4054,6 +4105,39 @@
 			else
 				location.href = 'http://gall.dcinside.com/board/write/?id='+_ID;
 		}
+	};
+
+	DCINSIDE_LITE.checkAlert = function() {
+		var notice_no = /(?:^|; )notice_no=([^;]*)/.exec(document.cookie);
+		simpleRequest('http://gall.dcinside.com/api/alram_push/notify_comment_alram?notice_no='+notice_no+'_='+time(), function(e) {
+			var noti = JSON.parse(e.responseText);
+			if(!noti[0])
+				return;
+			noti = noti[0];
+			if(noti['member_division'] === 'Y') {
+				console.log(noti);
+				var regex = new RegExp('<tr class="reply_line">([^]+?<td class="retime">'+noti['reply_update'].replace(/\-/g, '.')+'</td>)','g');
+				simpleRequest('/comment/view', 
+					function(detail) {
+						var popup;
+						if(!(comment = regex.exec(detail.responseText))) {
+							comment[1] = detail.responseText;
+						}
+						var userids = comment[1].match(/user_id='([^']*?)'/g);
+						console.log(userids);
+						var usernames = comment[1].match(/user_name='([^']*?)'/g);
+						var replies = comment[1].match(/<td class="reply">([^]*?)(?:<span class="etc_ip">([^<]*?)<\/span>)?<\/td>/g);
+						userid = userids[userids.length-1].match(/user_id='([^']*)'/);
+						username = usernames[usernames.length-1].match(/user_name='([^']*)'/);
+						reply = replies[replies.length-1].match(/<td class="reply">([^]*?)(?:<span class="etc_ip">([^<]*?)<\/span>)?<\/td>/);
+
+						popup = new Notification(username[1].replace(/\n/g,'') + (reply[2]?'('+reply[2].replace(/\.\*\.\*/,'.***.***')+')':(userid[1]?'('+userid[1]+')':'')),{'body':(reply[1]?reply[1].replace(/\n/g,''):'새 댓글이 달렸습니다.')});
+						popup.onclick = function() { window.open('http://gall.dcinside.com/'+noti['gallery_id']+'/'+noti['gallery_no']); };
+					},
+					"POST", 
+					{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+noti['gallery_id']+'&no='+noti['gallery_no']+'&comment_page=1&ci_t='+csrf_token());
+			}
+		},'GET',{'Accept':'application/json,text/javascript,*/*','Content-Type':'application/json','X-Via':'DCLite/15016','X-Requested-With':'XMLHttpRequest'});
 	};
 
 	DCINSIDE_LITE.checkLoginStatus = function(html) {
