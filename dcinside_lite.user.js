@@ -26,6 +26,7 @@
 	loadAtWrite : 0,
 
 	notification : 0,
+	notificationInterval : 0,
 
 	filter : 1,
 	blockN : 1,
@@ -755,6 +756,15 @@
 				dclset.body.notification.innerList.enabled = cElement("li", dclset.body.notification.innerList);
 				cElement("input", dclset.body.notification.innerList.enabled, {type:"checkbox", id:"DCL_notification"});
 				cElement("label", dclset.body.notification.innerList.enabled, {"for":"DCL_notification",textContent:"알림 사용"});
+				dclset.body.notification.innerList.notificationInterval = cElement("li", dclset.body.notification.innerList);
+				cElement("label", dclset.body.notification.innerList.notificationInterval, {"for":"DCL_notificationInterval", textContent:"확인주기 "});
+				dclset.body.notification.innerList.notificationInterval.selector = cElement("select", dclset.body.notification.innerList.notificationInterval, {id:"DCL_notificationInterval"});
+					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"5",textContent:"5초"});
+					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"10",textContent:"10초"});
+					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"30",textContent:"30초"});
+					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"60",textContent:"1분"});
+					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"600",textContent:"10분"});
+					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"0",textContent:"수동"});
 
 			dclset.body.filter = cElement("div", dclset.body);
 			cElement("h3", dclset.body.filter, "필터");
@@ -1808,7 +1818,7 @@
 					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
 					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});*/
 
-					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...',href:'http://gall.dcinside.com/board/write/?id=dcwiki'},function(e) { e.preventDefault(); $('input#DCL_fileSelectDlg').click(); });
+					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...',href:'http://gall.dcinside.com/board/write/?id='+_ID},function(e) { e.preventDefault(); $('input#DCL_fileSelectDlg').click(); });
 					
 				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
 
@@ -2080,7 +2090,8 @@
 				}
 			},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"}
 		);
-		DCINSIDE_LITE.checkAlert();
+		if(!P.notificationInterval)
+			DCINSIDE_LITE.checkAlert();
 	}
 
 	// 필터 ; 차단 or 강조
@@ -3604,7 +3615,8 @@
 			ePrevent(e);
 			pageLoad(parseInt($('p.DCL_tbodyBtn').firstChild.textContent)-1);
 		} else if(e.keyCode == 78) {
-			location.href = "/board/write/?id=" + _ID;
+//			location.href = "/board/write/?id=" + _ID;
+			openSimpleWriteForm();
 		}
 	}
 
@@ -4033,6 +4045,9 @@
 							+ 'div.DCL_set_wrap > div.head > h2 { text-align: center; }'
 						+ '}'
 						+ '');
+						
+		if(P.notificationInterval)
+			DCINSIDE_LITE.checkAlert();
 	}
 
 	DCINSIDE_LITE.funcList = {
@@ -4110,12 +4125,13 @@
 	DCINSIDE_LITE.checkAlert = function() {
 		var notice_no = /(?:^|; )notice_no=([^;]*)/.exec(document.cookie);
 		simpleRequest('http://gall.dcinside.com/api/alram_push/notify_comment_alram?notice_no='+notice_no+'_='+time(), function(e) {
+			if(P.notificationInterval)
+				setTimeout(DCINSIDE_LITE.checkAlert, P.notificationInterval * 1000);
 			var noti = JSON.parse(e.responseText);
 			if(!noti[0])
 				return;
 			noti = noti[0];
 			if(noti['member_division'] === 'Y') {
-				console.log(noti);
 				var regex = new RegExp('<tr class="reply_line">([^]+?<td class="retime">'+noti['reply_update'].replace(/\-/g, '.')+'</td>)','g');
 				simpleRequest('/comment/view', 
 					function(detail) {
