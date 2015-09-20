@@ -1744,9 +1744,9 @@
 						cElement('ul',[writeForm,0],{id:'DCL_writeAttach'});
 						writeForm.classList.add('DCL_writeHasAttach');
 					}
-					imgbox = cElement('li', $('ul#DCL_writeAttach'));
-					attachViewer.add(r[i].url,cElement('img',imgbox,{src:r[i].url}));
-					cElement('div',imgbox,{textContent:'×'},function() {
+					attachbox = cElement('li', $('ul#DCL_writeAttach'));
+					attachViewer.add(r[i].url,cElement('img',attachbox,{src:r[i].url}));
+					cElement('div',attachbox,{textContent:'×'},function() {
 						removeElement(this.parentNode);
 						if(!$('ul#DCL_writeAttach > *')) {
 							if(uStat = $('input[name="upload_status"]'))
@@ -1755,8 +1755,8 @@
 							writeForm.classList.remove('DCL_writeHasAttach');
 						}
 					});
-					cElement('input',imgbox,{type:'hidden',name:'file_write[][file_no]',value:r[i].file_temp_no});
-					imgbox = null;
+					cElement('input',attachbox,{type:'hidden',name:'file_write[][file_no]',value:r[i].file_temp_no});
+					attachbox = null;
 
 					if(uStat = $('input[name="upload_status"]'))
 						uStat.value='Y';
