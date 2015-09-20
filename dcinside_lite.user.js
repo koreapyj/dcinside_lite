@@ -3615,8 +3615,10 @@
 			ePrevent(e);
 			pageLoad(parseInt($('p.DCL_tbodyBtn').firstChild.textContent)-1);
 		} else if(e.keyCode == 78) {
-//			location.href = "/board/write/?id=" + _ID;
-			openSimpleWriteForm();
+			if(P.simpleWrite)
+				openSimpleWriteForm();
+			else
+				location.href = "/board/write/?id=" + _ID;
 		}
 	}
 
