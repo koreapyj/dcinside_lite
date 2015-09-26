@@ -553,7 +553,7 @@
 				if(index !== exec.index) {
 					parent.insertBefore(document.createTextNode(value.substring(index,exec.index)),o);
 				}
-				cElement("a",[o,"prev"],{href:exec,target:"_blank",textContent:exec});
+				cElement("a",[o],{href:exec,target:"_blank",textContent:exec});
 				index = regexp.lastIndex;
 			}
 			if(index !== 0) {
@@ -2422,7 +2422,8 @@
 			"ul.DCL_layerFlash > li {margin-bottom:5px}" +
 			"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
 			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 13px; font-family: 굴림; }" +
-
+			"#dgn_gallery_left div.DCL_layerText > .con_substance table { height: auto; }" +
+			
 			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:13px 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
 
 			"table.DCL_layerComment {width:100% ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
