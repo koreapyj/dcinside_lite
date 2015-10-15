@@ -71,6 +71,7 @@
 	pageCount : 5,
 	layerImage : 1,
 	layerText : 1,
+	layerTextLinkAlwaysNewTab : 0,
 	layerComment : 1,
 	layerThumb : 1,
 	layerLink : 1,
@@ -1014,6 +1015,9 @@
 				dclset.body.easyView.innerList.layerText = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerText, {type:"checkbox", id:"DCL_layerText"});
 				cElement("label", dclset.body.easyView.innerList.layerText, {"for":"DCL_layerText",textContent:"본문"});
+				dclset.body.easyView.innerList.layerTextLinkAlwaysNewTab = cElement("li", dclset.body.easyView.innerList);
+				cElement("input", dclset.body.easyView.innerList.layerTextLinkAlwaysNewTab, {type:"checkbox", id:"DCL_layerTextLinkAlwaysNewTab"});
+				cElement("label", dclset.body.easyView.innerList.layerTextLinkAlwaysNewTab, {"for":"DCL_layerTextLinkAlwaysNewTab",textContent:"본문 링크 새 탭 열기"});
 				dclset.body.easyView.innerList.layerComment = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerComment, {type:"checkbox", id:"DCL_layerComment"});
 				cElement("label", dclset.body.easyView.innerList.layerComment, {"for":"DCL_layerComment",textContent:"댓글"});
@@ -1190,7 +1194,7 @@
 		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
 	},
 	load : function(nochrome) {
-		var num = ["loadAtList","loadAtView","loadAtWrite","notification","notificationInterval","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","notification","notificationInterval","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerTextLinkAlwaysNewTab","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -2771,6 +2775,13 @@
 									viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
 								}
 								autoLink(textDiv);
+								
+								if (P.layerTextLinkAlwaysNewTab) {
+									var linkList = textDiv.getElementsByTagName("a");
+									for (var i=0;i<linkList.length;i+=1) {
+										linkList[i].setAttribute("target", "_blank");
+									}
+								}
 		//						history.pushState(bfloc, bfloc, bfloc);
 							}
 
