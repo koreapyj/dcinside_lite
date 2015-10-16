@@ -2956,7 +2956,8 @@
 						date	= rows[i].cells[2].textContent;
 						ktr = cElement('tr', commentTable);
 						tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
-						cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
+						comtxt = cElement('td', ktr, {innerHTML:value,className:'com_text'});
+						cElement('em', comtxt, {textContent:ip});
 						cElement('td', ktr, {innerHTML:date,className:'com_ip'});
 						btn = cElement('td', ktr, {className:'com_btn'});
 						if(delbox)btn.appendChild(delbox);
@@ -2969,6 +2970,10 @@
 								tnm.style.color = color;
 							else if(P.commentColorType=="gc")
 								cElement('span', tnm, "■").style.color = color;
+						}
+						
+						if(P.hide) {
+							Hide.apply(comtxt);
 						}
 					}
 					l/=3;
@@ -3540,7 +3545,7 @@
 			}
 		}
 
-		if(btns.length) { // 버튼 넣기
+		if(btns.length && !cSearch(obj, "com_text")) { // 버튼 넣기
 			var allP = cElement("p",[obj,0],{className:"DCL_hideBtns"});
 			cElement("span",allP,{className:"DCL_viewAll"},function(){Hide.all(index,true);});
 			cElement("span",allP,{className:"DCL_hideAll"},function(){Hide.all(index,false);});
