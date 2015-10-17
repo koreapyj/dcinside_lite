@@ -71,6 +71,7 @@
 	pageCount : 5,
 	layerImage : 1,
 	layerText : 1,
+	layerTextLinkAlwaysNewTab : 0,
 	layerComment : 1,
 	layerThumb : 1,
 	layerLink : 1,
@@ -553,7 +554,7 @@
 				if(index !== exec.index) {
 					parent.insertBefore(document.createTextNode(value.substring(index,exec.index)),o);
 				}
-				cElement("a",[o,"prev"],{href:exec,target:"_blank",textContent:exec});
+				cElement("a",[o],{href:exec,target:"_blank",textContent:exec});
 				index = regexp.lastIndex;
 			}
 			if(index !== 0) {
@@ -1014,6 +1015,9 @@
 				dclset.body.easyView.innerList.layerText = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerText, {type:"checkbox", id:"DCL_layerText"});
 				cElement("label", dclset.body.easyView.innerList.layerText, {"for":"DCL_layerText",textContent:"본문"});
+				dclset.body.easyView.innerList.layerTextLinkAlwaysNewTab = cElement("li", dclset.body.easyView.innerList);
+				cElement("input", dclset.body.easyView.innerList.layerTextLinkAlwaysNewTab, {type:"checkbox", id:"DCL_layerTextLinkAlwaysNewTab"});
+				cElement("label", dclset.body.easyView.innerList.layerTextLinkAlwaysNewTab, {"for":"DCL_layerTextLinkAlwaysNewTab",textContent:"본문 링크 새 탭 열기"});
 				dclset.body.easyView.innerList.layerComment = cElement("li", dclset.body.easyView.innerList);
 				cElement("input", dclset.body.easyView.innerList.layerComment, {type:"checkbox", id:"DCL_layerComment"});
 				cElement("label", dclset.body.easyView.innerList.layerComment, {"for":"DCL_layerComment",textContent:"댓글"});
@@ -1190,7 +1194,7 @@
 		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
 	},
 	load : function(nochrome) {
-		var num = ["loadAtList","loadAtView","loadAtWrite","notification","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","notification","notificationInterval","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerTextLinkAlwaysNewTab","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -2422,7 +2426,8 @@
 			"ul.DCL_layerFlash > li {margin-bottom:5px}" +
 			"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
 			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 13px; font-family: 굴림; }" +
-
+			"#dgn_gallery_left div.DCL_layerText > .con_substance table { height: auto; }" +
+			
 			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:13px 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
 
 			"table.DCL_layerComment {width:100% ; border-collapse:collapse ; table-layout:fixed; text-align: left !important;}" +
@@ -2770,6 +2775,13 @@
 									viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
 								}
 								autoLink(textDiv);
+								
+								if (P.layerTextLinkAlwaysNewTab) {
+									var linkList = textDiv.getElementsByTagName("a");
+									for (var i=0;i<linkList.length;i+=1) {
+										linkList[i].setAttribute("target", "_blank");
+									}
+								}
 		//						history.pushState(bfloc, bfloc, bfloc);
 							}
 
@@ -2944,7 +2956,8 @@
 						date	= rows[i].cells[2].textContent;
 						ktr = cElement('tr', commentTable);
 						tnm = cElement('td', ktr, {innerHTML:name,className:'com_name','user_name':rows[i].cells[0].getAttribute('user_name'),'user_id':rows[i].cells[0].getAttribute('user_id')});
-						cElement('em', cElement('td', ktr, {innerHTML:value,className:'com_text'}), {textContent:ip});
+						comtxt = cElement('td', ktr, {innerHTML:value,className:'com_text'});
+						cElement('em', comtxt, {textContent:ip});
 						cElement('td', ktr, {innerHTML:date,className:'com_ip'});
 						btn = cElement('td', ktr, {className:'com_btn'});
 						if(delbox)btn.appendChild(delbox);
@@ -2957,6 +2970,10 @@
 								tnm.style.color = color;
 							else if(P.commentColorType=="gc")
 								cElement('span', tnm, "■").style.color = color;
+						}
+						
+						if(P.hide) {
+							Hide.apply(comtxt);
 						}
 					}
 					l/=3;
@@ -3528,7 +3545,7 @@
 			}
 		}
 
-		if(btns.length) { // 버튼 넣기
+		if(btns.length && !cSearch(obj, "com_text")) { // 버튼 넣기
 			var allP = cElement("p",[obj,0],{className:"DCL_hideBtns"});
 			cElement("span",allP,{className:"DCL_viewAll"},function(){Hide.all(index,true);});
 			cElement("span",allP,{className:"DCL_hideAll"},function(){Hide.all(index,false);});
