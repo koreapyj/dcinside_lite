@@ -4143,7 +4143,7 @@
 
 	DCINSIDE_LITE.checkAlert = function() {
 		var notice_no = /(?:^|; )notice_no=([^;]*)/.exec(document.cookie);
-		simpleRequest('http://gall.dcinside.com/api/alram_push/notify_comment_alram?notice_no='+notice_no+'_='+time(), function(e) {
+		simpleRequest('http://gall.dcinside.com/api/alram_push/notify_comment_alram?_='+time(), function(e) {
 			if(P.notificationInterval)
 				setTimeout(DCINSIDE_LITE.checkAlert, P.notificationInterval * 1000);
 			var noti = JSON.parse(e.responseText);
@@ -4156,6 +4156,7 @@
 					function(detail) {
 						var popup;
 						if(!(comment = regex.exec(detail.responseText))) {
+							comment = new Array();
 							comment[1] = detail.responseText;
 						}
 						var userids = comment[1].match(/user_id='([^']*?)'/g);
@@ -4168,11 +4169,12 @@
 
 						popup = new Notification(username[1].replace(/\n/g,'') + (reply[2]?'('+reply[2].replace(/\.\*\.\*/,'.***.***')+')':(userid[1]?'('+userid[1]+')':'')),{'body':(reply[1]?reply[1].replace(/\n/g,''):'새 댓글이 달렸습니다.')});
 						popup.onclick = function() { window.open('http://gall.dcinside.com/'+noti['gallery_id']+'/'+noti['gallery_no']); };
+						setTimeout(function() { popup.close(); }, 7000);
 					},
 					"POST", 
 					{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},'id='+noti['gallery_id']+'&no='+noti['gallery_no']+'&comment_page=1&ci_t='+csrf_token());
 			}
-		},'GET',{'Accept':'application/json,text/javascript,*/*','Content-Type':'application/json','X-Via':'DCLite/15016','X-Requested-With':'XMLHttpRequest'});
+		},'GET',{'Accept':'application/json,text/javascript,*/*','Content-Type':'application/json','X-Via':'DCLite/'+R_VERSION,'X-Requested-With':'XMLHttpRequest'});
 	};
 
 	DCINSIDE_LITE.checkLoginStatus = function(html) {
