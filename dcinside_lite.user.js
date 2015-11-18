@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15017
-// @date           2015.09.20
+// @version        15018
+// @date           2015.11.18
 // @author         koreapyj 외
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -16,7 +16,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15017";	// 실제 버전
+	var R_VERSION = "15018";	// 실제 버전
 	var VERSION = "15017";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -93,6 +93,8 @@
 	commentColor : 1,
 	commentColorType : "gc",
 	syncStore : 1,
+
+	fontOverride : 0,
 	fontList : "Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif"
 	};
 
@@ -2067,7 +2069,7 @@
 			function(response) {
 				var text = response.responseText;
 				DCINSIDE_LITE.checkLoginStatus(text);
-				var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7'\" onmouseout=\"this.style.backgroundColor=''\" class=\"tb\">");
+				var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7';\" onmouseout=\"this.style.backgroundColor='';\" class=\"tb\">");
 				var html = text.substring(startPos,text.indexOf("</tbody>"));
 				if(html) {
 					if((g_title=text.match(/<span class="tit">([^<]+)<\/span>/)) && g_title[1]) {
@@ -2426,7 +2428,7 @@
 			"ul.DCL_layerFlash > li {margin-bottom:5px}" +
 			"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
 			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 13px; font-family: 굴림; }" +
-			"#dgn_gallery_left div.DCL_layerText > .con_substance table { height: auto; }" +
+			"div.DCL_layerText > .con_substance table { height: auto; }" +
 			
 			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:13px 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
 
@@ -3650,6 +3652,9 @@
 			return;
 		if(!P.loadAtView && (MODE.article || MODE.comment))
 			return;
+
+		if(P.fontOverride === 1)
+			addStyle('* { font-family: ' + P.fontList + ' !important; }');
 
 		addStyle(
 			'* { -webkit-text-size-adjust: none; }' +
