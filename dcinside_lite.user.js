@@ -2198,17 +2198,24 @@
 		if(value===null)
 			return '';
 
-		value = value.split('/');
+		var regex = '';
+		console.log(value);
+		patterns = value.split("\n");
+		for(i=0;i<patterns.length;i++) {
+			pattern = patterns[i].split('/');
 
-		if(value.length!=2 || !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/.test(value[0]) || !/^[0-9]+$/.test(value[1]))
+			if(pattern.length!=2 || !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/.test(pattern[0]) || !/^[0-9]+$/.test(pattern[1]))
+				continue;
+
+			var ips = 1 << (16-pattern[1]);
+			var startip = ip2long(pattern[0]) >> 16;
+			for(j=0;j<ips;j++) {
+				regex+=long2ip((startip+j) << 16).replace(/\.0\.0$/g, '.\\*\\*\\*.\\*\\*\\*').replace(/\./g, '\\.') + '|';
+			}
+		}
+		if(regex=='')
 			return '';
 
-		var ips = 1 << (16-value[1]);
-		var startip = ip2long(value[0]) >> 16;
-		var regex = '';
-		for(i=0;i<ips;i++) {
-			regex+=long2ip((startip+i) << 16).replace(/\.0\.0$/g, '.\\*\\*\\*.\\*\\*\\*').replace(/\./g, '\\.') + '|';
-		}
 		regex = new RegExp('(' + regex.substr(0,regex.length-1) + ')');
 		return regex;
 	},
