@@ -1336,7 +1336,7 @@
 	update : function() {
 		if(P.updUse && !BROWSER.msie) {
 			simpleRequest(
-				"https://lite.dcmys.jp/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
+				"https://lite.dcmys.kr/updatec"+(P["updDev"]==1?'_unstable':'') + "?v=" + time(),
 				function(response) {
 					nVer = parseInt(response.responseText.split('<>')[0]);
 					if(response.responseText.split('<>')[1]!=undefined) {
