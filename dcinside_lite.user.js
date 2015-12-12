@@ -843,6 +843,7 @@
 					cElement("div", dclset.body.filter.tooltip, {textContent:"? : 와일드카드 (0문자 또는 1문자)"});
 					cElement("div", dclset.body.filter.tooltip, {textContent:"#(null) : 비회원"});
 					cElement("div", dclset.body.filter.tooltip, {textContent:"#갤로그ID : 특정 갤로거"});
+					cElement("div", dclset.body.filter.tooltip, {textContent:"IP 패턴은 123.45.0.0/16 형식으로 입력해야 합니다."});
 				dclset.body.filter.mdifoot = cElement("div", dclset.body.filter.mdiwrap, {className:"foot"});
 					cElement("input", dclset.body.filter.mdifoot, {type:"submit", value:"닫기"}, function() { dclset.body.filter.mdiwrap.style.display=dclset.body.mdibg.style.display="none"; });
 
@@ -2186,7 +2187,6 @@
 			Filter.bCNid = bCN[1];
 			Filter.bCT = Filter.title(bCT);
 			Filter.bCI = Filter.ip(bCI);
-			console.log(Filter.bCI);
 			aCN = Filter.name(aCN);
 			Filter.aCN = aCN[0];
 			Filter.aCNid = aCN[1];
@@ -2210,7 +2210,6 @@
 			regex+=long2ip((startip+i) << 16).replace(/\.0\.0$/g, '.\\*\\*\\*.\\*\\*\\*').replace(/\./g, '\\.') + '|';
 		}
 		regex = new RegExp('(' + regex.substr(0,regex.length-1) + ')');
-		console.log(regex);
 		return regex;
 	},
 	name : function(value) {
@@ -2354,7 +2353,6 @@
 			name = cells[0].getAttribute('user_name');
 			idC =  "#" + cells[0].getAttribute('user_id');
 			ip = cells[1].getElementsByTagName("em")[0].textContent;
-			console.log(ip);
 			title = cells[1].getElementsByTagName("div")[0] || cells[1];
 			titleC = title.textContent.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 			if(aCN && aCN.test(name) || aCNid && idC && aCNid.test(idC)) {
