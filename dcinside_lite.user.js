@@ -42,7 +42,7 @@
 	allowCN : "",
 	blockCT : "",
 	allowCT : "",
-	blockCI : "",
+	blockCI : "127.0.0.0/8",
 	allowCI : "",
 
 	modTitle : 0,
