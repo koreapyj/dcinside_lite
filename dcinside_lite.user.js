@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15018
-// @date           2015.11.18
+// @version        15019
+// @date           2015.11.25
 // @author         koreapyj 외
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -16,7 +16,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15018";	// 실제 버전
+	var R_VERSION = "15019";	// 실제 버전
 	var VERSION = "15017";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -42,6 +42,8 @@
 	allowCN : "",
 	blockCT : "",
 	allowCT : "",
+	blockCI : "",
+	allowCI : "",
 
 	modTitle : 0,
 	listTitle : "{G} - {P} 페이지",
@@ -702,7 +704,8 @@
 					"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
 					"div.DCL_set_mdi > div.filter div#textboxAT," +
 					"div.DCL_set_mdi > div.filter div#textboxCN," +
-					"div.DCL_set_mdi > div.filter div#textboxCT { display: none; }" +
+					"div.DCL_set_mdi > div.filter div#textboxCT," +
+					"div.DCL_set_mdi > div.filter div#textboxCI { display: none; }" +
 					"div.DCL_set_mdi > div.filter div#info { height: 20px; }" +
 					"div.DCL_set_mdi > div.filter div#info > span { display: inline-block; font-weight: bold; width: 50%; }" +
 					"div.DCL_set_mdi > div.tooltip { display: none; position: absolute; z-index: 1; background-color: white; padding: 10px 20px; border-radius: 3px; box-shadow: rgba(0, 0, 0, 0.25) 0px 1px 4px 0px; }" +
@@ -807,6 +810,7 @@
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"1",textContent:"게시물 제목"});
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"2",textContent:"댓글 작성자"});
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 내용"});
+					cElement("option", dclset.body.filter.mdibody.selector, {value:"4",textContent:"댓글 IP"});
 					dclset.body.filter.mdibody.info = cElement("div", dclset.body.filter.mdibody, {id:"info"});
 					cElement("span", dclset.body.filter.mdibody.info, "차단");
 					cElement("span", dclset.body.filter.mdibody.info, "허용");
@@ -823,6 +827,9 @@
 					dclset.body.filter.mdibody.textbox[3] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCT"});
 					cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_blockCT"});
 					cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_allowCT"});
+					dclset.body.filter.mdibody.textbox[4] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCI"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[4], {id:"DCL_blockCI"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[4], {id:"DCL_allowCI"});
 					dclset.body.filter.mdibody.help = cElement("div", dclset.body.filter.mdibody);
 					dclset.body.filter.mdibody.help.button = cElement("a", dclset.body.filter.mdibody.help, {href:"",textContent:"도움말..."},ePrevent);
 					dclset.body.filter.mdibody.help.button.addEventListener("mousemove", function() { dclset.body.filter.tooltip.style.display="block"; });
@@ -2118,7 +2125,8 @@
 		if(bN || bA) {
 			addStyle(
 				"tr.DCL_blockArticle {display:none}" +
-				"tr.DCL_blockArticle td.DCL_nameMatch, tr.DCL_blockArticle span.DCL_titleMatch {color:#c00}" +
+				"tr.DCL_blockArticle td.DCL_nameMatch, " +
+				"tr.DCL_blockArticle span.DCL_titleMatch {color:#c00}" +
 				"tr.DCL_blockArticleAtAll {display:none}" +
 				"tbody.DCL_showArticle > tr.DCL_blockArticle {display:table-row ; background-color:#eee}" +
 				"tbody.DCL_showArticle > tr.DCL_blockArticle+tr {display:table-row}" +
@@ -2150,15 +2158,19 @@
 
 		var bCN = P.blockCN;
 		var bCT = P.blockCT;
+		var bCI = P.blockCI;
 		var aCN = P.allowCN;
 		var aCT = P.allowCT;
-		var bC = bCN || bCT || aCN || aCT;
+		var aCI = P.allowCI;
+		var bC = bCN || bCT || bCI || aCN || aCT || aCI;
 		Filter.bC = bC;
 
 		if(bC) {
 			addStyle(
 				"tr.DCL_blockComment {display:none}" +
-				"tr.DCL_blockComment td.DCL_nameMatch, tr.DCL_blockComment span.DCL_titleMatch {color:#c00 !important}" +
+				"tr.DCL_blockComment td.DCL_nameMatch, " +
+				"tr.DCL_blockComment span.DCL_titleMatch, " +
+				"tr.DCL_blockComment em.DCL_ipMatch {color:#c00 !important}" +
 				"table.DCL_showComment tr.DCL_blockComment {display:table-row ; background-color:#f0f0f0}" +
 				"p.DCL_blockCommentP {margin:5px 0 ; padding:3px ; ; background-color:#e9e9e9 ; text-align:right}" +
 				"p.DCL_blockCommentP > span {margin-right:10px ; font:8pt 돋움}" +
@@ -2173,11 +2185,33 @@
 			Filter.bCN = bCN[0];
 			Filter.bCNid = bCN[1];
 			Filter.bCT = Filter.title(bCT);
+			Filter.bCI = Filter.ip(bCI);
+			console.log(Filter.bCI);
 			aCN = Filter.name(aCN);
 			Filter.aCN = aCN[0];
 			Filter.aCNid = aCN[1];
 			Filter.aCT = Filter.title(aCT);
+			Filter.aCI = Filter.ip(aCI);
 		}
+	},
+	ip : function(value) {
+		if(value===null)
+			return '';
+
+		value = value.split('/');
+
+		if(value.length!=2 || !/^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/.test(value[0]) || !/^[0-9]+$/.test(value[1]))
+			return '';
+
+		var ips = 1 << (16-value[1]);
+		var startip = ip2long(value[0]) >> 16;
+		var regex = '';
+		for(i=0;i<ips;i++) {
+			regex+=long2ip((startip+i) << 16).replace(/\.0\.0$/g, '.\\*\\*\\*.\\*\\*\\*').replace(/\./g, '\\.') + '|';
+		}
+		regex = new RegExp('(' + regex.substr(0,regex.length-1) + ')');
+		console.log(regex);
+		return regex;
 	},
 	name : function(value) {
 		if(value===null)
@@ -2302,9 +2336,11 @@
 		var bCN = Filter.bCN;
 		var bCNid = Filter.bCNid;
 		var bCT = Filter.bCT;
+		var bCI = Filter.bCI;
 		var aCN = Filter.aCN;
 		var aCNid = Filter.aCNid;
 		var aCT = Filter.aCT;
+		var aCI = Filter.aCI;
 
 		var rows = table.rows;
 		var commentCnt = 0;
@@ -2317,11 +2353,16 @@
 			cells = rows[i].cells;
 			name = cells[0].getAttribute('user_name');
 			idC =  "#" + cells[0].getAttribute('user_id');
+			ip = cells[1].getElementsByTagName("em")[0].textContent;
+			console.log(ip);
 			title = cells[1].getElementsByTagName("div")[0] || cells[1];
 			titleC = title.textContent.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 			if(aCN && aCN.test(name) || aCNid && idC && aCNid.test(idC)) {
 				cAdd(rows[i],"DCL_allowComment");
 				cAdd(cells[0],"DCL_nameMatch");
+			} else if(aCI && aCI.test(ip)) {
+				cAdd(rows[i],"DCL_allowComment");
+				cAdd(cells[1].getElementsByTagName("em")[0],"DCL_ipMatch");
 			} else if(aCT && aCT.test(titleC)) {
 				cAdd(rows[i],"DCL_allowComment");
 				title.removeChild(title.firstChild);
@@ -2339,6 +2380,15 @@
 					blockCnt[name] += 1;
 				} else {
 					blockCnt[name] = 1;
+				}
+			} else if(bCI && bCI.test(ip)) {
+				cAdd(rows[i],"DCL_blockComment");
+				cAdd(cells[1].getElementsByTagName("em")[0],"DCL_ipMatch");
+				commentCnt += 1;
+				if(blockCnt[ip]) {
+					blockCnt[ip] += 1;
+				} else {
+					blockCnt[ip] = 1;
 				}
 			} else if(bCT && bCT.test(titleC)) {
 				cAdd(rows[i],"DCL_blockComment");
@@ -2428,7 +2478,7 @@
 			"ul.DCL_layerFlash > li {margin-bottom:5px}" +
 			"div.DCL_layerText * {max-width:"+(width-40)+"px}" + // scroll20 + td10 + layerDiv10
 			"div.DCL_layerText > .con_substance { padding: 0 10px; font-size: 13px; font-family: 굴림; }" +
-			"div.DCL_layerText > .con_substance table { height: auto; }" +
+			"div.DCL_layerText > .con_substance table { height: auto !important; }" +
 			
 			"div.DCL_layerCommentTitle { border-top:1px solid #999; border-bottom:1px solid #999; padding:2px 5px; font:13px 돋움; background-color:#eee !important; text-align:left; visibility:visible; width:auto; height:auto; }" +
 
@@ -2674,7 +2724,7 @@
 					if(text.substr(0,9) === "<!DOCTYPE") {
 						text = text.substring(text.indexOf("<!-- dgn_content_de  -->"),text.lastIndexOf("<!-- //dgn_content_de -->"));
 
-						var imgHTML = text.substring(text.indexOf("<div class=\"s_write\">"),text.indexOf("<!-- //con_substance -->"));
+						var imgHTML = text.substring(text.indexOf("<!-- con_substance -->"),text.indexOf("<!-- //con_substance -->"));
 						if(!imgHTML) { // 삭제된 게시물
 							loadSpan.textContent = "삭제된 글입니다.";
 							return;
@@ -2810,7 +2860,7 @@
 							recomm_down = recommDownExec[1];
 						}
 						
-						cElement('span',topBtn,{textContent:'[ 시간 '+time+(ip?' / IP '+ip:'')+' / 추천 '+recomm_up+' / 비추 '+recomm_down+' ]',className:'DCL_layerData'});
+						cElement('span',topBtn,{textContent:'[ 시간 '+time+(ip?' / IP '+ip:'')+(typeof recomm_up!='undefined'?' / 추천 '+recomm_up:'')+(typeof recomm_down!='undefined'?' / 비추 '+recomm_down:'')+' ]',className:'DCL_layerData'});
 
 						var fileReg = /\t<ul class="appending_file"[^>]+>(.+)<\/ul>/m;
 						var file = fileReg.exec(response.responseText.replace(/\n/g,''));
@@ -4247,6 +4297,9 @@
 		var dVal = new Date();
 		return parseInt(dVal.getTime()/1000);
 	}
+
+	var ip2long = function(a,b,c,d){for(c=b=0;d=a.split('.')[b++];c+=d>>8|b>4?NaN:d*(1<<-8*b))d=parseInt(+d&&d);return c};
+	var long2ip = function(a){return 1<<-1<=a&&a<4294967296&&[a>>>24,255&a>>>16,255&a>>>8,255&a].join('.')};
 
 	// 실행 ; 미지원 브라우저, 알 수 없는 상태, 내부 iframe 에서는 실행 안함
 	if(BROWSER && MODE && !$id('DCL_menuDiv')) {
