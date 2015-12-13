@@ -2199,7 +2199,6 @@
 			return '';
 
 		var regex = '';
-		console.log(value);
 		patterns = value.split("\n");
 		for(i=0;i<patterns.length;i++) {
 			pattern = patterns[i].split('/');
@@ -4220,7 +4219,6 @@
 							comment[1] = detail.responseText;
 						}
 						var userids = comment[1].match(/user_id='([^']*?)'/g);
-						console.log(userids);
 						var usernames = comment[1].match(/user_name='([^']*?)'/g);
 						var replies = comment[1].match(/<td class="reply">([^]*?)(?:<span class="etc_ip">([^<]*?)<\/span>)?<\/td>/g);
 						userid = userids[userids.length-1].match(/user_id='([^']*)'/);
