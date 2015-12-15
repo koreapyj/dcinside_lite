@@ -104,6 +104,8 @@
 	var BROWSER = {};
 	if(navigator.userAgent.indexOf("Firefox") !== -1) {
 		BROWSER.firefox = true;
+	} else if(navigator.userAgent.indexOf("Edge") !== -1) {
+		BROWSER.chrome = true;
 	} else if(navigator.userAgent.indexOf("Chrome") !== -1) {
 		BROWSER.chrome = true;
 		if(typeof chrome !=="undefined") {
@@ -300,7 +302,17 @@
 			if(details.binary && typeof(details.data)!=="undefined") // Deprecated
 				xmlhttp.sendAsBinary(details.data);
 			else */
-			xmlhttp.send( (typeof(details.data)!=="undefined")?details.data:null );
+			try
+			{
+				xmlhttp.send( (typeof(details.data)!=="undefined")?details.data:null );
+			}
+			catch (e)
+			{
+				if( details.onerror ) {
+					details.onerror({responseXML:"",responseText:"",readyState:4,responseHeaders:"",status:403,statusText:"Forbidden"});
+				}
+				return;
+			}
 
 			if(bfloc !== null)
 				history.pushState(bfloc, bfloc, bfloc);
@@ -1100,6 +1112,14 @@
 				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"가져오기"}, SET.importJson);
 				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"초기화"}, SET.reset);
 
+			dclset.body.manageGallog = cElement("div", dclset.body);
+			cElement("h3", dclset.body.manageGallog, "갤로그");
+			dclset.body.manageGallog.innerList = cElement("ul", dclset.body.manageGallog);
+
+				dclset.body.manageGallog.innerList.resetData = cElement("li", dclset.body.manageGallog.innerList);
+				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetGallog', value:"갤로그 초기화"}, SET.resetGallog);
+				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetAll', value:"모든 게시물 삭제"}, SET.resetAll);
+
 			dclset.body.dclInfo = cElement("div", dclset.body);
 			cElement("h3", dclset.body.dclInfo, "DCinside Lite r"+R_VERSION);
 			dclset.body.dclInfo.innerList = cElement("ul", dclset.body.dclInfo);
@@ -1172,6 +1192,180 @@
 
 		SET.innerElement = dclset;
 		SET.write();
+	},
+	resetAll : function() {
+		simpleRequest('http://gallog.dcinside.com/inc/_mainGallog.php?page=1&gid=' + _GID + '&_=' + time(),
+			function(r) {
+				var endPage = r.responseText.match(/\.\.\[([0-9]+)\]/g);
+				var endRPage = Number(endPage[1].replace(/[^0-9]/g,''));
+				var gallogQueue = [];
+				var gallQueue = [];
+				endPage = Number(endPage[0].replace(/[^0-9]/g,''));
+				console.log('gallog post end page = ' + endPage);
+				console.log('gallog reply end page = ' + endRPage);
+				try
+				{
+					var asyncCallback_delete = function() {
+						var asyncCount = gallQueue.length;
+						var errorCount = 0;
+						var errorList = [];
+						for(i=0;i<gallQueue.length;i++) {
+							simpleRequest('/board/delete/?id='+gallQueue[i].id+'&no='+gallQueue[i].no, function(r) {
+								try
+								{
+									var rBody = r.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)(\<\!\-\- \/\/dgn_gallery_wrap \-\-\>|<\/body>)/)[1].toDomElement();
+									if(delForm = rBody.querySelector('form#delete')) {
+										simpleRequest('/forms/delete_submit',function(r) {
+												if((reply = r.responseText.split('||')).length>1) {
+													if(reply[0] != 'true') {
+														console.log(gallQueue[i]);
+														console.log(reply[1]);
+														errorCount++;
+														errorList.push({'id':gallQueue[i].id,'no':gallQueue[i].no,'reason':reply[1]});
+													}
+												}
+												else {
+													console.log(gallQueue[i]);
+													console.log(r.responseText);
+													errorCount++;
+													errorList.push({'id':gallQueue[i].id,'no':gallQueue[i].no,'reason':r.responseText});
+												}
+											},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},formWalk(delForm));
+									} else if(delForm = rBody.querySelector('form#password_confirm')) {
+										console.log(gallQueue[i]);
+										console.log('password protected!');
+										errorCount++;
+										errorList.push({'id':gallQueue[i].id,'no':gallQueue[i].no,'reason':'password protected'});
+									}
+								}
+								catch (e)
+								{
+									console.log('처리 중 오류 : ' + e.message);
+									console.log(r.responseText);
+									errorList.push({'id':gallQueue[i].id,'no':gallQueue[i].no,'reason':r.responseText});
+								}
+
+								asyncCount--;
+
+								if($('#DCL_resetAll')) {
+									$('#DCL_resetAll').disabled = true;
+									$('#DCL_resetAll').value = '게시물 삭제 중...(' + asyncCount + ' 페이지 남음)';
+								}
+								if(asyncCount<=0) {
+									if($('#DCL_resetAll')) {
+										$('#DCL_resetAll').disabled = true;
+										$('#DCL_resetAll').value = '완료';
+										if(errorList.length>0) {
+											cElement('a',[$('#DCL_resetAll'),'next'],{href:'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(errorList)),'download':'gallog_article_error.json',innerHTML:'삭제되지 않은 게시물 JSON'});
+											alert('게시물 삭제가 완료되었으나, 일부 삭제되지 않은 게시물이 있습니다. "삭제되지 않은 게시물 JSON"을 눌러서 목록을 확인할 수 있습니다.');
+										}
+										else
+											alert('게시물 삭제가 완료되었습니다.');
+									}
+								}
+							});
+						}
+					};
+					var asyncCallback = function() {
+						var asyncCount = gallogQueue.length;
+						var errorCount = 0;
+						for(i=0;i<gallogQueue.length;i++) {
+							simpleRequest('http://gallog.dcinside.com' + gallogQueue[i],function(rg) {
+								try
+								{
+									var gallInfo = rg.responseText.match(/window\.open\("http:\/\/gall\.dcinside\.com\/list\.php\?id=([^&]+)&no=([0-9]+)"\);/);
+									gallQueue.push({'id':gallInfo[1],'no':gallInfo[2]});
+									asyncCount--;
+
+									if($('#DCL_resetAll')) {
+										$('#DCL_resetAll').disabled = true;
+										$('#DCL_resetAll').value = '게시물 번호 가져오는 중...(' + asyncCount + ' 페이지 남음)';
+									}
+									if(asyncCount<=0) {
+										if($('#DCL_resetAll')) {
+											$('#DCL_resetAll').disabled = true;
+											$('#DCL_resetAll').value = '완료';
+										}
+										cElement('a',[$('#DCL_resetAll'),'next'],{href:'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(gallQueue)),'download':'gallog_article.json',innerHTML:'게시물 JSON'});
+										if(confirm('게시물 삭제가 준비되었습니다.\n\n이 행동은 되돌릴 수 없습니다. 계속하시겠습니까?'))
+											asyncCallback_delete();
+									}
+								}
+								catch (e)
+								{
+									asyncCount--;
+
+									if($('#DCL_resetAll')) {
+										$('#DCL_resetAll').disabled = true;
+										$('#DCL_resetAll').value = '게시물 번호 가져오는 중...(' + asyncCount + ' 페이지 남음)';
+									}
+									if(asyncCount<=0) {
+										if($('#DCL_resetAll')) {
+											$('#DCL_resetAll').disabled = true;
+											$('#DCL_resetAll').value = '완료';
+										}
+										cElement('a',[$('#DCL_resetAll'),'next'],{href:'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(gallQueue)),'download':'gallog_article.json',innerHTML:'게시물 JSON'});
+										if(confirm('게시물 삭제가 준비되었습니다.\n\n이 행동은 되돌릴 수 없습니다. 계속하시겠습니까?'))
+											asyncCallback_delete();
+									}
+									errorCount++;
+									console.log('오류\n\n' + e.message + '\n(게시물이 이미 삭제되었을 가능성이 있습니다)');
+								}
+							},null,null,null,function(e){
+								asyncCount--;
+
+								if($('#DCL_resetAll')) {
+									$('#DCL_resetAll').disabled = true;
+									$('#DCL_resetAll').value = '게시물 번호 가져오는 중...(' + asyncCount + ' 페이지 남음)';
+								}
+								if(asyncCount<=0) {
+									if($('#DCL_resetAll')) {
+										$('#DCL_resetAll').disabled = true;
+										$('#DCL_resetAll').value = '완료';
+									}
+									cElement('a',[$('#DCL_resetAll'),'next'],{href:'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(gallQueue)),'download':'gallog_article.json',innerHTML:'게시물 JSON'});
+									if(confirm('게시물 삭제가 준비되었습니다.\n\n이 행동은 되돌릴 수 없습니다. 계속하시겠습니까?'))
+										asyncCallback_delete();
+								}
+								errorCount++;
+								console.log('오류\n\n' + e.message);
+							});
+						}
+					}
+					var asyncCount = endPage;
+					for(i=endPage+1;--i;) {
+						simpleRequest('http://gallog.dcinside.com/inc/_mainGallog.php?page=' + i + '&gid=' + _GID + '&_=' + time(),function(rg) {
+							var listTable = rg.responseText.match(/<table width="750" border="0" cellspacing="0" cellpadding="0">([\s\S]*?)<\/table>/im)[1];
+							var listItems = listTable.match(/document\.location\.href="\/inc\/_mainGallog\.php\?gid=jaewhi&page=[0-9]+&rpage=[0-9]*&lno=[0-9]+&rView=2";/g);
+							var j;
+							for(j=0;j<listItems.length;j++) {
+								gallogQueue.push(listItems[j].match(/"([^"]+)"/)[1]);
+/*								simpleRequest('http://gallog.dcinside.com' + listItems[j].match(/"([^"]+)"/)[1],function(rgitem) {
+									var articleInfo = rgitem.responseText.match(/window\.open\("http:\/\/gall\.dcinside\.com\/list\.php\?id=([^&]+)&no=([0-9]+)"\);/);
+								});
+								break;*/
+							}
+							asyncCount--;
+
+							if($('#DCL_resetAll')) {
+								$('#DCL_resetAll').disabled = true;
+								$('#DCL_resetAll').value = '게시물 목록 읽는 중...(' + asyncCount + ' 페이지 남음)';
+							}
+							if(asyncCount<=0) {
+								if($('#DCL_resetAll')) {
+									$('#DCL_resetAll').disabled = true;
+									$('#DCL_resetAll').value = '완료';
+								}
+								asyncCallback();
+							}
+						});
+					}
+				}
+				catch (e)
+				{
+					alert('오류: ' + e.message + '\r\n' + '작업이 중지되었습니다.');
+				}
+			});
 	},
 	write : function() {
 		var input,value;
