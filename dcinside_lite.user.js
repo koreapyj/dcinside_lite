@@ -1112,13 +1112,13 @@
 				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"가져오기"}, SET.importJson);
 				cElement("input", dclset.body.setStore.innerList.dataManage, {type:"button", value:"초기화"}, SET.reset);
 
-			dclset.body.manageGallog = cElement("div", dclset.body);
+/*			dclset.body.manageGallog = cElement("div", dclset.body);
 			cElement("h3", dclset.body.manageGallog, "갤로그");
 			dclset.body.manageGallog.innerList = cElement("ul", dclset.body.manageGallog);
 
 				dclset.body.manageGallog.innerList.resetData = cElement("li", dclset.body.manageGallog.innerList);
 				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetGallog', value:"갤로그 초기화"}, SET.resetGallog);
-				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetAll', value:"모든 게시물 삭제"}, SET.resetAll);
+				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetAll', value:"모든 게시물 삭제"}, SET.resetAll);*/
 
 			dclset.body.dclInfo = cElement("div", dclset.body);
 			cElement("h3", dclset.body.dclInfo, "DCinside Lite r"+R_VERSION);
@@ -3177,7 +3177,7 @@
 					cElement('col',colgroup,{style:'width: 110px;'});
 					cElement('col',colgroup,{style:'width: 20px;'});
 
-					for(var i=0,l=rows.length ; i<l ; i+=3) {
+					for(var i=0,l=rows.length ; i<l ; i+=4) {
 						ip=null;
 						var ipReg = /(\d+\.\d+)(\.\*\.\*)/g;
 						if(rows[i].cells[1].getElementsByClassName('etc_ip')[0]){
@@ -3189,6 +3189,8 @@
 						if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
 							delbox = delbox.children[0];
 							if( delExec=reg3.exec(onclick) ) {
+								delbox.setAttribute("DCL_del_no",delExec[1]);
+								delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
 								delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
 								delbox.setAttribute("DCL_del_password",1);
 							}
@@ -3196,8 +3198,6 @@
 								console.log('삭제 버튼 없음');
 							}
 							delbox.addEventListener("click",function(e){ layer.delComment(e);});
-							delbox.setAttribute("DCL_del_no",delExec[1]);
-							delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
 						}
 						else { delbox=null; }
 
