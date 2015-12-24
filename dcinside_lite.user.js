@@ -4395,6 +4395,8 @@
 	};
 
 	DCINSIDE_LITE.checkAlert = function() {
+		if(!_GID)
+			return;
 		var notice_no = /(?:^|; )notice_no=([^;]*)/.exec(document.cookie);
 		simpleRequest('http://gall.dcinside.com/api/alram_push/notify_comment_alram?_='+time(), function(e) {
 			if(P.notificationInterval)
