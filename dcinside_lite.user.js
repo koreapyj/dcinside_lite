@@ -3958,6 +3958,9 @@
 			"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
 			"#list_table .list_tbody > tr.tb:hover { background-color: #eae9f7; }" +
 
+			"#list_table .list_tbody > tr > td.t_writer { white-space: nowrap; }" +
+			"#list_table .list_tbody > tr > td.t_writer span:first-of-type { max-width: 100%; display: inline-block; margin-right: -17px; padding-right: 14px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; }" +
+
 			"#reply1 {width:auto !important}" +
 			"table.comment-table {table-layout:fixed; text-align: left !important;}" +
 			"table.comment-table > colgroup {display:none}" +
