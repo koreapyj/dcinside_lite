@@ -140,22 +140,30 @@
 	}else{
 		alert("디시라이트가 지원하지 않는 브라우저입니다.\n\n - 로컬 스토리지에 접근할 수 없거나 브라우저가 지원하지 않음");
 	}
-
 	var MODE = {};
+	MODE.prefix = "";
 	location.pathnameN = location.pathname.replace(/\/+$/, '');
 	switch(location.pathnameN) {
+		case "/mgallery/board/write":
+			MODE.minor = true;
 		case "/board/write":
 			MODE.gall = true;
 			MODE.write = true;
 			break;
+		case "/mgallery/board/view":
+			MODE.minor = true;
 		case "/board/view":
 			MODE.gall = true;
 			MODE.article = true;
 			break;
+		case "/mgallery/board/comment_view":
+			MODE.minor = true;
 		case "/board/comment_view":
 			MODE.gall = true;
 			MODE.comment = true;
 			break;
+		case "/mgallery/board/lists":
+			MODE.minor = true;
 		case "/board/lists":
 			MODE.gall = true;
 			MODE.list = true;
@@ -184,6 +192,9 @@
 			MODE = false;
 			break;
 	}
+
+	if(MODE.minor)
+		MODE.prefix = "/mgallery";
 
 	if(location.host == "gallog.dcinside.com")
 		MODE = false;
@@ -1210,7 +1221,7 @@
 						var errorCount = 0;
 						var errorList = [];
 						for(i=0;i<gallQueue.length;i++) {
-							simpleRequest('/board/delete/?id='+gallQueue[i].id+'&no='+gallQueue[i].no, function(r) {
+							simpleRequest(MODE.prefix+'/board/delete/?id='+gallQueue[i].id+'&no='+gallQueue[i].no, function(r) {
 								try
 								{
 									var rBody = r.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)(\<\!\-\- \/\/dgn_gallery_wrap \-\-\>|<\/body>)/)[1].toDomElement();
@@ -1733,7 +1744,7 @@
 		var menuWrap = cElement("div",menuDiv,{id:"DCL_menuWrap"});
 		
 		if(P.simpleWrite)
-			cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
+			cElement('a',cElement("div",menuWrap,{id:"DCL_writeBtn"}),{href:MODE.prefix+'/board/write/?id='+_ID,textContent:'글쓰기'},function(e) { openSimpleWriteForm(); e.preventDefault(); });
 		var profileH2=cElement("h2",menuWrap,{id:"DCL_menuTitle",textContent:GALLERY.replace(/\(.+?\)/,'')+" 갤러리"},DCINSIDE_LITE.funcList.refresh);
 
 		// 즐겨찾기 링크 정리
@@ -1747,7 +1758,7 @@
 						if(g_flg[_ID])
 							break;
 						linkList[GALLERY] = {};
-						linkList[GALLERY].href = "/board/lists/?id=" + _ID;
+						linkList[GALLERY].href = MODE.prefix+"/board/lists/?id=" + _ID;
 						linkList[GALLERY].className = "DCL_linkThis";
 						break;
 					default:
@@ -1756,7 +1767,7 @@
 							linkList[exec[2]].href = exec[4];
 							linkList[exec[2]].className = "DCL_linkHttp";
 						} else {
-							linkList[exec[2]].href = "/board/lists/?id=" + exec[4];
+							linkList[exec[2]].href = MODE.prefix+"/board/lists/?id=" + exec[4];
 							linkList[exec[2]].className = exec[4]===_ID?"DCL_linkThis":"";
 							g_flg[exec[4]]=true;
 						}
@@ -1938,7 +1949,7 @@
 	}
 
 	function openSimpleWriteForm() {
-		simpleRequest('/board/write/?id=' + _ID, function(e) {
+		simpleRequest(MODE.prefix+'/board/write/?id=' + _ID, function(e) {
 			function uploadCallback(e) {
 				var r = JSON.parse(e.responseText)['files'];
 				writeForm.imgHtml='';
@@ -2026,9 +2037,9 @@
 					cElement('a',cElement('li',writeToolbox),{title:'취소선',textContent:'S',className:'DCL_editor_strike'});
 					cElement('a',cElement('li',writeToolbox),{title:'밑줄',textContent:'U',className:'DCL_editor_underline'});*/
 
-					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...',href:'http://gall.dcinside.com/board/write/?id='+_ID},function(e) { e.preventDefault(); $('input#DCL_fileSelectDlg').click(); });
+					cElement('a',cElement('li',writeToolbox),{title:'파일 열기',textContent:'사진 추가...',href:'http://gall.dcinside.com'+MODE.prefix+'/board/write/?id='+_ID},function(e) { e.preventDefault(); $('input#DCL_fileSelectDlg').click(); });
 					
-				cElement('a',writeBottomDiv,{href:'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
+				cElement('a',writeBottomDiv,{href:MODE.prefix+'/board/write/?id='+_ID,textContent:'기본 글쓰기 화면 열기',target:'_blank'});
 
 				cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
 					e.preventDefault();
@@ -2043,13 +2054,13 @@
 							var data = formWalk(writeForm);
 							data = data.slice(0,data.length-1);
 							bfloc = location.toString();
-							history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/write/?id='+_ID);
+							history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+MODE.prefix+'/board/write/?id='+_ID);
 							simpleRequest('/forms/article_submit',function(r) {
 								history.pushState(bfloc, bfloc, bfloc);
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true') {
 										attachViewer = null;
-										softLoad('/board/lists/?id='+_ID);
+										softLoad(MODE.prefix+'/board/lists/?id='+_ID);
 										removeElement(writeForm);
 									}
 									else {
@@ -2059,7 +2070,7 @@
 								}
 								else
 									alert(r.responseText);
-							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/write/?id='+_ID},data);
+							},'POST',{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+MODE.prefix+'/board/write/?id='+_ID},data);
 						},
 						"POST",{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
 							''
@@ -2224,7 +2235,7 @@
 
 	function doSearch(e) {
 		ePrevent(e);
-		softLoad("/board/lists/?id=" + _ID + "&s_type=" + $id("search_type").value + "&s_keyword=" + $id("search_input").value);
+		softLoad(MODE.prefix+"/board/lists/?id=" + _ID + "&s_type=" + $id("search_type").value + "&s_keyword=" + $id("search_input").value);
 	}
 
 	// 다중 목록
@@ -2239,7 +2250,7 @@
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 			if(!mode) {
-				cElement("tbody",$id("list_table"),{innerHTML:"<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>",className:"list_tbody"});
+				cElement("tbody",$id("list_table"),{innerHTML:"<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>",className:"list_thead"});
 				pageLoad(i);
 			}
 		}
@@ -2260,14 +2271,14 @@
 		else
 			PAGE=1;
 		
-		var buttons = $('div.btn_bottom a[href^="/board/"], div.btn_bottom a[href^="http://gall.dcinside.com/board/"]',1);
+		var buttons = $('div.btn_bottom a[href^="'+MODE.prefix+'/board/"], div.btn_bottom a[href^="http://gall.dcinside.com'+MODE.prefix+'/board/"]',1);
 		for(i=buttons.length;i--;) {
 			buttons[i].href = buttons[i].href.replace(/([?&]id=)[^&]+/,'$1'+_ID);
 		}
 
 		cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... ("+(p+PAGE)+" 페이지)</span>";
 		
-		simpleRequest("/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
+		simpleRequest(MODE.prefix+"/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
 			function(response) {
 				var text = response.responseText;
 				DCINSIDE_LITE.checkLoginStatus(text);
@@ -2653,7 +2664,7 @@
 
 			"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto; }" +
 			".con_substance > *," +
-			"#dgn_gallery_left .list_table .list_tbody td > div table td {font-family: Gulim, sans-serif; font-size: 13px; line-height: 24px; color: #1e1e1e; font-weight: normal; border:0; text-align: left;}" +
+			"#dgn_gallery_left .list_table tbody.list_thead td > div table td {font-family: Gulim, sans-serif; font-size: 13px; line-height: 24px; color: #1e1e1e; font-weight: normal; border:0; text-align: left;}" +
 
 			"p.DCL_layerTop {font:8pt Tahoma,돋움 ; color:#666; padding: 3px}" +
 			"p.DCL_layerTop:not(:only-child) {border-bottom:1px solid #666 ; padding-bottom:2px}" +
@@ -2768,7 +2779,6 @@
 			a = targetA[1];
 			comment = targetA[2];
 			if(P.layerLink) {
-				img.addEventListener("click",Layer.link,false);
 				a.addEventListener("click",Layer.toggle,false);
 			} else {
 				img.addEventListener("click",Layer.toggle,false);
@@ -2804,9 +2814,6 @@
 		} else {
 			Layer.create(t,r,mode);
 		}
-	};
-	Layer.link = function(e) {
-		location.href = e.target.nextElementSibling.href;
 	};
 	Layer.create = function(t,r,mode) {
 		Layer.list[t][r] = new Layer(t,r,mode);
@@ -2858,11 +2865,11 @@
 			bottomBtn = cElement("p",bottomMenu,{className:"DCL_layerBottom"});
 			cElement("span",bottomBtn,{textContent:"닫기",className:"DCL_layerBtn"},function(){layer.close();});
 			cElement("span",bottomBtn,{textContent:"새로고침",className:"DCL_layerBtn"},function(){layer.call();});
-			cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('http://'+location.host+'/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
-			cElement("a",bottomBtn,{textContent:"수정",href:"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn",target:"_blank"});
-			cElement("a",bottomBtn,{textContent:"삭제",href:"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"},function(e) {
+			cElement("a",bottomBtn,{textContent:"신고",href:"/singo/singo_write/?id=singo&singourl="+encodeURIComponent('http://'+location.host+MODE.prefix+'/board/view/?id='+_ID+"&no="+layer.no)+"&gallname="+encodeURIComponent(GALLERY),target:"_blank",className:"DCL_layerBtn"});
+			cElement("a",bottomBtn,{textContent:"수정",href:MODE.prefix+"/board/modify/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn",target:"_blank"});
+			cElement("a",bottomBtn,{textContent:"삭제",href:MODE.prefix+"/board/delete/?id="+_ID+"&no="+layer.no+"&s_url="+encodeURIComponent('/list.php?id='+_ID),className:"DCL_layerBtn"},function(e) {
 				e.preventDefault();
-				simpleRequest('/board/delete/?id='+_ID+'&no='+layer.no, function(r) {
+				simpleRequest(MODE.prefix+'/board/delete/?id='+_ID+'&no='+layer.no, function(r) {
 					var rBody = r.responseText.match(/(<div id="dgn_gallery_wrap"[\s\S]*)(\<\!\-\- \/\/dgn_gallery_wrap \-\-\>|<\/body>)/)[1].toDomElement();
 
 					if(delForm = rBody.querySelector('form#delete')) {
@@ -2871,7 +2878,7 @@
 						simpleRequest('/forms/delete_submit',function(r) {
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true')
-										softLoad('/board/lists/?id='+_ID);
+										softLoad(MODE.prefix+'/board/lists/?id='+_ID);
 									else
 										alert(reply[1]);
 								}
@@ -2889,7 +2896,7 @@
 										simpleRequest('/forms/delete_submit',function(r) {
 											if((reply = r.responseText.split('||')).length>1) {
 												if(reply[0] == 'true')
-													softLoad('/board/lists/?id='+_ID);
+													softLoad(MODE.prefix+'/board/lists/?id='+_ID);
 												else
 													alert(reply[1]);
 											}
@@ -2912,7 +2919,7 @@
 		var commFrag = document.createDocumentFragment();
 		var readytogo = (layer.mode!=='comment'?(P.layerComment?2:1):1);
 		if(layer.mode!=='comment') {
-			simpleRequest("/board/view/?id="+_ID+"&no="+this.no,
+			simpleRequest(MODE.prefix+"/board/view/?id="+_ID+"&no="+this.no,
 				function(response) {
 					if(!Layer.list[layer.t][layer.r]) {
 						return;
@@ -3305,7 +3312,7 @@
 		var layer = this;
 
 		var bfloc = document.location.toString();
-		history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no);		//리퍼러로 갑질할때 대비용
+		history.pushState(bfloc, '로드 중...', 'http://'+location.innerhost+MODE.prefix+'/board/view/?id='+_ID+'&no='+Layer.now.no);		//리퍼러로 갑질할때 대비용
 		simpleRequest("/forms/comment_submit",
 			function(response) {
 				layer.div.lastChild.lastChild.textContent = "";
@@ -3326,7 +3333,7 @@
 				layer.call();
 			},
 			"POST",
-			{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+'/board/view/?id='+_ID+'&no='+Layer.now.no},
+			{"Accept":"text/html,application/xhtml+xml,application/xml,*/*","Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest","Referer":'http://'+location.innerhost+MODE.prefix+'/board/view/?id='+_ID+'&no='+Layer.now.no},
 			data
 		);
 		history.pushState(bfloc, bfloc, bfloc);
@@ -3885,7 +3892,7 @@
 			if(P.simpleWrite)
 				openSimpleWriteForm();
 			else
-				location.href = "/board/write/?id=" + _ID;
+				location.href = MODE.prefix+"/board/write/?id=" + _ID;
 		}
 	}
 
@@ -3954,12 +3961,12 @@
 			"#list_table > colgroup > col:nth-child(4) {width:"+(P.listDate?110:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child(5) {width:"+(P.listCount?35:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child(6) {width:"+(P.listRecom?35:0)+"px;}" +
-			"#list_table .list_tbody .tb td { padding-top: 3px !important; padding-bottom: 0; }" +
-			"#list_table .list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
-			"#list_table .list_tbody > tr.tb:hover { background-color: #eae9f7; }" +
+			"#list_table tbody.list_thead .tb td { padding-top: 3px !important; padding-bottom: 0; }" +
+			"#list_table tbody.list_thead > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
+			"#list_table tbody.list_thead > tr.tb:hover { background-color: #eae9f7; }" +
 
-			"#list_table .list_tbody > tr > td.t_writer { white-space: nowrap; }" +
-			"#list_table .list_tbody > tr > td.t_writer span:first-of-type { max-width: 100%; display: inline-block; margin-right: -17px; padding-right: 14px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; }" +
+			"#list_table tbody.list_thead > tr > td.t_writer { white-space: nowrap; }" +
+			"#list_table tbody.list_thead > tr > td.t_writer span:first-of-type { max-width: 100%; display: inline-block; margin-right: -17px; padding-right: 14px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; }" +
 
 			"#reply1 {width:auto !important}" +
 			"table.comment-table {table-layout:fixed; text-align: left !important;}" +
@@ -4026,12 +4033,12 @@
 		menuFunc();
 
 		if(title = $('#dgn_gallery_left .gallery_title h1 a.fc_5b')) {
-			title.addEventListener('click', function(e) { ePrevent(e); softLoad("/board/lists/?id="+_ID); });
+			title.addEventListener('click', function(e) { ePrevent(e); softLoad(MODE.prefix+"/board/lists/?id="+_ID); });
 		}
 /*
 		if($('#dgn_gallery_left .gallery_title > h1')) {
 			$('#dgn_gallery_left .gallery_title > h1').innerHTML = '';
-			var title = cElement('a', $('#dgn_gallery_left .gallery_title > h1'), {href:"/board/lists/?id="+_ID}, function(e) { ePrevent(e); softLoad("/board/lists/?id="+_ID); });
+			var title = cElement('a', $('#dgn_gallery_left .gallery_title > h1'), {href:MODE.prefix+"/board/lists/?id="+_ID}, function(e) { ePrevent(e); softLoad(MODE.prefix+"/board/lists/?id="+_ID); });
 			cElement('span', title, {textContent:GALLERY,className:"gallery_name"});
 			cElement(null, title, " ");
 			cElement('span', title, {textContent:"갤러리",className:"gallery_str"});
@@ -4200,14 +4207,14 @@
 			var list_table = $("thead.list_thead").parentNode;
 			var thead = $("thead.list_thead");
 
-			if($("tbody.list_tbody")===null) {
-				var tbody = cElement("tbody",[thead,"next"],{className:'list_tbody'});
+			if($("tbody.list_thead")===null) {
+				var tbody = cElement("tbody",[thead,"next"],{className:'list_thead'});
 				tbody.innerHTML=thead.innerHTML;
 				thead.innerHTML="";
 				thead.appendChild(tbody.rows[0]);
 			}
 			else
-				var tbody = $("tbody.list_tbody");
+				var tbody = $("tbody.list_thead");
 
 			for(i=tbody.childNodes.length-1;i--;) {
 				if(tbody.childNodes[i].tagName !=="TR") {
@@ -4370,13 +4377,13 @@
 					$(".gallery_box").style.display = P.best?"block":"none";
 				},
 		ilbeview : function(){
-					softLoad("/board/lists/?id="+_ID+"&exception_mode=best");
+					softLoad(MODE.prefix+"/board/lists/?id="+_ID+"&exception_mode=best");
 				},
 		favview : function(){
-					softLoad("/board/lists/?id="+_ID+"&exception_mode=recommend");
+					softLoad(MODE.prefix+"/board/lists/?id="+_ID+"&exception_mode=recommend");
 				},
 		refresh : function(){
-					softLoad("/board/lists/?id="+_ID);
+					softLoad(MODE.prefix+"/board/lists/?id="+_ID);
 				},
 		menutoggle : function(){
 					if($id("DCL_menuUlSub").style.display!=="block")
@@ -4393,7 +4400,7 @@
 			if(P.simpleWrite)
 				openSimpleWriteForm();
 			else
-				location.href = 'http://gall.dcinside.com/board/write/?id='+_ID;
+				location.href = 'http://gall.dcinside.com'+MODE.prefix+'/board/write/?id='+_ID;
 		}
 	};
 
