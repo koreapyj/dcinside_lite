@@ -98,6 +98,9 @@
 	commentColorType : "gc",
 	syncStore : 1,
 
+	apiRead : 0,
+	autoBad : 0,
+
 	fontOverride : 0,
 	fontList : "Segoe UI, Meiryo UI, Malgun Gothic, Dotum, sans-serif"
 	};
@@ -143,7 +146,7 @@
 	}
 	var MODE = {};
 	MODE.prefix = "";
-	MODE.api = {};
+	MODE.api = false;
 	location.pathnameN = location.pathname.replace(/\/+$/, '');
 	switch(location.pathnameN) {
 		case "/mgallery/board/write":
@@ -1152,6 +1155,14 @@
 				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetGallog', value:"갤로그 초기화"}, SET.resetGallog);
 				cElement("input", dclset.body.manageGallog.innerList.resetData, {type:"button", id:'DCL_resetAll', value:"모든 게시물 삭제"}, SET.resetAll);*/
 
+			dclset.body.betaLab = cElement("div", dclset.body);
+			cElement("h3", dclset.body.betaLab, "실험실");
+			dclset.body.betaLab.innerList = cElement("ul", dclset.body.betaLab);
+				dclset.body.betaLab.innerList.apiRead = cElement("li", dclset.body.betaLab.innerList);
+				cElement("input", dclset.body.betaLab.innerList.apiRead, {type:"checkbox", id:"DCL_apiRead"});
+				cElement("label", dclset.body.betaLab.innerList.apiRead, {"for":"DCL_apiRead",textContent:"API로 읽기"});
+				cElement("div", dclset.body.betaLab.innerList.apiRead, {className:'indent', textContent:"게시물 IP필터를 사용하려면 활성화해야 합니다."});
+
 			dclset.body.dclInfo = cElement("div", dclset.body);
 			cElement("h3", dclset.body.dclInfo, "DCinside Lite r"+R_VERSION);
 			dclset.body.dclInfo.innerList = cElement("ul", dclset.body.dclInfo);
@@ -1188,7 +1199,6 @@
 							return;
 						if(Notification.permission==="granted") {
 							return;
-//							new Notification('댓글',{'body':'죽여버린다 씨발새끼야','tag':'13301'});
 						}
 						else {
 							$id('DCL_notification').checked=false;
@@ -1196,7 +1206,6 @@
 								if (permission === "granted") {
 									$id('DCL_notification').checked=true;
 									return;
-//									new Notification('댓글',{'body':'죽여버린다 씨발새끼야','tag':'13301'});
 								}
 								else if(!$id('DCL_notificationDenied')) {
 									$id('DCL_notification').disabled = true;
@@ -1430,7 +1439,7 @@
 		prompt('아래 내용을 복사해서 보관하세요.', JSON.stringify(P));
 	},
 	load : function(nochrome) {
-		var num = ["loadAtList","loadAtView","loadAtWrite","notification","notificationInterval","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerTextLinkAlwaysNewTab","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore"];
+		var num = ["loadAtList","loadAtView","loadAtWrite","notification","notificationInterval","filter","blockN","blockNA","blockNR","allowStyle","showLabel","modTitle","header","title","sidebar","pageWidth","wide","wideWidth","listNumber","listDate","listCount","listRecom","listComment","listTime","listNick","best","simpleWrite","page","pageCount","layerImage","layerText","layerTextLinkAlwaysNewTab","layerComment","layerThumb","layerLink","layerReply","layerSingle","layerResize","thumbWidth","thumbHeight","hide","hideImg","hideMov","autoForm","updUse","updDev","longExpires","commentColor","syncStore","apiRead","autoBad"];
 		if(BROWSER.chrome && BROWSER.chrome.storage && nochrome!==true) {
 			chrome.storage.sync.get(null,function(items) {
 				for(key in items) {
@@ -1556,7 +1565,6 @@
 			alert("처음 사용하셨거나 업데이트 되었습니다.\n메뉴의 [설정] 버튼을 눌러 설정을 확인하세요.\n\n설정을 완료하면 이 알림창은 나타나지 않습니다.\n\n※광고가 게시물을 가리는 경우 애드블록을 사용하세요.");
 			addStyle("li#DCL_setBtn {color:#c00 !important ; font-weight:bold !important ; text-decoration:blink}");
 		}
-
 		DCINSIDE_LITE();
 	},
 	update : function() {
@@ -2360,8 +2368,10 @@
 						if(!pageData.length) {
 							pageData = resp[0].gall_list;
 						}
-						if(pageData[0].no == resp[0].gall_list[0].no)
+						else if(pageData[0].no == resp[0].gall_list[0].no) {
+							console.log('API: Err: no is same');
 							return;
+						}
 						else if(pageData[0].no > resp[0].gall_list[0].no) {
 							pageData = pageData.concat(resp[0].gall_list);
 						} else {
@@ -4279,6 +4289,10 @@
 		if(P.listComment) {
 			addStyle("#list_table .t_subject > a:empty:after {color: #6E6E6E; font-size: 11px; margin-left: 5px; font-family: '굴림',Gulim; content:'[0]'}");
 		}
+
+		// API읽기
+		if(P.apiRead)
+			MODE.api = {};
 
 		// 쿠키 연장
 		if(P.longExpires)
