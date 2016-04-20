@@ -346,7 +346,13 @@
 
 	function setValue(name,value,type) {
 		if(BROWSER.chrome && BROWSER.chrome.storage && P.store == 'Google') {
-			chrome.storage.sync.set(JSON.parse('{"' + name + '":' + JSON.stringify(value) + '}'));
+			return;
+			chrome.storage.sync.set(JSON.parse('{"' + name + '":' + JSON.stringify(value) + '}'),function() {
+				if (err=chrome.runtime.lastError) {
+					alert('설정을 저장하던 중 심각한 오류가 발생하였습니다.\n\n자세한 내용은 콘솔을 참고하십시오.');
+					console.log(err.message);
+				}
+			});
 			return;
 		}else if(BROWSER.greasemonkey && P.store == 'GM') {
 			GM_setValue(name, value);
@@ -380,7 +386,7 @@
 		}
 		document.cookie = "dcinsidelitesetting=" + cookie + ";expires=" + (new Date((new Date()).getTime() + 31536000000)).toGMTString() + ";path=/;";
 	}
-	var eRemove = BROWSER.firefox ?
+	var eRemove = document.body.removeAttribute ?
 		function(elem,type) { // firefox 에서는 removeAttribute로만 삭제 가능, elem.onclick = null 은 에러 발생
 			elem.removeAttribute(type);
 		}
@@ -851,6 +857,7 @@
 				dclset.body.filter.mdibody.selector = cElement("select", cElement("div", dclset.body.filter.mdibody));
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"0",textContent:"게시물 작성자"});
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"1",textContent:"게시물 제목"});
+				if(P.apiRead)
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"2",textContent:"게시물 IP"});
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 작성자"});
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"4",textContent:"댓글 내용"});
@@ -1162,6 +1169,10 @@
 				cElement("input", dclset.body.betaLab.innerList.apiRead, {type:"checkbox", id:"DCL_apiRead"});
 				cElement("label", dclset.body.betaLab.innerList.apiRead, {"for":"DCL_apiRead",textContent:"API로 읽기"});
 				cElement("div", dclset.body.betaLab.innerList.apiRead, {className:'indent', textContent:"게시물 IP필터를 사용하려면 활성화해야 합니다."});
+/*				dclset.body.betaLab.innerList.autoBad = cElement("li", dclset.body.betaLab.innerList);
+				cElement("input", dclset.body.betaLab.innerList.autoBad, {type:"checkbox", id:"DCL_autoBad"});
+				cElement("label", dclset.body.betaLab.innerList.autoBad, {"for":"DCL_autoBad",textContent:"자동 나쁜글"});
+				cElement("div", dclset.body.betaLab.innerList.autoBad, {className:'indent', textContent:"필터로 차단된 게시물을 발견하면 자동으로 나쁜글로 신고합니다."});*/
 
 			dclset.body.dclInfo = cElement("div", dclset.body);
 			cElement("h3", dclset.body.dclInfo, "DCinside Lite r"+R_VERSION);
@@ -1611,30 +1622,49 @@
 		}
 		for(var i in P) {
 			if(P.hasOwnProperty(i)) {
-				if(!(input = $id("DCL_" + i)))
+				if(!(input = $id("DCL_" + i))) {
+					console.log('SET.save: "DCL_' + i + '" element not exists');
 					continue;
+				}
 				if(input.nodeName === "INPUT") {
 					if(input.type === "checkbox") {
+						P[i] = input.checked?1:0;
 						setValue(i,input.checked);
 						dataStr+=i+'='+Number(input.checked)+'&';
 					} else if(cSearch(input,"DCL_number")) {
+						P[i] = input.value;
 						setValue(i,Number(input.value));
 						dataStr+=i+'='+Number(input.value)+'&';
 					} else {
+						P[i] = input.value;
 						setValue(i,input.value);
 						dataStr+=i+'='+encodeURIComponent(input.value)+'&';
 					}
 				} else if(input.nodeName === "SELECT") {
+					P[i] = input.value;
 					setValue(i,input.value);
 					dataStr+=i+'='+encodeURIComponent(input.value)+'&';
 				} else if(input.nodeName === "TEXTAREA") {
 					value = input.value.replace(/^(?:\r?\n)+|(?:\r?\n)+$|(?:\r?\n)+(?=\r?\n)|\r/g,"");
+					P[i] = value;
 					setValue(i,value);
 					dataStr+=i+'='+encodeURIComponent(value)+'&';
 				}
 			}
 		}
+		P['version'] = VERSION;
 		setValue("version",VERSION);
+		dataStr+='version='+encodeURIComponent(VERSION)+'&';
+
+		if(BROWSER.chrome && BROWSER.chrome.storage && P.store == 'Google') {
+			console.log(P);
+			chrome.storage.sync.set(P,function() {
+				if (err=chrome.runtime.lastError) {
+					alert('설정을 저장하던 중 심각한 오류가 발생하였습니다.\n\n자세한 내용은 콘솔을 참고하십시오.');
+					console.log(err.message);
+				}
+			});
+		}
 		if(BROWSER.dataMigration)
 			document.cookie = "dcinsidelitesetting=;path=/;";
 		
@@ -2251,11 +2281,11 @@
 								w_date = dv[1];
 						}
 						date.textContent = w_date;
-						date.removeAttribute('title');
+						eRemove(date,'title');
 					}
 					else {
 						date.textContent = date.title;
-						date.removeAttribute('title');
+						eRemove(date,'title');
 					}
 				}
 			}
@@ -2263,7 +2293,7 @@
 				if(writer.title!='') {
 					writer.textContent = writer.title;
 					if(!(writer.title = writer.parentNode.getAttribute('user_id')))
-						writer.removeAttribute('title');
+						eRemove(writer,'title');
 				}
 			}
 		}
@@ -3299,10 +3329,10 @@
 										}
 									}
 
-									textImg.removeAttribute("width");
-									textImg.removeAttribute("height");
-									textImg.removeAttribute("href");
-									textImg.removeAttribute("onclick");
+									eRemove(textImg,"width");
+									eRemove(textImg,"height");
+									eRemove(textImg,"href");
+									eRemove(textImg,"onclick");
 									eRemove(textImg,"onclick");
 
 									viewer.add(origUrl.replace("viewimagePop.php", "viewimage.php"),textImg);
@@ -3683,8 +3713,8 @@
 			box.style.display = "block";
 			imgbox.style.visibility = "hidden";
 			img.style.transform="rotate(0deg)";
-			img.removeAttribute("width");
-			img.removeAttribute("height");
+			eRemove(img,"width");
+			eRemove(img,"height");
 			img.src = list[i];
 			box.style.cursor = "progress";
 		};
@@ -4352,7 +4382,7 @@
 			
 			if(_ID!='singo') {
 				// 글제목 길이 제한 없애기
-				$id("subject").removeAttribute("maxLength");
+				eRemove($id("subject"),"maxLength");
 			}
 
 			// 페이지를 벗어날 때 확인
@@ -4436,12 +4466,12 @@
 							img = nImg;
 						}
 
-						img.removeAttribute("href");
-						img.removeAttribute("onclick");
+						eRemove(img,"href");
+						eRemove(img,"onclick");
 						eRemove(img,"onclick");
 						eRemove(img,"onload");
-						img.removeAttribute("width");
-						img.removeAttribute("height");
+						eRemove(img,"width");
+						eRemove(img,"height");
 
 						viewer.add(vtarget.replace("viewimagePop.php", "viewimage.php"),img);
 					}
@@ -4501,9 +4531,9 @@
 				if(tbody.childNodes[i].tagName !=="TR") {
 					continue;
 				}
-				tbody.childNodes[i].removeAttribute("onmouseover");
-				tbody.childNodes[i].removeAttribute("onmouseout");
-				tbody.childNodes[i].removeAttribute("style");
+				eRemove(tbody.childNodes[i],"onmouseover");
+				eRemove(tbody.childNodes[i],"onmouseout");
+				eRemove(tbody.childNodes[i],"style");
 			}
 			var tbody_h = tbody.innerHTML;
 			tbody.innerHTML = '';
