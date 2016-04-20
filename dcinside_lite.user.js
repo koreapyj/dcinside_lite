@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           dcinside_lite
 // @namespace      http://kasugano.tistory.com
-// @version        15019
-// @date           2015.11.25
+// @version        15020
+// @date           2016.04.20
 // @author         koreapyj 외
 // @description    디시인사이드 갤러리를 깔끔하게 볼 수 있고, 몇 가지 유용한 기능도 사용할 수 있습니다.
 // @include        http://gall.dcinside.com/*
@@ -16,7 +16,7 @@
 // ==/UserScript==
 
 (function() {
-	var R_VERSION = "15019";	// 실제 버전
+	var R_VERSION = "15020";	// 실제 버전
 	var VERSION = "15017";		// 설정 내용 버전
 	var P = {
 	version : "",
@@ -129,7 +129,6 @@
 		BROWSER = false;
 		alert("디시라이트가 지원하지 않는 브라우저입니다.\n\n - 브라우저 타입이 지정되지 않음");
 	}
-
 	
 	if(typeof GM_getValue !== "undefined") {
 		BROWSER.greasemonkey = true;
@@ -142,6 +141,7 @@
 	}
 	var MODE = {};
 	MODE.prefix = "";
+	MODE.api = {};
 	location.pathnameN = location.pathname.replace(/\/+$/, '');
 	switch(location.pathnameN) {
 		case "/mgallery/board/write":
@@ -193,29 +193,7 @@
 			break;
 	}
 
-	if(MODE.minor)
-		MODE.prefix = "/mgallery";
-
-	if(location.host == "gallog.dcinside.com")
-		MODE = false;
-
-	if(parseQuery(location.search)["s_keyword"]) {
-		MODE.search = true;
-	}
-
-	if(MODE!=false && MODE.gall) {
-		var WINDOW = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
-		var SCROLL = BROWSER.firefox || BROWSER.opera ? document.documentElement : document.body;
-		var _ID = parseQuery(location.search).id; // 갤러리 id
-		var _GID = $('#favorite_gallog_img')?$('#favorite_gallog_img').href.match(/http:\/\/gallog\.dcinside\.com\/(.+)$/):null; // 로그인 상태
-			_GID = (_GID!=null?_GID[1]:false);
-		var _RECOMM = (parseQuery(location.search).recommend==undefined?0:parseQuery(location.search).recommend); // 개념글
-		if(MODE.write || MODE.singo || !$('.gallery_title .tit'))
-			GALLERY = document.title.replace(/ 갤러리$/,"");
-		else
-			GALLERY = decodeURIComponent($('.gallery_title .tit').textContent); // 갤러리(한글)
-		var PAGE = Number(parseQuery(location.search).page) || 1;
-	}
+	var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:typeof btoa!=='undefined'?function(e){return btoa(e);}:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:typeof atob!=='undefined'?function(e){return atob(e);}:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/\r\n/g,"\n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}};
 
 	var addStyle = typeof GM_addStyle!=='undefined'?GM_addStyle:
 		function(css) {
@@ -224,7 +202,6 @@
 			style.type = "text/css";
 			var textNode = document.createTextNode(css);
 			style.appendChild(textNode);
-//			parent.insertBefore(style, document.head.childNodes[0]);
 			parent.appendChild(style);
 		};
 
@@ -240,7 +217,6 @@
 		wrapper.innerHTML = this;
 		var df= document.createDocumentFragment();
 		df.appendChild(wrapper);
-	//	for (var i = 0; i < wrapper.children.length; i += 1) { df.appendChild(wrapper.children[i]); };
 		return df;
 	};
 
@@ -309,10 +285,7 @@
 						}
 					}
 				}
-			}/*
-			if(details.binary && typeof(details.data)!=="undefined") // Deprecated
-				xmlhttp.sendAsBinary(details.data);
-			else */
+			}
 			try
 			{
 				xmlhttp.send( (typeof(details.data)!=="undefined")?details.data:null );
@@ -337,12 +310,19 @@
 				SCROLL.scrollTop = 0;
 			}
 
+			rebuildapi = false;
 			if(p_url.id!=_ID) {
+				if(MODE.api)
+					rebuildapi = true;
+				MODE.api = false;
 				_ID = p_url.id;
 			}
-
+			
 			for(var i=0,l=P.page?P.pageCount:1;i<l;i+=1) {
 				pageLoad(i);
+			}
+			if(rebuildapi) {
+				MODE.api = {};
 			}
 		}
 		else
@@ -633,6 +613,30 @@
 		viewerClose :
 		"R0lGODdhHgAeAIAAAP///wAAACwAAAAAHgAeAAACOoSPqcvtD6OcJtiLs85o+2914IiJJGmeYKp61AvHMttqdF0e+HfvQb+bCYdEIM5YQ7aUKuapCI1KKQUAOw==",
 	};
+
+	if(MODE.minor)
+		MODE.prefix = "/mgallery";
+
+	if(location.host == "gallog.dcinside.com")
+		MODE = false;
+
+	if(parseQuery(location.search)["s_keyword"]) {
+		MODE.search = true;
+	}
+
+	if(MODE!=false && MODE.gall) {
+		var WINDOW = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+		var SCROLL = BROWSER.firefox || BROWSER.opera ? document.documentElement : document.body;
+		var _ID = parseQuery(location.search).id; // 갤러리 id
+		var _GID = $('#favorite_gallog_img')?$('#favorite_gallog_img').href.match(/http:\/\/gallog\.dcinside\.com\/(.+)$/):null; // 로그인 상태
+			_GID = (_GID!=null?_GID[1]:false);
+		var _RECOMM = (parseQuery(location.search).recommend==undefined?0:parseQuery(location.search).recommend); // 개념글
+		if(MODE.write || MODE.singo || !$('.gallery_title .tit'))
+			GALLERY = document.title.replace(/ 갤러리$/,"");
+		else
+			GALLERY = decodeURIComponent($('.gallery_title .tit').textContent); // 갤러리(한글)
+		var PAGE = Number(parseQuery(location.search).page) || 1;
+	}
 
 	// 환경 설정
 	var SET = {
@@ -2210,8 +2214,25 @@
 		for(i=0,l=trs.length;i<l;i++) {
 			if(P.listTime && (date = trs[i].querySelector('.t_date'))) {
 				if(date.title!='') {
-					date.textContent = date.title;
-					date.removeAttribute('title');
+					if(MODE.api) {
+						w_date = date.title;
+						if(dv = w_date.match(/([0-9]{4}\.[0-9]{2}\.[0-9]{2}) ([0-9]{1,2}:[0-9]{2}):[0-9]{2}/)) {
+							now = new Date();
+							ymd_d = now.getFullYear() + '.' + ((month=now.getMonth()+1)>9?month:'0'+month) + '.' + ((date_v=now.getDate())>9?date_v:'0'+date_v);
+//							console.log(dv);
+//							console.log('Compare ' + ymd_d + ' with ' + dv[1]);
+							if(ymd_d == dv[1])
+								w_date = dv[1] + ' ' + dv[2];
+							else
+								w_date = dv[1];
+						}
+						date.textContent = w_date;
+						date.removeAttribute('title');
+					}
+					else {
+						date.textContent = date.title;
+						date.removeAttribute('title');
+					}
 				}
 			}
 			if(P.listNick && (writer = trs[i].querySelector('.t_writer > span:first-of-type'))) {
@@ -2277,38 +2298,233 @@
 		}
 
 		cell.innerHTML = "<span class='DCL_tbodyLoad'>읽는 중... ("+(p+PAGE)+" 페이지)</span>";
-		
-		simpleRequest(MODE.prefix+"/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
-			function(response) {
-				var text = response.responseText;
-				DCINSIDE_LITE.checkLoginStatus(text);
-				var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7';\" onmouseout=\"this.style.backgroundColor='';\" class=\"tb\">");
-				var html = text.substring(startPos,text.indexOf("</tbody>"));
-				if(html) {
-					if((g_title=text.match(/<span class="tit">([^<]+)<\/span>/)) && g_title[1]) {
-						$('.gallery_title .tit').textContent = GALLERY = document.title = g_title[1];
-						titleFunc();
+
+		if(MODE.api) {
+			console.log('API load!');
+			if(!MODE.api.count) {
+				try {
+					MODE.api.count = $('tbody.list_thead tr.tb a[href^="/board/view/?id='+_ID+'&no="]',1).length;
+				} catch(e) {
+					MODE.api = false;
+					console.log('API: Unable to get count - fallback to html parse');
+					return;
+				}
+			}
+			if(!MODE.api.lastpage) {
+				MODE.api.lastpage = $('a.b_next:last-child')?$('a.b_next:last-child').href.match(/page=([0-9]+)/)[1]:$('#dgn_btn_paging a.on:last-child').textContent;
+				console.log('lastpage : ' + MODE.api.lastpage);
+			}
+			var pC = MODE.api.count;
+			var pc_page = p+PAGE;
+			var start = Math.floor((pc_page-1)*pC/25+1);
+			var end = Math.ceil((pc_page*pC-1)/25);
+			var pageData = [];
+			var noticeData = [];
+			var noticed = false;
+			var api_callback = function(r,notice) {
+				var resp = JSON.parse(r.responseText);
+				if(resp[0].result === false) {
+					MODE.api = false;
+					cell.innerHTML = "";
+					cElement("span",cell,{textContent:"읽기 실패 (API Load Error)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
+					console.log('API Load Error! - fallback to html parse');
+					console.log(resp[0].result);
+					return;
+				}
+//				MODE.api = true;
+
+				try {
+					skip = (pc_page-1)*pC%25;
+					if(!noticed && notice) {
+						noticeData = resp[0].gall_list;
+						noticed = true;
 					}
-					tbody.innerHTML = "<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>" + (startPos!="-1"?html:'');
-					if(p===0) {
-						$id('dgn_btn_paging').innerHTML = text.replace(/\n/g, '').match(/<!-- btn_paging -->[^<]+<div id=\"dgn_btn_paging\">(.*)<\/div>[^<]+<!-- \/\/btn_paging -->/)[1];
-						if(P.page)
-							pageFunc(true);
+					else {
+						if(!pageData.length) {
+							pageData = resp[0].gall_list;
+						}
+						if(pageData[0].no == resp[0].gall_list[0].no)
+							return;
+						else if(pageData[0].no > resp[0].gall_list[0].no) {
+							pageData = pageData.concat(resp[0].gall_list);
+						} else {
+							pageData = resp[0].gall_list.concat(pageData);
+						}
 					}
 
-					listFunc(p);
-					Layer.add(p);
-					if(P.filter) {
-						Filter.article(tbody);
+					if((dCount = pageData.length) >= pC && noticed) {
+						console.log(pageData);
+						tbody.innerHTML = "<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>";
+						var createRow = function(rowData) {
+							tr = cElement('tr',tbody,{className:'tb'});
+							
+							w_date = rowData.date_time;
+							if(rowData.date_time.match(/[0-9]{1,2}:[0-9]{1,2}/)) {
+								now = new Date();
+								w_date = now.getFullYear() + '.' + ((month=now.getMonth()+1)>9?month:'0'+month) + '.' + ((date=now.getDate())>9?date:'0'+date) + ' ' + rowData.date_time;
+							}
+
+							cElement('td',tr,{className:'t_notice',textContent:(rowData.img_icon=='notice'?'공지':rowData.no)});
+							cElement('td',tr,{className:'t_subject',style:'text-overflow:ellipsis; overflow:hidden; white-space:nowrap; padding:2px;'});
+							cElement('td',tr,{className:'t_writer user_layer','user_id':rowData.user_id,'user_name':rowData.name,'style':'cursor:pointer;'});
+							cElement('td',tr,{className:'t_date',textContent:w_date});
+							cElement('td',tr,{className:'t_hits',textContent:rowData.hit});
+							cElement('td',tr,{className:'t_hits',textContent:rowData.recommend});
+
+							viewUrl = '/board/view/?id='+_ID+'&no='+rowData.no+'&page='+pc_page;
+							commentViewUrl = '/board/comment_view/?id='+_ID+'&no='+rowData.no+'&page='+pc_page;
+							userIcon = 'http://wstatic.dcinside.com/gallery/skin/gallog/';
+							switch(rowData.member_icon) {
+							case '1':
+								userIcon+='g_fix.gif';
+								break;
+							case '2':
+								userIcon+='g_default.gif';
+								break;
+							default:
+								userIcon = '';
+								break;
+							}
+
+							imgIcon = '';
+							switch(rowData.img_icon) {
+							case 'Y':
+								imgIcon = 'icon_pic_n';
+								break;
+							case 'N':
+								imgIcon = 'icon_txt_n';
+								break;
+							case 'notice':
+								imgIcon = 'icon_notice';
+								break;
+							}
+
+							cElement('a',tr.cells[1],{href:viewUrl,textContent:rowData.subject,style:'max-width:90%; overflow:hidden; vertical-align:middle;',className:imgIcon});
+							commLink = cElement('a',tr.cells[1],{href:commentViewUrl});
+							if(rowData.total_comment>0)
+								cElement('em',commLink,'['+rowData.total_comment+(rowData.total_voice>0?'/'+rowData.total_voice:'')+']');
+							cElement('span',tr.cells[2],{title:rowData.name,textContent:rowData.name});
+							if(rowData.user_id)
+								cElement('img', cElement('a',tr.cells[2],{className:'right_nick',href:'http://gallog.dcinside.com/'+rowData.user_id,target:'_blank'}), {src:userIcon,title:rowData.user_id+' : 갤로그로 이동합니다.', width:'12', height:'15'});
+						}
+
+						if(noticeData.length > 0) {
+							for(i=0;i<noticeData.length;i++) {
+								noticeData[i].img_icon = 'notice';
+								createRow(noticeData[i]);
+							}
+						}
+						for(i=0;i<dCount && i<skip+pC-1;i++) {
+							if(i<skip-1)
+								continue;
+							createRow(pageData[i]);
+						}
+
+						if(p===0) {
+							var paging_s = parseInt((pc_page-1)/20) * 20 + 1;
+							var pager = $id('dgn_btn_paging');
+							pager.innerHTML = '';
+							if(paging_s > 1) {
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page=1',className:'b_prev'}), {className:'arrow_4',innerHTML:'맨처음'});
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+(paging_s-1),className:'b_prev'}), {className:'arrow_3',textContent:'다음'});
+							}
+							for(c=0;c<20 && (pager_page = paging_s+c) <= MODE.api.lastpage;c++) {
+								if(pager_page==pc_page)
+									cElement('a',pager,{href:'',className:'on',textContent:pager_page});
+								else
+									cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+pager_page,textContent:pager_page});
+							}
+							if(pager_page < MODE.api.lastpage) {
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+(paging_s+20),className:'b_next'}), {className:'arrow_1',textContent:'다음'});
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+MODE.api.lastpage,className:'b_next'}), {className:'arrow_2',innerHTML:'맨뒤&nbsp;&nbsp;'});
+							}
+							if(P.page)
+								pageFunc(true);
+						}
+
+						listFunc(p);
+						Layer.add(p);
+						if(P.filter) {
+							Filter.article(tbody);
+						}
+						if(typeof s_keyword == "undefined")
+							$id("search_input").value = '';
 					}
-					if(typeof s_keyword == "undefined")
-						$id("search_input").value = '';
-				} else {
+				} catch(e) {
+					MODE.api = false;
 					cell.innerHTML = "";
-					cElement("span",cell,{textContent:"읽기 실패 ("+(p+PAGE)+" 페이지)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
+					cElement("span",cell,{textContent:"읽기 실패 (API Load Error)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
+					console.log('API Load Error! - fallback to html parse');
+					console.log(e);
+					return;
 				}
-			},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"}
-		);
+			};
+
+			if(!pC || !start || !end) {
+				MODE.api = false;
+				pageLoad(p);
+				console.log('API Load Error! - fallback to html parse');
+				return;
+			}
+
+			if(pc_page=='1' && !s_keyword && !exception_mode) {
+				simpleRequest('http://m.dcinside.com/api/redirect.php?hash=' + btoa(
+					'http://m.dcinside.com/api/gall_list.php'+
+					'?id='+
+					_ID+
+					'&page='+(start-1)+
+					'&notice=1'+
+					'&app_id=blM1T09mWjRhQXlZbE1ML21xbkM3QT09'), function(r) { api_callback(r,1); },'GET',{'Accept':'text/json'});
+			} else {
+				noticed = true;
+			}
+
+			for(;start++<=end;) {
+				simpleRequest('http://m.dcinside.com/api/redirect.php?hash=' + btoa(
+					'http://m.dcinside.com/api/gall_list.php'+
+					'?id='+
+					_ID+
+					'&page='+(start-1)+
+					(s_type!=null?'&s_type='+s_type:'')+
+					(s_keyword!=null?'&ser_Val='+s_keyword:'')+
+					(search_pos!=null?'&ser_pos='+search_pos:'')+
+					(exception_mode!=null?'&'+exception_mode+'=1':'')+
+					'&app_id=blM1T09mWjRhQXlZbE1ML21xbkM3QT09'), api_callback,'GET',{'Accept':'text/json'});
+			}
+		}
+		else {		
+			simpleRequest(MODE.prefix+"/board/lists/?id="+_ID+"&page="+(p+PAGE)+(s_type!=null?'&s_type='+s_type:'')+(s_keyword!=null?'&s_keyword='+s_keyword:'')+(exception_mode!=null?'&exception_mode='+exception_mode:'')+(search_pos!=null?'&search_pos='+search_pos:''),
+				function(response) {
+					var text = response.responseText;
+					DCINSIDE_LITE.checkLoginStatus(text);
+					var startPos = text.indexOf("<tr onmouseover=\"this.style.backgroundColor='#eae9f7';\" onmouseout=\"this.style.backgroundColor='';\" class=\"tb\">");
+					var html = text.substring(startPos,text.indexOf("</tbody>"));
+					if(html) {
+						if((g_title=text.match(/<span class="tit">([^<]+)<\/span>/)) && g_title[1]) {
+							$('.gallery_title .tit').textContent = GALLERY = document.title = g_title[1];
+							titleFunc();
+						}
+						tbody.innerHTML = "<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>" + (startPos!="-1"?html:'');
+						if(p===0) {
+							$id('dgn_btn_paging').innerHTML = text.replace(/\n/g, '').match(/<!-- btn_paging -->[^<]+<div id=\"dgn_btn_paging\">(.*)<\/div>[^<]+<!-- \/\/btn_paging -->/)[1];
+							if(P.page)
+								pageFunc(true);
+						}
+
+						listFunc(p);
+						Layer.add(p);
+						if(P.filter) {
+							Filter.article(tbody);
+						}
+						if(typeof s_keyword == "undefined")
+							$id("search_input").value = '';
+					} else {
+						cell.innerHTML = "";
+						cElement("span",cell,{textContent:"읽기 실패 ("+(p+PAGE)+" 페이지)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
+					}
+				},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"}
+			);
+		}
 		if(!P.notificationInterval)
 			DCINSIDE_LITE.checkAlert();
 	}
@@ -4174,6 +4390,7 @@
 			}
 			
 			if(MODE.list) {
+				cElement('script',document.body,{type:'text/javascript',innerHTML:'$(document).off("focus", "img, a");'});
 				cElement('script',document.head,{type:'text/javascript',src:'http://gall.dcinside.com/_js/voice_reple.js'});
 				cElement('link',document.head,{type:'text/css',rel:'stylesheet',href:'http://nstatic.dcinside.com/dgn/gallery/css/voicereply/voicereply.css'});
 				ilbeView();
