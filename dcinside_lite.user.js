@@ -2344,6 +2344,7 @@
 					cElement("span",cell,{textContent:"읽기 실패 (API Load Error)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
 					console.log('API Load Error! - fallback to html parse');
 					console.log(resp[0].result);
+					pageLoad(p);
 					return;
 				}
 //				MODE.api = true;
@@ -2368,7 +2369,6 @@
 					}
 
 					if((dCount = pageData.length) >= pC && noticed) {
-						console.log(pageData);
 						tbody.innerHTML = "<tr><td colspan='6' class='DCL_tbodyTitle'></td></tr>";
 						var createRow = function(rowData) {
 							tr = cElement('tr',tbody,{className:'tb'});
@@ -2482,6 +2482,7 @@
 					cElement("span",cell,{textContent:"읽기 실패 (API Load Error)",className:"DCL_tbodyLoad"},function(){pageLoad(p);});
 					console.log('API Load Error! - fallback to html parse');
 					console.log(e);
+					pageLoad(p);
 					return;
 				}
 			};
