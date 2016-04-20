@@ -38,6 +38,8 @@
 	allowAN : "",
 	blockAT : "",
 	allowAT : "",
+	blockAI : "",
+	allowAI : "",
 	blockCN : "",
 	allowCN : "",
 	blockCT : "",
@@ -193,6 +195,9 @@
 			break;
 	}
 
+	if(MODE.minor)
+		MODE = false;
+
 	var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:typeof btoa!=='undefined'?function(e){return btoa(e);}:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:typeof atob!=='undefined'?function(e){return atob(e);}:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/\r\n/g,"\n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}};
 
 	var addStyle = typeof GM_addStyle!=='undefined'?GM_addStyle:
@@ -303,6 +308,7 @@
 		};
 
 	function softLoad(url,ispop) {
+		o_url = parseQuery(location.href);
 		p_url = parseQuery(url);
 		if(history.pushState && MODE.list) {
 			if(!ispop) {
@@ -317,7 +323,13 @@
 				MODE.api = false;
 				_ID = p_url.id;
 			}
-			
+
+			if(p_url.s_type||o_url.s_type) {
+				if(MODE.api)
+					rebuildapi = true;
+				MODE.api = false;
+			}
+
 			for(var i=0,l=P.page?P.pageCount:1;i<l;i+=1) {
 				pageLoad(i);
 			}
@@ -730,6 +742,7 @@
 					"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:first-of-type { width:50%; box-sizing: border-box; border-radius: 2px 0 0 2px; }" +
 					"div.DCL_set_mdi > div.filter div[id^=textbox] > textarea:nth-of-type(2) { border-left: none; border-radius: 0 2px 2px 0; }" +
 					"div.DCL_set_mdi > div.filter div#textboxAT," +
+					"div.DCL_set_mdi > div.filter div#textboxAI," +
 					"div.DCL_set_mdi > div.filter div#textboxCN," +
 					"div.DCL_set_mdi > div.filter div#textboxCT," +
 					"div.DCL_set_mdi > div.filter div#textboxCI { display: none; }" +
@@ -835,9 +848,10 @@
 				dclset.body.filter.mdibody.selector = cElement("select", cElement("div", dclset.body.filter.mdibody));
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"0",textContent:"게시물 작성자"});
 					cElement("option", dclset.body.filter.mdibody.selector, {value:"1",textContent:"게시물 제목"});
-					cElement("option", dclset.body.filter.mdibody.selector, {value:"2",textContent:"댓글 작성자"});
-					cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 내용"});
-					cElement("option", dclset.body.filter.mdibody.selector, {value:"4",textContent:"댓글 IP"});
+					cElement("option", dclset.body.filter.mdibody.selector, {value:"2",textContent:"게시물 IP"});
+					cElement("option", dclset.body.filter.mdibody.selector, {value:"3",textContent:"댓글 작성자"});
+					cElement("option", dclset.body.filter.mdibody.selector, {value:"4",textContent:"댓글 내용"});
+					cElement("option", dclset.body.filter.mdibody.selector, {value:"5",textContent:"댓글 IP"});
 					dclset.body.filter.mdibody.info = cElement("div", dclset.body.filter.mdibody, {id:"info"});
 					cElement("span", dclset.body.filter.mdibody.info, "차단");
 					cElement("span", dclset.body.filter.mdibody.info, "허용");
@@ -848,15 +862,18 @@
 					dclset.body.filter.mdibody.textbox[1] = cElement("div", dclset.body.filter.mdibody, {id:"textboxAT"});
 					cElement("textarea", dclset.body.filter.mdibody.textbox[1], {id:"DCL_blockAT"});
 					cElement("textarea", dclset.body.filter.mdibody.textbox[1], {id:"DCL_allowAT"});
-					dclset.body.filter.mdibody.textbox[2] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCN"});
-					cElement("textarea", dclset.body.filter.mdibody.textbox[2], {id:"DCL_blockCN"});
-					cElement("textarea", dclset.body.filter.mdibody.textbox[2], {id:"DCL_allowCN"});
-					dclset.body.filter.mdibody.textbox[3] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCT"});
-					cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_blockCT"});
-					cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_allowCT"});
-					dclset.body.filter.mdibody.textbox[4] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCI"});
-					cElement("textarea", dclset.body.filter.mdibody.textbox[4], {id:"DCL_blockCI"});
-					cElement("textarea", dclset.body.filter.mdibody.textbox[4], {id:"DCL_allowCI"});
+					dclset.body.filter.mdibody.textbox[2] = cElement("div", dclset.body.filter.mdibody, {id:"textboxAI"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[2], {id:"DCL_blockAI"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[2], {id:"DCL_allowAI"});
+					dclset.body.filter.mdibody.textbox[3] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCN"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_blockCN"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[3], {id:"DCL_allowCN"});
+					dclset.body.filter.mdibody.textbox[4] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCT"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[4], {id:"DCL_blockCT"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[4], {id:"DCL_allowCT"});
+					dclset.body.filter.mdibody.textbox[5] = cElement("div", dclset.body.filter.mdibody, {id:"textboxCI"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[5], {id:"DCL_blockCI"});
+					cElement("textarea", dclset.body.filter.mdibody.textbox[5], {id:"DCL_allowCI"});
 					dclset.body.filter.mdibody.help = cElement("div", dclset.body.filter.mdibody);
 					dclset.body.filter.mdibody.help.button = cElement("a", dclset.body.filter.mdibody.help, {href:"",textContent:"도움말..."},ePrevent);
 					dclset.body.filter.mdibody.help.button.addEventListener("mousemove", function() { dclset.body.filter.tooltip.style.display="block"; });
@@ -2219,8 +2236,6 @@
 						if(dv = w_date.match(/([0-9]{4}\.[0-9]{2}\.[0-9]{2}) ([0-9]{1,2}:[0-9]{2}):[0-9]{2}/)) {
 							now = new Date();
 							ymd_d = now.getFullYear() + '.' + ((month=now.getMonth()+1)>9?month:'0'+month) + '.' + ((date_v=now.getDate())>9?date_v:'0'+date_v);
-//							console.log(dv);
-//							console.log('Compare ' + ymd_d + ' with ' + dv[1]);
 							if(ymd_d == dv[1])
 								w_date = dv[1] + ' ' + dv[2];
 							else
@@ -2235,7 +2250,7 @@
 					}
 				}
 			}
-			if(P.listNick && (writer = trs[i].querySelector('.t_writer > span:first-of-type'))) {
+			if(P.listNick && (writer = trs[i].querySelector('.t_writer:not([user_id=""]) > span:first-of-type'))) {
 				if(writer.title!='') {
 					writer.textContent = writer.title;
 					if(!(writer.title = writer.parentNode.getAttribute('user_id')))
@@ -2364,9 +2379,15 @@
 								w_date = now.getFullYear() + '.' + ((month=now.getMonth()+1)>9?month:'0'+month) + '.' + ((date=now.getDate())>9?date:'0'+date) + ' ' + rowData.date_time;
 							}
 
+							ipstr = ipaddr = null;
+							if(ipaddr = rowData.ip.match(/^(\d{1,3}\.\d{1,3})/)) {
+								ipstr = ipaddr[1] + '.***.***';
+								ipaddr = ipaddr[1] + '.0.0';
+							}
+
 							cElement('td',tr,{className:'t_notice',textContent:(rowData.img_icon=='notice'?'공지':rowData.no)});
 							cElement('td',tr,{className:'t_subject',style:'text-overflow:ellipsis; overflow:hidden; white-space:nowrap; padding:2px;'});
-							cElement('td',tr,{className:'t_writer user_layer','user_id':rowData.user_id,'user_name':rowData.name,'style':'cursor:pointer;'});
+							cElement('td',tr,{className:'t_writer user_layer','user_ip':ipstr,'user_id':rowData.user_id,'user_name':rowData.name,'style':'cursor:pointer;'});
 							cElement('td',tr,{className:'t_date',textContent:w_date});
 							cElement('td',tr,{className:'t_hits',textContent:rowData.hit});
 							cElement('td',tr,{className:'t_hits',textContent:rowData.recommend});
@@ -2399,13 +2420,18 @@
 								break;
 							}
 
-							cElement('a',tr.cells[1],{href:viewUrl,textContent:rowData.subject,style:'max-width:90%; overflow:hidden; vertical-align:middle;',className:imgIcon});
+							cElement('a',tr.cells[1],{href:viewUrl,innerHTML:rowData.subject,style:'max-width:90%; overflow:hidden; vertical-align:middle;',className:imgIcon});
 							commLink = cElement('a',tr.cells[1],{href:commentViewUrl});
 							if(rowData.total_comment>0)
 								cElement('em',commLink,'['+rowData.total_comment+(rowData.total_voice>0?'/'+rowData.total_voice:'')+']');
-							cElement('span',tr.cells[2],{title:rowData.name,textContent:rowData.name});
+
+							if(ipstr)
+								cElement('span',tr.cells[2],{title:ipstr,textContent:rowData.name});
+							else
+								cElement('span',tr.cells[2],{title:rowData.name,textContent:rowData.name});
+
 							if(rowData.user_id)
-								cElement('img', cElement('a',tr.cells[2],{className:'right_nick',href:'http://gallog.dcinside.com/'+rowData.user_id,target:'_blank'}), {src:userIcon,title:rowData.user_id+' : 갤로그로 이동합니다.', width:'12', height:'15'});
+								cElement('img', cElement('a',tr.cells[2],{className:'right_nick',href:'http://gallog.dcinside.com/'+rowData.user_id,target:'_blank'}), {src:userIcon,title:rowData.user_id+'('+(rowData.member_icon==1?'고정닉':'갤로거')+') : 갤로그로 이동합니다.', height:'15'});
 						}
 
 						if(noticeData.length > 0) {
@@ -2485,7 +2511,7 @@
 					'?id='+
 					_ID+
 					'&page='+(start-1)+
-					(s_type!=null?'&s_type='+s_type:'')+
+					(s_type!=null?'&s_type='+s_type.substr(7):'')+
 					(s_keyword!=null?'&ser_Val='+s_keyword:'')+
 					(search_pos!=null?'&ser_pos='+search_pos:'')+
 					(exception_mode!=null?'&'+exception_mode+'=1':'')+
@@ -2538,9 +2564,11 @@
 		var bN = P.blockN;
 		var bAN = P.blockAN;
 		var bAT = P.blockAT;
+		var bAI = P.blockAI;
 		var aAN = P.allowAN;
 		var aAT = P.allowAT;
-		var bA = bAN || bAT || aAN || aAT;
+		var aAI = P.allowAI;
+		var bA = bAN || bAT || bAI || aAN || aAT || aAI;
 		Filter.bN = bN;
 		Filter.bA = bA;
 
@@ -2572,10 +2600,12 @@
 			Filter.bAN = bAN[0];
 			Filter.bANid = bAN[1];
 			Filter.bAT = Filter.title(bAT);
+			Filter.bAI = Filter.ip(bAI);
 			aAN = Filter.name(aAN);
 			Filter.aAN = aAN[0];
 			Filter.aANid = aAN[1];
 			Filter.aAT = Filter.title(aAT);
+			Filter.aAI = Filter.ip(aAI);
 		}
 
 		var bCN = P.blockCN;
@@ -2693,20 +2723,26 @@
 			var bAN = Filter.bAN;
 			var bANid = Filter.bANid;
 			var bAT = Filter.bAT;
+			var bAI = Filter.bAI;
 			var aAN = Filter.aAN;
 			var aANid = Filter.aANid;
 			var aAT = Filter.aAT;
+			var aAI = Filter.aAI;
 			var cells,name,idC,title,titleC;
 			for( ; i<l ; i++) {
 				cells = rows[i].cells;
 				name = cells[2].getAttribute('user_name');
 				idC =  "#" + cells[2].getAttribute('user_id');
+				ip = cells[2].getAttribute('user_ip');
 				title = cells[1].children[1];
 				titleC = title.innerHTML;
 
 				if(aAN && aAN.test(name) || aANid && idC && aANid.test(idC)) {
 					cAdd(rows[i],"DCL_allowArticle");
 					cAdd(cells[2],"DCL_nameMatch");
+				} else if(aAI && aAI.test(ip)) {
+					cAdd(rows[i],"DCL_allowArticle");
+					cAdd(cells[2],"DCL_ipMatch");
 				} else if(aAT && aAT.test(titleC)) {
 					cAdd(rows[i],"DCL_allowArticle");
 					title.innerHTML = titleC.replace(aAT,"<span class='DCL_titleMatch'>$1</span>");
@@ -2721,6 +2757,18 @@
 						blockCnt[name] += 1;
 					} else {
 						blockCnt[name] = 1;
+					}
+				} else if(bAI && bAI.test(ip)) {
+					if(P.showLabel)
+						cAdd(rows[i],"DCL_blockArticle");
+					else
+						cAdd(rows[i],"DCL_blockArticleAtAll");
+					cAdd(cells[2],"DCL_nameMatch");
+					articleCnt += 1;
+					if(blockCnt[ip]) {
+						blockCnt[ip] += 1;
+					} else {
+						blockCnt[ip] = 1;
 					}
 				} else if(bAT && bAT.test(titleC)) {
 					cAdd(rows[i],"DCL_blockArticle");
@@ -4547,6 +4595,9 @@
 						
 		if(P.notificationInterval)
 			DCINSIDE_LITE.checkAlert();
+
+		if(MODE.api)
+			softLoad(location.href);
 	}
 
 	DCINSIDE_LITE.funcList = {
