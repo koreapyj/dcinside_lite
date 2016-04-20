@@ -1692,7 +1692,8 @@
 	// 기능 사용 버튼 추가
 	function menuFunc() {
 		var css =
-			"div#DCL_menuDiv {position:relative; margin:0 auto; z-index:2002}" +
+			"#dgn_gall_top_wrap { z-index: 99; }" +
+			"div#DCL_menuDiv {position:relative; margin:0 auto; z-index:100}" +
 			"div#DCL_menuWrap {position: fixed; background-color:#fff ; z-index:100}" +
 			"li.DCL_menuOn {color:#000 !important}"+
 			".hidden {display:none;}";
