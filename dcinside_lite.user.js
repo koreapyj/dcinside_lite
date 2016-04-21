@@ -327,7 +327,9 @@
 				_ID = p_url.id;
 			}
 
-			if(p_url.s_type||o_url.s_type) {
+			if(p_url.s_type||o_url.s_type||
+				p_url.exception_mode!=o_url.exception_mode||
+				p_url.exception_mode=='winnerta'||o_url.exception_mode=='winnerta') {
 				if(MODE.api)
 					rebuildapi = true;
 				MODE.api = false;
@@ -2448,13 +2450,22 @@
 								break;
 							}
 
+							imgIconPostfix = '';
+							switch(rowData.recommend_icon) {
+							case 'Y':
+								imgIconPostfix = 'b';
+								break;
+							default:
+								imgIconPostfix = 'n';
+							}
+
 							imgIcon = '';
 							switch(rowData.img_icon) {
 							case 'Y':
-								imgIcon = 'icon_pic_n';
+								imgIcon = 'icon_pic_'+imgIconPostfix;
 								break;
 							case 'N':
-								imgIcon = 'icon_txt_n';
+								imgIcon = 'icon_txt_'+imgIconPostfix;
 								break;
 							case 'notice':
 								imgIcon = 'icon_notice';
@@ -2492,18 +2503,18 @@
 							var pager = $id('dgn_btn_paging');
 							pager.innerHTML = '';
 							if(paging_s > 1) {
-								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page=1',className:'b_prev'}), {className:'arrow_4',innerHTML:'맨처음'});
-								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+(paging_s-1),className:'b_prev'}), {className:'arrow_3',textContent:'다음'});
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page=1'+(exception_mode?'&exception_mode='+exception_mode:''),className:'b_prev'}), {className:'arrow_4',innerHTML:'맨처음'});
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+(paging_s-1)+(exception_mode?'&exception_mode='+exception_mode:''),className:'b_prev'}), {className:'arrow_3',textContent:'다음'});
 							}
 							for(c=0;c<20 && (pager_page = paging_s+c) <= MODE.api.lastpage;c++) {
 								if(pager_page==pc_page)
 									cElement('a',pager,{href:'',className:'on',textContent:pager_page});
 								else
-									cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+pager_page,textContent:pager_page});
+									cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+pager_page+(exception_mode?'&exception_mode='+exception_mode:''),textContent:pager_page});
 							}
 							if(pager_page < MODE.api.lastpage) {
-								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+(paging_s+20),className:'b_next'}), {className:'arrow_1',textContent:'다음'});
-								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+MODE.api.lastpage,className:'b_next'}), {className:'arrow_2',innerHTML:'맨뒤&nbsp;&nbsp;'});
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+(paging_s+20)+(exception_mode?'&exception_mode='+exception_mode:''),className:'b_next'}), {className:'arrow_1',textContent:'다음'});
+								cElement('span', cElement('a',pager,{href:'/board/lists/?id='+_ID+'&page='+MODE.api.lastpage+(exception_mode?'&exception_mode='+exception_mode:''),className:'b_next'}), {className:'arrow_2',innerHTML:'맨뒤&nbsp;&nbsp;'});
 							}
 							if(P.page)
 								pageFunc(true);
