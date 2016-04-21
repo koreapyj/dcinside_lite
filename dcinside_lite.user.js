@@ -767,6 +767,8 @@
 					"div#DCL_set > div { margin: 0 20px 10px 20px; }" +
 					"div#DCL_set > div > h3 { font-size: 120%; font-weight: normal; }" +
 					"div#DCL_set > div ul > li { padding: 5px 0 5px 28px; }" +
+					"div#DCL_set > div ul > li.indent { padding-left: 40px; }" +
+					"div#DCL_set > div ul > li ul > li { padding-left: 12px; }" +
 					"div#DCL_set > div ul > li.info + li { padding-top: 0; }" +
 					"div#DCL_set > div ul > li.disabled { color: gray; }" +
 
@@ -813,7 +815,7 @@
 				dclset.body.notification.innerList.enabled = cElement("li", dclset.body.notification.innerList);
 				cElement("input", dclset.body.notification.innerList.enabled, {type:"checkbox", id:"DCL_notification"});
 				cElement("label", dclset.body.notification.innerList.enabled, {"for":"DCL_notification",textContent:"알림 사용"});
-				dclset.body.notification.innerList.notificationInterval = cElement("li", dclset.body.notification.innerList);
+				dclset.body.notification.innerList.notificationInterval = cElement("li", dclset.body.notification.innerList,{className:'indent'});
 				cElement("label", dclset.body.notification.innerList.notificationInterval, {"for":"DCL_notificationInterval", textContent:"확인주기 "});
 				dclset.body.notification.innerList.notificationInterval.selector = cElement("select", dclset.body.notification.innerList.notificationInterval, {id:"DCL_notificationInterval"});
 					cElement("option", dclset.body.notification.innerList.notificationInterval.selector, {value:"5",textContent:"5초"});
@@ -916,7 +918,7 @@
 			dclset.body.layout.innerList = cElement("ul", dclset.body.layout);
 				dclset.body.layout.innerList.info = cElement("li", dclset.body.layout.innerList);
 				cElement("div", dclset.body.layout.innerList.info, "페이지 레이아웃을 변형해서 목록을 보기 쉽게 합니다.");
-				dclset.body.layout.innerList.pageWidth = cElement("li", dclset.body.layout.innerList);
+				dclset.body.layout.innerList.pageWidth = cElement("li", dclset.body.layout.innerList,{className:'indent'});
 				cElement("label", dclset.body.layout.innerList.pageWidth, {"for":"DCL_pageWidth", textContent:"페이지 폭"});
 				cElement("input", dclset.body.layout.innerList.pageWidth, {type:"text", id:"DCL_pageWidth", className:"number", size:"4"});
 				cElement(null, dclset.body.layout.innerList.pageWidth, "px");
@@ -941,7 +943,7 @@
 			dclset.body.wideLayout.innerList.wide = cElement("li", dclset.body.wideLayout.innerList);
 			cElement("input", dclset.body.wideLayout.innerList.wide, {type:"checkbox", id:"DCL_wide"});
 			cElement("label", dclset.body.wideLayout.innerList.wide, {"for":"DCL_wide",textContent:"와이드 레이아웃 사용"});
-			dclset.body.wideLayout.innerList.wideWidth = cElement("li", dclset.body.wideLayout.innerList);
+			dclset.body.wideLayout.innerList.wideWidth = cElement("li", dclset.body.wideLayout.innerList,{className:'indent'});
 			cElement("label", dclset.body.wideLayout.innerList.wideWidth, {"for":"DCL_wideWidth", textContent:"본문 폭"});
 			cElement("input", dclset.body.wideLayout.innerList.wideWidth, {type:"text", id:"DCL_wideWidth", className:"number", size:"4"});
 			cElement(null, dclset.body.wideLayout.innerList.wideWidth, "px");
@@ -989,21 +991,15 @@
 				dclset.body.listSet.innerList.listComment = cElement("li", dclset.body.listSet.innerList);
 				cElement("input", dclset.body.listSet.innerList.listComment, {type:"checkbox", id:"DCL_listComment"});
 				cElement("label", dclset.body.listSet.innerList.listComment, {"for":"DCL_listComment",textContent:"댓글이 없을 때도 댓글 수를 표시"});
-
-			dclset.body.commentSet = cElement("div", dclset.body);
-			cElement("h3", dclset.body.commentSet, "댓글");
-			dclset.body.commentSet.innerList = cElement("ul", dclset.body.commentSet);
-				//dclset.body.commentSet.innerList.info = cElement("li", dclset.body.commentSet.innerList);
-				//cElement("div", dclset.body.commentSet.innerList.info, "댓글과 관련된 설정");  commentColorType
-				dclset.body.commentSet.innerList.commentColor = cElement("li", dclset.body.commentSet.innerList);
-				cElement("input", dclset.body.commentSet.innerList.commentColor, {type:"checkbox", id:"DCL_commentColor"});
-				cElement("label", dclset.body.commentSet.innerList.commentColor, {"for":"DCL_commentColor",textContent:"유동닉 색상 사용"});
-				dclset.body.commentSet.innerList.commentColorType = cElement("li", dclset.body.commentSet.innerList);
-				cElement("label", dclset.body.commentSet.innerList.commentColorType, {"for":"DCL_commentColorType", textContent:"변경할 색상: "});
-				dclset.body.commentSet.innerList.commentColorType.selector = cElement("select", dclset.body.commentSet.innerList.commentColorType, {id:"DCL_commentColorType"});
-					cElement("option", dclset.body.commentSet.innerList.commentColorType.selector, {id:"DCL_commentColorForg",value:"fg",textContent:"글자색"});
-					cElement("option", dclset.body.commentSet.innerList.commentColorType.selector, {id:"DCL_commentColorBacg",value:"bg",textContent:"배경색"});
-					cElement("option", dclset.body.commentSet.innerList.commentColorType.selector, {id:"DCL_commentColorGcon",value:"gc",textContent:"갤러콘"});
+				dclset.body.listSet.innerList.commentColor = cElement("li", dclset.body.listSet.innerList);
+				cElement("input", dclset.body.listSet.innerList.commentColor, {type:"checkbox", id:"DCL_commentColor"});
+				cElement("label", dclset.body.listSet.innerList.commentColor, {"for":"DCL_commentColor",textContent:"유동닉 색상 사용"});
+				dclset.body.listSet.innerList.commentColorType = cElement("li", dclset.body.listSet.innerList,{className:'indent'});
+				cElement("label", dclset.body.listSet.innerList.commentColorType, {"for":"DCL_commentColorType", textContent:"변경할 색상: "});
+				dclset.body.listSet.innerList.commentColorType.selector = cElement("select", dclset.body.listSet.innerList.commentColorType, {id:"DCL_commentColorType"});
+					cElement("option", dclset.body.listSet.innerList.commentColorType.selector, {id:"DCL_commentColorForg",value:"fg",textContent:"글자색"});
+					cElement("option", dclset.body.listSet.innerList.commentColorType.selector, {id:"DCL_commentColorBacg",value:"bg",textContent:"배경색"});
+					cElement("option", dclset.body.listSet.innerList.commentColorType.selector, {id:"DCL_commentColorGcon",value:"gc",textContent:"갤러콘"});
 
 			dclset.body.menuSet = cElement("div", dclset.body);
 			cElement("h3", dclset.body.menuSet, "메뉴");
@@ -1043,7 +1039,7 @@
 				dclset.body.multiPage.innerList.page = cElement("li", dclset.body.multiPage.innerList);
 				cElement("input", dclset.body.multiPage.innerList.page, {type:"checkbox", id:"DCL_page"});
 				cElement("label", dclset.body.multiPage.innerList.page, {"for":"DCL_page",textContent:"멀티 페이지 사용"});
-				dclset.body.multiPage.innerList.pageCount = cElement("li", dclset.body.multiPage.innerList);
+				dclset.body.multiPage.innerList.pageCount = cElement("li", dclset.body.multiPage.innerList,{className:'indent'});
 				cElement("label", dclset.body.multiPage.innerList.pageCount, {"for":"DCL_pageCount",textContent:"한 번에 "});
 				cElement("input", dclset.body.multiPage.innerList.pageCount, {type:"text", className:"number", size:"2", id:"DCL_pageCount"});
 				cElement(null, dclset.body.multiPage.innerList.pageCount, "페이지 로드");
@@ -1072,7 +1068,7 @@
 				cElement("input", dclset.body.easyView.innerList.layerThumb, {type:"checkbox", id:"DCL_layerThumb"});
 				cElement("label", dclset.body.easyView.innerList.layerThumb, {"for":"DCL_layerThumb",textContent:"이미지 섬네일화"});
 
-				dclset.body.easyView.innerList.thumbProp = cElement("li", dclset.body.easyView.innerList);
+				dclset.body.easyView.innerList.thumbProp = cElement("li", dclset.body.easyView.innerList,{className:'indent'});
 				cElement(null, dclset.body.easyView.innerList.thumbProp, "섬네일 크기 ");
 				cElement("input", dclset.body.easyView.innerList.thumbProp, {type:"text", className:"number", size:"3", id:"DCL_thumbWidth"});
 				cElement(null, dclset.body.easyView.innerList.thumbProp, "× ");
@@ -1117,7 +1113,7 @@
 				dclset.body.autoForm.innerList.autoForm = cElement("li", dclset.body.autoForm.innerList);
 				cElement("input", dclset.body.autoForm.innerList.autoForm, {type:"checkbox", id:"DCL_autoForm"});
 				cElement("label", dclset.body.autoForm.innerList.autoForm, {"for":"DCL_autoForm",textContent:"자동입력 사용"});
-				dclset.body.autoForm.innerList.autoNamePw = cElement("li", dclset.body.autoForm.innerList);
+				dclset.body.autoForm.innerList.autoNamePw = cElement("li", dclset.body.autoForm.innerList,{className:'indent'});
 				cElement("label", dclset.body.autoForm.innerList.autoNamePw, {"for":"DCL_autoName",textContent:"이름 "});
 				cElement("input", dclset.body.autoForm.innerList.autoNamePw, {type:"text", size:"6", id:"DCL_autoName"});
 				cElement("label", dclset.body.autoForm.innerList.autoNamePw, {"for":"DCL_autoPassword",textContent:"비밀번호 "});
@@ -2477,8 +2473,17 @@
 							if(rowData.total_comment>0)
 								cElement('em',commLink,'['+rowData.total_comment+(rowData.total_voice>0?'/'+rowData.total_voice:'')+']');
 
-							if(ipstr)
-								cElement('span',tr.cells[2],{title:ipstr,textContent:rowData.name});
+							if(ipstr) {
+								ipspan = cElement('span',tr.cells[2],{title:ipstr,textContent:rowData.name});
+
+								var color = ipColorize(ipstr);
+								if (P.commentColorType=="bg")
+									tr.cells[2].style.backgroundColor = color;
+								else if(P.commentColorType=="fg")
+									ipspan.style.color = color;
+								else if(P.commentColorType=="gc")
+									cElement('span', tr.cells[2], {textContent:"■",className:'right_nick'}).style.color = color;
+							}
 							else
 								cElement('span',tr.cells[2],{title:rowData.name,textContent:rowData.name});
 
