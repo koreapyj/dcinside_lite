@@ -2000,10 +2000,10 @@
 			);
 
 		// 간단 글쓰기 폼
-		if(P.simpleWrite && $('span.f_r > a')) {
-			$('.gallery_list span.f_r > a').addEventListener('click', function(e) {
+		if(P.simpleWrite && $('span.f_r > a:last-child')) {
+			$('span.f_r > a:last-child').addEventListener('click', function(e) {
 				openSimpleWriteForm();
-				e.preventDefault();
+				ePrevent(e);
 			});
 		}
 	}
