@@ -3498,7 +3498,7 @@
 					var reg1 = /del_comment_orgin\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\',\'([^\']+)\'\);/;
 					var reg2 = /del_comment\(\'([^\']+)\',\'[^\']+\',\'[^\']+\',\'\'\);/;
 					var reg3 = /nomember_comment\((\d+)\);/;
-					var pwreg = "\"></input>[^<]*<a href=\"javascript:;\" onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
+					var pwreg = "\"></input>[^<]*<a href=\"javascript:;\"\\s+onClick=\"javascript:re_delete\\((\\d+),\\d+,'[^']+',\\d+,'([^']+)'\\);";
 					var delExec;
 
 					cElement('col',colgroup,{style:'width: 120px;'});
@@ -3518,8 +3518,6 @@
 						if( (delbox=rows[i].cells[3].children[0]) && (onclick=delbox.getAttribute("href")) ) {
 							delbox = delbox.children[0];
 							if( delExec=reg3.exec(onclick) ) {
-								delbox.setAttribute("DCL_del_no",delExec[1]);
-								delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
 								delExec=(new RegExp("re_password_" + delExec[1]+pwreg)).exec(response.responseText);
 								delbox.setAttribute("DCL_del_password",1);
 							}
@@ -3527,6 +3525,8 @@
 								console.log('삭제 버튼 없음');
 							}
 							delbox.addEventListener("click",function(e){ layer.delComment(e);});
+							delbox.setAttribute("DCL_del_no",delExec[1]);
+							delbox.setAttribute("DCL_del_orgin",delExec[2]?delExec[2]:null);
 						}
 						else { delbox=null; }
 
