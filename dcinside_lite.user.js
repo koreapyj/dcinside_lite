@@ -8,6 +8,7 @@
 // @include        http://gall.dcinside.com/*
 // @include        http://gall.dcgame.in/*
 // @include        http://job.dcinside.com/*
+// @require        http://gall.dcinside.com/_js/md5.js
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getValue
 // @grant          GM_setValue
@@ -1940,7 +1941,7 @@
 
 		addStyle(''
 					+ 'form#DCL_writeForm input { -webkit-appearance: none; border-radius: 0; }'
-					+ 'form#DCL_writeForm { position: fixed; width: 640px; height: 480px; max-width: 100%; max-height: 100%; background-color: white; box-shadow: 0 0 3px black; bottom: 60px; right: 30px; z-index: 120; padding-top: 111px; padding-bottom: 41px; box-sizing: border-box; }'
+					+ 'form#DCL_writeForm { position: fixed; width: 640px; height: 480px; max-width: 100%; max-height: 100%; background-color: white; box-shadow: 0 0 3px black; bottom: 60px; right: 30px; z-index: 120; padding-bottom: 41px; box-sizing: border-box; }'
 					+ 'form#DCL_writeForm.DCL_writeHasAttach { padding-bottom: 124px; }'
 					+ 'form#DCL_writeForm * { font-family: "Segoe UI", "Meiryo UI", "Malgun Gothic", "Dotum", sans-serif; }'
 
@@ -1960,11 +1961,15 @@
 
 					+ 'div#DCL_writeInfoDiv { position: absolute; top: 0; left: 0; right: 0; }'
 					+ 'div#DCL_writeInfoDiv > div[name="name"] { font-weight: bold; }'
-					+ 'div#DCL_writeInfoDiv > input,'
+					+ 'div#DCL_writeInfoDiv input,'
 					+ 'div#DCL_writeInfoDiv > div[name="name"] { display: block; width: 100%; border: 0; border-bottom: 1px solid #aaa; padding: 10px; font-size: 13px; height: 38px; box-sizing: border-box; }'
-					+ 'div#DCL_writeInfoDiv > input[name="name"] { border-right: 1px solid #aaa; }'
 					+ 'div#DCL_writeInfoDiv > input[name="name"],'
-					+ 'div#DCL_writeInfoDiv > input[name="password"] { float: left; width: 50%; }'
+					+ 'div#DCL_writeInfoDiv input[name="code"] { border-right: 1px solid #aaa; }'
+					+ 'div#DCL_writeInfoDiv > input[name="name"],'
+					+ 'div#DCL_writeInfoDiv > input[name="password"],'
+					+ 'div#DCL_writeInfoDiv input[name="code"] { float: left; width: 50%; }'
+					+ 'div#DCL_writeInfoDiv > div[name="captcha"] { clear: both; width: 100%; border: 0; border-bottom: 1px solid #aaa; height: 38px; box-sizing: border-box; }'
+					+ 'div#DCL_writeInfoDiv img { float: left; height: 100%; }'
 //box-shadow: 0 0 0 2px rgba(91, 124, 229,.5);
 					+ 'form#DCL_writeForm > textarea,'
 					+ 'form#DCL_writeForm > div.textarea { width: 100%; height: 100%; padding: 10px; border: 0; font-size: 13px; font-weight: normal; box-sizing: border-box; resize: none; overflow-y: scroll; }'
@@ -2011,9 +2016,11 @@
 			});
 		}
 	}
-
+	
 	function openSimpleWriteForm() {
 		simpleRequest(MODE.prefix+'/board/write/?id=' + _ID, function(e) {
+			var heightNum = 2;
+			
 			function uploadCallback(e) {
 				var r = JSON.parse(e.responseText)['files'];
 				writeForm.imgHtml='';
@@ -2060,6 +2067,8 @@
 						cElement('a',cElement('li',writeFormButtons),{textContent:'×'},function(){ if(confirm('작성하신 내용이 손실됩니다.\n\n계속하시겠습니까?')) removeElement(writeForm); });
 
 				for(var i=(target = writeBody.querySelector('form#write').querySelectorAll('input[type="hidden"]')).length;i--;) {
+					if(target[i].name == 'Sijosae')
+						target[i].name = 'sijosae';
 					cElement('input',writeInfoDiv,{type:'hidden',name:target[i].name,value:target[i].value});
 				}
 				
@@ -2086,6 +2095,36 @@
 					if((ipAddr = writeForm.querySelector('input[name="user_ip"]').value))
 						cElement('style',writeForm,{type:'text/css',innerHTML:'form#DCL_writeForm > div.textarea:empty:before { content: "IP: ' + ipAddr.replace(/[0-9]+\.[0-9]+$/, '***.***') + '"; display: block; color: silver; cursor: text; }'});
 				}
+				
+				if(writeBody.querySelector('#code')) {
+					var captchaForm = cElement('div',writeInfoDiv,{name:'captcha'});
+					var captchaCode = cElement('input',captchaForm,{type:'text',name:'code',placeholder:'코드 입력',required:'required'});
+					
+					var captchaImg = cElement('img',captchaForm,{},function(e){
+						var minorCaptcha = '';
+						if(MODE.minor) {
+							minorCaptcha = ''
+							+ '&' + 'kcaptcha_type=' + $('input[name="kcaptcha_admin"]').value
+							+ '&' + 'sijosae=' + $('input[name="sijosae"]').value;
+						}
+						simpleRequest(MODE.prefix+'/kcaptcha/session',
+							function(e) {
+								captchaCode.dataset.md5 = e.responseText.replace(/^\s+|\s+$/g,"");
+								captchaImg.src = MODE.prefix+"/kcaptcha/image/?time=" + (new Date).getTime();
+							},
+							"POST",{"Content-Type":"application/x-www-form-urlencoded","X-Requested-With":"XMLHttpRequest"},
+								''
+							+ 'ci_t=' + writeForm.querySelector('input[name="ci_t"]').value
+							+ '&' + 'gall_id=' + _ID
+							+ minorCaptcha
+						);
+					});
+					captchaImg.click();
+					heightNum++;
+				}
+				
+				writeForm.style.paddingTop = (35 + 38 * heightNum) + 'px';
+				
 				cElement('input',writeInfoDiv,{type:'text',name:'subject',placeholder:'제목',required:'required'}).focus();
 				
 			cElement('textarea',writeForm,{name:'memo',required:'required'});
@@ -2107,8 +2146,13 @@
 
 				cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
 					e.preventDefault();
+					var captchaCode = writeForm.querySelector('input[name="code"]');
+					if (hex_md5(captchaCode.value) != captchaCode.dataset.md5) {
+						alert("자동입력방지 코드가 맞지 않습니다.");
+						return false;
+					}
 					this.disabled='disabled';
-					simpleRequest("/block/block",
+					simpleRequest((MODE.minor ? MODE.prefix : "/block")+"/block",
 						function(r) {
 							if(writeForm.querySelector('input[name="block_key"]'))
 								writeForm.querySelector('input[name="block_key"]').value = r.responseText;
@@ -2141,6 +2185,7 @@
 						+ 'ci_t=' + writeForm.querySelector('input[name="ci_t"]').value + '&'
 						+ 'id=' + writeForm.querySelector('input[name="id"]').value + '&'
 						+ 'block_key=' + writeForm.querySelector('input[name="block_key"]').value
+						+ (MODE.minor ? '&sijosae=' + writeForm.querySelector('input[name="sijosae"]').value : '')
 					);
 				},'GET',{"Accept":"text/html,application/xhtml+xml,application/xml,*/*"});
 
@@ -3687,7 +3732,7 @@
 		var data = "ci_t=" + csrf_token() + "&id=" + _ID + "&no=" + Layer.now.no + "&p_no=" + Layer.now.no + "&re_no=" + btn.getAttribute("DCL_del_no") + "&orgin_no=" + btn.getAttribute("DCL_del_orgin") + "&password=" + password;
 
 		simpleRequest(
-			"/forms/comment_delete_submit",
+			MODE.prefix+"/forms/comment_delete_submit",
 			function(response) {
 				layer.div.lastChild.lastChild.textContent = "";
 				if(response.status != 200) {
