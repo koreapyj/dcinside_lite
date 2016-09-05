@@ -2147,7 +2147,7 @@
 				cElement('input',writeBottomDiv,{type:'submit',value:'작성'},function(e){
 					e.preventDefault();
 					var captchaCode = writeForm.querySelector('input[name="code"]');
-					if (hex_md5(captchaCode.value) != captchaCode.dataset.md5) {
+					if (captchaCode && (hex_md5(captchaCode.value) != captchaCode.dataset.md5)) {
 						alert("자동입력방지 코드가 맞지 않습니다.");
 						return false;
 					}
