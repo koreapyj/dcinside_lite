@@ -2374,7 +2374,7 @@
 			cAdd(list,"DCL_pageLink");
 			list = list.nextElementSibling;
 			if(!mode) {
-				cElement("tbody",$id("list_table"),{innerHTML:"<tr><td colspan='"+(MODE.manager+6)+"' class='DCL_tbodyTitle'></td></tr>",className:"list_thead"});
+				cElement("tbody",$id("list_table"),{innerHTML:"<tr><td colspan='"+(MODE.manager+6)+"' class='DCL_tbodyTitle'></td></tr>",className:"list_tbody"});
 				pageLoad(i);
 			}
 		}
@@ -2406,7 +2406,7 @@
 			console.log('API load!');
 			if(!MODE.api.count) {
 				try {
-					MODE.api.count = $('tbody.list_thead tr.tb a[href^="'+MODE.prefix+'/board/view/?id='+_ID+'&no="]',1).length;
+					MODE.api.count = $('tbody.list_tbody tr.tb a[href^="'+MODE.prefix+'/board/view/?id='+_ID+'&no="]',1).length;
 				} catch(e) {
 					MODE.api = false;
 					console.log('API: Unable to get count - fallback to html parse');
@@ -3040,7 +3040,7 @@
 
 			"div.DCL_layerDiv {position:relative ; width: 100%; padding: 0; border-bottom:0; word-wrap:break-word; overflow:auto; }" +
 			".con_substance > *," +
-			"#dgn_gallery_left .list_table tbody.list_thead td > div table td {font-family: Gulim, sans-serif; font-size: 13px; line-height: 24px; color: #1e1e1e; font-weight: normal; border:0; text-align: left;}" +
+			"#dgn_gallery_left .list_table tbody.list_tbody td > div table td {font-family: Gulim, sans-serif; font-size: 13px; line-height: 24px; color: #1e1e1e; font-weight: normal; border:0; text-align: left;}" +
 
 			"p.DCL_layerTop {font:8pt Tahoma,돋움 ; color:#666; padding: 3px}" +
 			"p.DCL_layerTop:not(:only-child) {border-bottom:1px solid #666 ; padding-bottom:2px}" +
@@ -3251,7 +3251,7 @@
 					if(delForm = rBody.querySelector('form#delete')) {
 						if(!confirm('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하시겠습니까?'))
 							return;
-						simpleRequest('/forms/delete_submit',function(r) {
+						simpleRequest(MODE.prefix+'/forms/delete_submit',function(r) {
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true')
 										softLoad(MODE.prefix+'/board/lists/?id='+_ID);
@@ -3265,11 +3265,11 @@
 						if(!(delForm.querySelector('input[name="password"]').value=prompt('삭제된 게시물은 복구할 수 없습니다.\n\n게시물을 삭제하려면 비밀번호를 입력해 주세요.')))
 							return;
 						
-						simpleRequest('/forms/delete_password_submit',function(r) {
+						simpleRequest(MODE.prefix+'/forms/delete_password_submit',function(r) {
 								if((reply = r.responseText.split('||')).length>1) {
 									if(reply[0] == 'true') {
 										cElement('input',delForm,{type:'hidden',name:'key',value:reply[1]});
-										simpleRequest('/forms/delete_submit',function(r) {
+										simpleRequest(MODE.prefix+'/forms/delete_submit',function(r) {
 											if((reply = r.responseText.split('||')).length>1) {
 												if(reply[0] == 'true')
 													softLoad(MODE.prefix+'/board/lists/?id='+_ID);
@@ -3682,6 +3682,9 @@
 				return;
 			}
 			data += "&name="+encodeURIComponent(rName.value)+"&password="+encodeURIComponent(rPassword.value);
+			if (!MODE.minor) {
+				data += "&spam_key=rhkdrhgkwlak!"
+			}
 		}
 
 		this.div.lastChild.lastChild.textContent = "댓글 등록 중...";
@@ -4337,12 +4340,12 @@
 			"#list_table > colgroup > col:nth-child("+(MODE.manager+4)+") {width:"+(P.listDate?110:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child("+(MODE.manager+5)+") {width:"+(P.listCount?35:0)+"px;}" +
 			"#list_table > colgroup > col:nth-child("+(MODE.manager+6)+") {width:"+(P.listRecom?35:0)+"px;}" +
-			"#list_table tbody.list_thead .tb td { padding-top: 3px !important; padding-bottom: 0; }" +
-			"#list_table tbody.list_thead > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
-			"#list_table tbody.list_thead > tr.tb:hover { background-color: #eae9f7; }" +
+			"#list_table tbody.list_tbody .tb td { padding-top: 3px !important; padding-bottom: 0; }" +
+			"#list_table tbody.list_tbody > tr > td > a:first-child { padding: 0 !important; width: 23px !important; text-decoration: none; }" +
+			"#list_table tbody.list_tbody > tr.tb:hover { background-color: #eae9f7; }" +
 
-			"#list_table tbody.list_thead > tr > td.t_writer { white-space: nowrap; }" +
-			"#list_table tbody.list_thead > tr > td.t_writer span:first-of-type { max-width: 100%; display: inline-block; margin-right: -17px; padding-right: 14px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; }" +
+			"#list_table tbody.list_tbody > tr > td.t_writer { white-space: nowrap; }" +
+			"#list_table tbody.list_tbody > tr > td.t_writer span:first-of-type { max-width: 100%; display: inline-block; margin-right: -17px; padding-right: 14px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; }" +
 
 			"#reply1 {width:auto !important}" +
 			"table.comment-table {table-layout:fixed; text-align: left !important;}" +
@@ -4587,15 +4590,17 @@
 
 			var list_table = $("thead.list_thead").parentNode;
 			var thead = $("thead.list_thead");
+			
+			var tbody = $("tbody.list_tbody");
 
-			if($("tbody.list_thead")===null) {
+			/*if($("tbody.list_thead")===null) {
 				var tbody = cElement("tbody",[thead,"next"],{className:'list_thead'});
 				tbody.innerHTML=thead.innerHTML;
 				thead.innerHTML="";
 				thead.appendChild(tbody.rows[0]);
 			}
 			else
-				var tbody = $("tbody.list_thead");
+				var tbody = $("tbody.list_thead");*/
 
 			for(i=tbody.childNodes.length-1;i--;) {
 				if(tbody.childNodes[i].tagName !=="TR") {
